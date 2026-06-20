@@ -9,6 +9,7 @@ import androidx.room.SkipQueryVerification
 
 data class TargetReadingDetails(
     val date: String,
+    val bookId: Int,
     val bookName: String,
     val chapter: Int,
     val verseId: Int,
@@ -19,9 +20,13 @@ data class TargetReadingDetails(
 
 data class SimpleReading(
     val date: String,
-    val reference: String,
+    val bookId: Int,
+    val bookName: String,
+    val chaptersStr: String,
     val readingType: String,
-)
+) {
+    val reference: String get() = "$bookName $chaptersStr"
+}
 
 @Entity(tableName = "translations")
 data class BibleTranslation(
@@ -62,7 +67,7 @@ interface CombinedDao {
     @SkipQueryVerification
     @Query(
         """
-        SELECT :date AS date, :bookName AS bookName, chapter, verse AS verseId, text, :readingType AS readingType, translation_code AS translationCode
+        SELECT :date AS date, :bookId AS bookId, :bookName AS bookName, chapter, verse AS verseId, text, :readingType AS readingType, translation_code AS translationCode
         FROM bible_db.verses
         WHERE book_id = :bookId AND chapter IN (:chapters) AND translation_code = :translationCode
         """

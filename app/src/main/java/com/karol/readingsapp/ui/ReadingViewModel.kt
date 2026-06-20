@@ -11,7 +11,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class ReadingViewModel(private val repository: ReadingRepository) : ViewModel() {
+import com.karol.readingsapp.data.LanguageService
+import com.karol.readingsapp.data.LanguageStatus
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.asStateFlow
+
+class ReadingViewModel(
+    private val repository: ReadingRepository,
+    private val languageService: LanguageService
+) : ViewModel() {
     private val _uiState = MutableStateFlow<Map<String, List<TargetReadingDetails>>>(emptyMap())
     val uiState: StateFlow<Map<String, List<TargetReadingDetails>>> = _uiState
 
@@ -23,6 +31,8 @@ class ReadingViewModel(private val repository: ReadingRepository) : ViewModel() 
 
     private val _selectedTranslationCode = MutableStateFlow("ENG")
     val selectedTranslationCode = _selectedTranslationCode.asStateFlow()
+
+    val downloadStatus = languageService.downloadStatus
 
     private val _currentDate = MutableStateFlow("")
     val currentDate: StateFlow<String> = _currentDate.asStateFlow()
@@ -40,11 +50,16 @@ class ReadingViewModel(private val repository: ReadingRepository) : ViewModel() 
     }
 
     fun setTranslation(translationCode: String) {
-        _selectedTranslationCode.value = translationCode
-        if (_currentDate.value.isNotEmpty()) {
-            loadReading(_currentDate.value)
+        val translation = _availableTranslations.value.find { it.code == translationCode }
+        translation?.let {
+            viewModelScope.launch {
+                languageService.downloadLanguageScript(it.language)
+                _selectedTranslationCode.value = translationCode
+                if (_currentDate.value.isNotEmpty()) {
+                    loadReading(_currentDate.value)
+                }
+            }
         }
-        // Monthly plan is translation-independent now as it only shows the schedule
     }
 
     fun loadReading(date: String) {
@@ -62,10 +77,10 @@ class ReadingViewModel(private val repository: ReadingRepository) : ViewModel() 
         }
     }
 
-    fun getVersesForReading(bookName: String, chapter: Int): List<TargetReadingDetails> {
+    fun getVersesByBookId(bookId: Int, chapter: Int): List<TargetReadingDetails> {
         return _uiState.value.values.asSequence()
             .flatten()
-            .filter { (it.bookName == bookName) && (it.chapter == chapter) }
+            .filter { (it.bookId == bookId) && (it.chapter == chapter) }
             .toList()
     }
 }

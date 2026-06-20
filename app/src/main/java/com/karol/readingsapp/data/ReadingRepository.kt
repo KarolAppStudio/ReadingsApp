@@ -83,11 +83,23 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
             val fullDate = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
             
             combinedDao.getReadingPlanByDay(dayIndex)?.let { plan ->
-                val simpleList = listOf(
-                    SimpleReading(fullDate, plan.track1 ?: "", "First Reading"),
-                    SimpleReading(fullDate, plan.track2 ?: "", "Second Reading"),
-                    SimpleReading(fullDate, plan.track3 ?: "", "Third Reading"),
-                )
+                val simpleList = mutableListOf<SimpleReading>()
+                
+                listOf(
+                    plan.track1 to "First Reading",
+                    plan.track2 to "Second Reading",
+                    plan.track3 to "Third Reading"
+                ).forEach { (ref, type) ->
+                    if (!ref.isNullOrBlank()) {
+                        val lastSpaceIndex = ref.lastIndexOf(' ')
+                        if (lastSpaceIndex != -1) {
+                            val bookName = ref.substring(0, lastSpaceIndex).trim()
+                            val chaptersStr = ref.substring(lastSpaceIndex + 1).trim()
+                            val bookId = bookNameToId[bookName] ?: -1
+                            simpleList.add(SimpleReading(fullDate, bookId, bookName, chaptersStr, type))
+                        }
+                    }
+                }
                 result[fullDate] = simpleList
             }
         }

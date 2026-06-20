@@ -1,16 +1,20 @@
 package com.karol.readingsapp.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,11 +27,11 @@ import com.karol.readingsapp.ui.theme.TextBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(
+fun BibleSelectionScreen(
     viewModel: ReadingViewModel,
     onHomeClick: () -> Unit,
     onCalendarClick: () -> Unit,
-    onBibleClick: () -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     val translations by viewModel.availableTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
@@ -36,8 +40,6 @@ fun SettingsScreen(
         translations.find { it.code == selectedCode }?.language ?: "English"
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
-
-    var stagedSelection by remember(selectedCode) { mutableStateOf(selectedCode) }
 
     Scaffold(
         topBar = {
@@ -63,7 +65,7 @@ fun SettingsScreen(
                     }
 
                     Icon(
-                        imageVector = Icons.Default.Settings,
+                        imageVector = Icons.AutoMirrored.Filled.MenuBook,
                         contentDescription = null,
                         tint = TextBlue,
                         modifier = Modifier
@@ -101,16 +103,6 @@ fun SettingsScreen(
                 NavigationBarItem(
                     icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = strings.bible) },
                     label = { Text(strings.bible) },
-                    selected = false,
-                    onClick = onBibleClick,
-                    colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
-                    ),
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Settings, contentDescription = strings.settings) },
-                    label = { Text(strings.settings) },
                     selected = true,
                     onClick = { },
                     colors = NavigationBarItemDefaults.colors(
@@ -121,6 +113,16 @@ fun SettingsScreen(
                         indicatorColor = CardLavender,
                     ),
                 )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Settings, contentDescription = strings.settings) },
+                    label = { Text(strings.settings) },
+                    selected = false,
+                    onClick = onSettingsClick,
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = TextBlue,
+                        unselectedTextColor = TextBlue,
+                    ),
+                )
             }
         },
         containerColor = BackgroundBlue,
@@ -129,83 +131,58 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp)
         ) {
             item {
+                Text(
+                    strings.availableBibles,
+                    color = TextBlue,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+            
+            items(translations) { translation ->
+                val isSelected = translation.code == selectedCode
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { viewModel.setTranslation(translation.code) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isSelected) CardLavender else Color.White
+                    ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
+                    Row(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            strings.bibleTranslation,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = TextBlue,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            val selectedName = translations.find { it.code == stagedSelection }?.name ?: "Select Bible"
-                            var expanded by remember { mutableStateOf(value = false) }
-
-                            Box(modifier = Modifier.weight(1f)) {
-                                Surface(
-                                    onClick = { expanded = true },
-                                    color = CardLavender,
-                                    shape = RoundedCornerShape(8.dp),
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = selectedName,
-                                            color = TextBlue,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 14.sp,
-                                        )
-                                        Icon(
-                                            Icons.Default.ArrowDropDown,
-                                            contentDescription = null,
-                                            tint = TextBlue,
-                                        )
-                                    }
-                                }
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false },
-                                ) {
-                                    translations.forEach { translation ->
-                                        DropdownMenuItem(
-                                            text = { Text(translation.name) },
-                                            onClick = {
-                                                stagedSelection = translation.code
-                                                expanded = false
-                                            },
-                                        )
-                                    }
-                                }
-                            }
-
-                            Button(
-                                onClick = { viewModel.setTranslation(stagedSelection) },
-                                colors = ButtonDefaults.buttonColors(containerColor = TextBlue),
-                                shape = RoundedCornerShape(8.dp),
-                                contentPadding = PaddingValues(horizontal = 12.dp)
-                            ) {
-                                Text(strings.saveConfig, color = Color.White, fontSize = 12.sp)
-                            }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = translation.name,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextBlue
+                            )
+                            Text(
+                                text = translation.language,
+                                fontSize = 14.sp,
+                                color = Color.Gray
+                            )
+                        }
+                        
+                        if (isSelected) {
+                            RadioButton(
+                                selected = true,
+                                onClick = null,
+                                colors = RadioButtonDefaults.colors(selectedColor = TextBlue)
+                            )
                         }
                     }
                 }

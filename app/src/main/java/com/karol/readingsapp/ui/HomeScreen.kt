@@ -35,16 +35,24 @@ fun HomeScreen(
     val translations by viewModel.availableTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val selectedDate by viewModel.currentDate.collectAsState()
+
+    val selectedLanguage = remember(selectedCode, translations) {
+        translations.find { it.code == selectedCode }?.language ?: "English"
+    }
+    val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
+    
+    val downloadStatus by viewModel.downloadStatus.collectAsState()
+    val isDownloading = downloadStatus[selectedLanguage] == com.karol.readingsapp.data.LanguageStatus.DOWNLOADING
     
     val today = remember { LocalDate.now() }
     val todayString = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
     
-    val displayDate = remember(selectedDate) {
+    val displayDate = remember(selectedDate, strings) {
         try {
             val dateToParse = selectedDate.ifEmpty { todayString }
-            LocalDate.parse(dateToParse).format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.US))
+            LocalDate.parse(dateToParse).format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", strings.locale))
         } catch (_: Exception) {
-            today.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.US))
+            today.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", strings.locale))
         }
     }
 
@@ -61,7 +69,7 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Daily Reading Companion",
+                        strings.appTitle,
                         color = TextBlue,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
@@ -77,7 +85,7 @@ fun HomeScreen(
                             onDismissRequest = { menuExpanded = false },
                         ) {
                             DropdownMenuItem(
-                                text = { Text("About") },
+                                text = { Text(strings.about) },
                                 onClick = {
                                     menuExpanded = false
                                     onAboutClick()
@@ -104,8 +112,8 @@ fun HomeScreen(
                 tonalElevation = 8.dp,
             ) {
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text("Home") },
+                    icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
+                    label = { Text(strings.home) },
                     selected = true,
                     onClick = { },
                     colors = NavigationBarItemDefaults.colors(
@@ -117,8 +125,8 @@ fun HomeScreen(
                     ),
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.DateRange, contentDescription = "Calendar") },
-                    label = { Text("Calendar") },
+                    icon = { Icon(Icons.Default.DateRange, contentDescription = strings.calendar) },
+                    label = { Text(strings.calendar) },
                     selected = false,
                     onClick = onCalendarClick,
                     colors = NavigationBarItemDefaults.colors(
@@ -127,8 +135,8 @@ fun HomeScreen(
                     ),
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Bible") },
-                    label = { Text("Bible") },
+                    icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = strings.bible) },
+                    label = { Text(strings.bible) },
                     selected = false,
                     onClick = onBibleClick,
                     colors = NavigationBarItemDefaults.colors(
@@ -137,8 +145,8 @@ fun HomeScreen(
                     ),
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                    label = { Text("Settings") },
+                    icon = { Icon(Icons.Default.Settings, contentDescription = strings.settings) },
+                    label = { Text(strings.settings) },
                     selected = false,
                     onClick = onSettingsClick,
                     colors = NavigationBarItemDefaults.colors(
@@ -173,7 +181,7 @@ fun HomeScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            if ((selectedDate == todayString) || (selectedDate.isEmpty())) "Today's Readings" else "Selected Readings",
+                            if ((selectedDate == todayString) || (selectedDate.isEmpty())) strings.todaysReadings else strings.selectedReadings,
                             color = TextBlue,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
@@ -198,6 +206,14 @@ fun HomeScreen(
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
+                                if (isDownloading) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        strokeWidth = 2.dp,
+                                        color = TextBlue
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                }
                                 Text(
                                     text = selectedName,
                                     color = TextBlue,
@@ -238,9 +254,17 @@ fun HomeScreen(
             }
 
             items(sectionsToShow) { type ->
+                val localizedTitle = when(type) {
+                    "First Reading" -> strings.firstReading
+                    "Second Reading" -> strings.secondReading
+                    "Third Reading" -> strings.thirdReading
+                    else -> type
+                }
                 ReadingSection(
-                    title = type,
+                    title = localizedTitle,
                     items = readingsGrouped[type] ?: emptyList(),
+                    strings = strings,
+                    noReadingsText = strings.noReadings,
                     onItemClick = onReadingClick,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -253,9 +277,11 @@ fun HomeScreen(
 fun ReadingSection(
     title: String,
     items: List<TargetReadingDetails>,
+    strings: LocalizedStrings,
+    noReadingsText: String,
     onItemClick: (TargetReadingDetails) -> Unit,
 ) {
-    val distinctReadings = remember(items) { items.distinctBy { "${it.bookName} ${it.chapter}" } }
+    val distinctReadings = remember(items) { items.distinctBy { "${it.bookId} ${it.chapter}" } }
     val itemCount = distinctReadings.size
     
     // Dynamic dimensions based on item count
@@ -282,7 +308,7 @@ fun ReadingSection(
             
             if (items.isEmpty()) {
                 Text(
-                    "No readings scheduled for this section.",
+                    noReadingsText,
                     color = TextBlue.copy(alpha = 0.5f),
                     fontSize = 13.sp,
                     modifier = Modifier.padding(vertical = 8.dp),
@@ -291,6 +317,7 @@ fun ReadingSection(
                 distinctReadings.forEachIndexed { index, item ->
                     ReadingItemRow(
                         item = item, 
+                        strings = strings,
                         dense = itemCount > 2,
                     ) { onItemClick(item) }
                     if (index < (distinctReadings.size - 1)) {
@@ -305,10 +332,12 @@ fun ReadingSection(
 @Composable
 fun ReadingItemRow(
     item: TargetReadingDetails, 
+    strings: LocalizedStrings,
     dense: Boolean,
     onClick: () -> Unit
 ) {
-    val text = "${item.bookName} ${item.chapter}"
+    val bookName = strings.bookNames[item.bookId] ?: item.bookName
+    val text = "$bookName ${item.chapter}"
     val isLong = text.length > 20
     
     // Scaling font and padding based on density and text length

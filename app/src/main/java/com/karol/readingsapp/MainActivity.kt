@@ -17,10 +17,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.karol.readingsapp.data.AppDatabase
+import com.karol.readingsapp.data.LanguageService
 import com.karol.readingsapp.data.ReadingRepository
 import com.karol.readingsapp.ui.AboutScreen
-import com.karol.readingsapp.ui.BiblePlaceholderScreen
 import com.karol.readingsapp.ui.BibleReaderScreen
+import com.karol.readingsapp.ui.BibleSelectionScreen
 import com.karol.readingsapp.ui.HomeScreen
 import com.karol.readingsapp.ui.ReadingPlanScreen
 import com.karol.readingsapp.ui.ReadingViewModel
@@ -36,11 +37,12 @@ class MainActivity : ComponentActivity() {
             ReadingsAppTheme {
                 val database = AppDatabase.getDatabase(applicationContext)
                 val repository = ReadingRepository(database.combinedDao())
+                val languageService = LanguageService(applicationContext)
                 val viewModel: ReadingViewModel = viewModel(
                     factory = object : ViewModelProvider.Factory {
                         @Suppress("UNCHECKED_CAST")
                         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                            return ReadingViewModel(repository) as T
+                            return ReadingViewModel(repository, languageService) as T
                         }
                     },
                 )
@@ -58,7 +60,7 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(
                                 viewModel = viewModel,
                                 onReadingClick = { reading ->
-                                    navController.navigate("reader/${reading.bookName}/${reading.chapter}")
+                                    navController.navigate("reader/${reading.bookId}/${reading.chapter}")
                                 },
                                 onCalendarClick = {
                                     navController.navigate("reading_plan")
@@ -82,9 +84,16 @@ class MainActivity : ComponentActivity() {
                         composable("settings") {
                             SettingsScreen(
                                 viewModel = viewModel,
-                            ) {
-                                navController.popBackStack("home", inclusive = false)
-                            }
+                                onHomeClick = {
+                                    navController.popBackStack("home", inclusive = false)
+                                },
+                                onCalendarClick = {
+                                    navController.navigate("reading_plan")
+                                },
+                                onBibleClick = {
+                                    navController.navigate("bible")
+                                }
+                            )
                         }
                         composable("reading_plan") {
                             ReadingPlanScreen(
@@ -105,7 +114,8 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("bible") {
-                            BiblePlaceholderScreen(
+                            BibleSelectionScreen(
+                                viewModel = viewModel,
                                 onHomeClick = {
                                     navController.popBackStack("home", inclusive = false)
                                 },
@@ -118,16 +128,16 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(
-                            route = "reader/{bookName}/{chapter}",
+                            route = "reader/{bookId}/{chapter}",
                             arguments = listOf(
-                                navArgument("bookName") { type = NavType.StringType },
+                                navArgument("bookId") { type = NavType.IntType },
                                 navArgument("chapter") { type = NavType.IntType },
                             ),
                         ) { backStackEntry ->
-                            val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
+                            val bookId = backStackEntry.arguments?.getInt("bookId") ?: 0
                             val chapter = backStackEntry.arguments?.getInt("chapter") ?: 0
                             BibleReaderScreen(
-                                bookName = bookName,
+                                bookId = bookId,
                                 chapter = chapter,
                                 viewModel = viewModel
                             ) {

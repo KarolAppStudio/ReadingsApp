@@ -17,15 +17,31 @@ import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.TextBlue
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BibleReaderScreen(
-    bookName: String,
+    bookId: Int,
     chapter: Int,
     viewModel: ReadingViewModel,
     onBackClick: () -> Unit,
 ) {
-    val verses = viewModel.getVersesForReading(bookName, chapter)
+    val verses = viewModel.getVersesByBookId(bookId, chapter)
+    val translations by viewModel.availableTranslations.collectAsState()
+    val selectedCode by viewModel.selectedTranslationCode.collectAsState()
+
+    val selectedLanguage = remember(selectedCode, translations) {
+        translations.find { it.code == selectedCode }?.language ?: "English"
+    }
+    val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
+    val bookName = strings.bookNames[bookId] ?: "Book $bookId"
+
+    val numberFormatter = remember(strings.locale) {
+        java.text.NumberFormat.getIntegerInstance(strings.locale)
+    }
 
     Scaffold(
         topBar = {
@@ -40,7 +56,7 @@ fun BibleReaderScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            "$bookName $chapter",
+                            "$bookName ${numberFormatter.format(chapter)}",
                             color = TextBlue,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
@@ -83,7 +99,7 @@ fun BibleReaderScreen(
                 items(verses) { verse ->
                     Row(modifier = Modifier.padding(vertical = 4.dp)) {
                         Text(
-                            text = verse.verseId.toString(),
+                            text = numberFormatter.format(verse.verseId),
                             fontSize = 12.sp,
                             color = TextBlue.copy(alpha = 0.6f),
                             fontWeight = FontWeight.Bold,

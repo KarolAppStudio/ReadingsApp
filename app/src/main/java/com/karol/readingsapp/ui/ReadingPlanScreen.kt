@@ -45,7 +45,13 @@ fun ReadingPlanScreen(
 ) {
     var currentMonth by remember { mutableStateOf(YearMonth.from(today)) }
     val monthlyPlan by viewModel.monthlyPlan.collectAsState()
+    val translations by viewModel.availableTranslations.collectAsState()
     val selectedTranslation by viewModel.selectedTranslationCode.collectAsState()
+
+    val selectedLanguage = remember(selectedTranslation, translations) {
+        translations.find { it.code == selectedTranslation }?.language ?: "English"
+    }
+    val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -85,7 +91,7 @@ fun ReadingPlanScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Home,
-                                contentDescription = "Home",
+                                contentDescription = strings.home,
                                 tint = TextBlue,
                                 modifier = Modifier.size(32.dp)
                             )
@@ -129,7 +135,7 @@ fun ReadingPlanScreen(
                         }
 
                         Text(
-                            text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.US)),
+                            text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", strings.locale)),
                             color = TextBlue,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
@@ -158,8 +164,8 @@ fun ReadingPlanScreen(
                 tonalElevation = 8.dp,
             ) {
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text("Home") },
+                    icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
+                    label = { Text(strings.home) },
                     selected = false,
                     onClick = onHomeClick,
                     colors = NavigationBarItemDefaults.colors(
@@ -168,8 +174,8 @@ fun ReadingPlanScreen(
                     ),
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.DateRange, contentDescription = "Calendar") },
-                    label = { Text("Calendar") },
+                    icon = { Icon(Icons.Default.DateRange, contentDescription = strings.calendar) },
+                    label = { Text(strings.calendar) },
                     selected = true,
                     onClick = { },
                     colors = NavigationBarItemDefaults.colors(
@@ -181,8 +187,8 @@ fun ReadingPlanScreen(
                     ),
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Bible") },
-                    label = { Text("Bible") },
+                    icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = strings.bible) },
+                    label = { Text(strings.bible) },
                     selected = false,
                     onClick = onBibleClick,
                     colors = NavigationBarItemDefaults.colors(
@@ -191,8 +197,8 @@ fun ReadingPlanScreen(
                     ),
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                    label = { Text("Settings") },
+                    icon = { Icon(Icons.Default.Settings, contentDescription = strings.settings) },
+                    label = { Text(strings.settings) },
                     selected = false,
                     onClick = onSettingsClick,
                     colors = NavigationBarItemDefaults.colors(
@@ -211,7 +217,7 @@ fun ReadingPlanScreen(
                         }
                     },
                     icon = { Icon(Icons.Default.ArrowDownward, contentDescription = null) },
-                    text = { Text("Next Reading") },
+                    text = { Text(strings.nextReading) },
                     containerColor = TextBlue,
                     contentColor = Color.White
                 )
@@ -230,7 +236,7 @@ fun ReadingPlanScreen(
         ) {
             itemsIndexed(datesInMonth) { _, date ->
                 val readings = monthlyPlan[date] ?: emptyList()
-                ReadingDayItem(date, readings, selectedTranslation) {
+                ReadingDayItem(date, readings, selectedTranslation, strings) {
                     onDateClick(date)
                 }
             }
@@ -243,6 +249,7 @@ fun ReadingDayItem(
     date: String,
     readings: List<SimpleReading>,
     translationCode: String,
+    strings: LocalizedStrings,
     onClick: () -> Unit
 ) {
     val parsedDate = try {
@@ -251,7 +258,7 @@ fun ReadingDayItem(
         null
     }
     
-    val dayOfWeek = parsedDate?.dayOfWeek?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: "---"
+    val dayOfWeek = parsedDate?.dayOfWeek?.getDisplayName(java.time.format.TextStyle.FULL, strings.locale) ?: "---"
     val dayOfMonth = parsedDate?.dayOfMonth?.toString() ?: "--"
 
     Card(
@@ -294,15 +301,16 @@ fun ReadingDayItem(
             ) {
                 if (readings.isEmpty()) {
                     Text(
-                        text = "No readings",
+                        text = strings.noReadingsShort,
                         fontSize = 13.sp,
                         color = Color.Gray,
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
                     )
                 } else {
                     readings.forEach { reading ->
+                        val bookName = strings.bookNames[reading.bookId] ?: reading.bookName
                         DynamicReadingText(
-                            text = reading.reference,
+                            text = "$bookName ${reading.chaptersStr}",
                             translationCode = translationCode
                         )
                     }
