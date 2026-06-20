@@ -46,17 +46,56 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
         return if (doy <= 59) doy else if (doy == 60) 60 else doy - 1
     }
 
+    private fun parseReadingInternal(readingStr: String): Triple<Int, String, String>? {
+        val cleanStr = readingStr.replace("""\.+""".toRegex(), " ").replace("""\s+""".toRegex(), " ").trim()
+        if (cleanStr.isEmpty()) return null
+
+        // 1. Try exact match for book name only (e.g. "Genesis" or "1 Samuel")
+        bookNameToId[cleanStr]?.let { return Triple(it, cleanStr, "1") }
+
+        // 2. Try splitting by last space to separate book from chapter (e.g. "Genesis 1-2" or "1 Samuel 1")
+        val lastSpaceIndex = cleanStr.lastIndexOf(' ')
+        if (lastSpaceIndex != -1) {
+            var bookPart = cleanStr.substring(0, lastSpaceIndex).trim()
+            val chapterPart = cleanStr.substring(lastSpaceIndex + 1).trim()
+
+            var bookId = bookNameToId[bookPart]
+            
+            // 2a. Handle leading artifact/number (e.g. "1 Isaiah 46-47" -> "Isaiah" "46-47")
+            if (bookId == null) {
+                val firstSpaceIndex = bookPart.indexOf(' ')
+                if (firstSpaceIndex != -1) {
+                    val candidateBook = bookPart.substring(firstSpaceIndex + 1).trim()
+                    bookNameToId[candidateBook]?.let {
+                        bookId = it
+                        bookPart = candidateBook
+                    }
+                }
+            }
+
+            if (bookId != null) {
+                return Triple(bookId!!, bookPart, chapterPart)
+            }
+        }
+
+        // 3. Last resort: If we still haven't matched, but there's a book name inside the string
+        for ((name, id) in bookNameToId) {
+            if (cleanStr.contains(name, ignoreCase = true)) {
+                // Try to extract chapters by removing the book name
+                val chapters = cleanStr.replace(name, "", ignoreCase = true).replace("""\s+""".toRegex(), " ").trim()
+                return Triple(id, name, chapters.ifBlank { "1" })
+            }
+        }
+
+        // If all else fails, return as unknown book so it still shows up in the UI
+        return Triple(-1, cleanStr, "")
+    }
+
     private suspend fun parseReading(readingStr: String, type: String, date: String, translationCode: String): List<TargetReadingDetails> {
-        // Format: "Genesis 1-2" or "Psalms 23" or "1 Chronicles 1"
-        val lastSpaceIndex = readingStr.lastIndexOf(' ')
-        if (lastSpaceIndex == -1) return emptyList()
-
-        val bookName = readingStr.substring(0, lastSpaceIndex).trim()
-        val chaptersStr = readingStr.substring(lastSpaceIndex + 1).trim()
-
-        val bookId = bookNameToId[bookName] ?: return emptyList()
+        val parsed = parseReadingInternal(readingStr) ?: return emptyList()
+        val (bookId, bookName, chaptersStr) = parsed
+        
         val chapters = mutableListOf<Int>()
-
         if (chaptersStr.contains("-")) {
             val parts = chaptersStr.split("-")
             val start = parts[0].toIntOrNull() ?: 1
@@ -91,11 +130,7 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
                     plan.track3 to "Third Reading"
                 ).forEach { (ref, type) ->
                     if (!ref.isNullOrBlank()) {
-                        val lastSpaceIndex = ref.lastIndexOf(' ')
-                        if (lastSpaceIndex != -1) {
-                            val bookName = ref.substring(0, lastSpaceIndex).trim()
-                            val chaptersStr = ref.substring(lastSpaceIndex + 1).trim()
-                            val bookId = bookNameToId[bookName] ?: -1
+                        parseReadingInternal(ref)?.let { (bookId, bookName, chaptersStr) ->
                             simpleList.add(SimpleReading(fullDate, bookId, bookName, chaptersStr, type))
                         }
                     }
