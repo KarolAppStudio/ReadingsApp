@@ -342,9 +342,9 @@ fun ReadingItemRow(
     
     // Scaling font and padding based on density and text length
     val fontSize = when {
-        dense && isLong -> 13.sp
-        dense || isLong -> 14.sp
-        else -> 16.sp
+        dense && isLong -> 11.sp
+        dense || isLong -> 12.sp
+        else -> 14.sp
     }
     
     val verticalPadding = when {

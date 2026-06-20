@@ -20,7 +20,14 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
         "1 Thessalonians" to 51, "2 Thessalonians" to 52, "1 Timothy" to 53, "2 Timothy" to 54,
         "Titus" to 55, "Philemon" to 56, "Hebrews" to 57, "James" to 58, "1 Peter" to 59,
         "2 Peter" to 60, "1 John" to 61, "2 John" to 62, "3 John" to 63, "Jude" to 64,
-        "Revelation" to 65, "Chronicles" to 12, // Supporting both "1 Chronicles" and just "Chronicles" if needed
+        "Revelation" to 65,
+        // Abbreviations from readings.xml
+        "Lev." to 2, "Deut." to 4, "1 Sam." to 8, "2 Sam." to 9, "1 Kings" to 10, "2 Kings" to 11,
+        "1 Chron." to 12, "2 Chron." to 13, "Nehem." to 15, "Song" to 21, "Lament." to 24,
+        "Ezek." to 25, "Dan." to 26, "Habak." to 34, "Zephan." to 35, "Matt." to 39,
+        "Gal." to 47, "Ephes." to 48, "Philip." to 49, "Col." to 50, "1 Thess." to 51,
+        "2 Thess." to 52, "1 Tim." to 53, "2 Tim." to 54, "Heb." to 57, "1 Pet." to 59,
+        "2 Pet." to 60, "Rev." to 65, "Chronicles" to 12
     )
 
     suspend fun getReadingsForDate(date: String, translationCode: String = "ENG"): Map<String, List<TargetReadingDetails>> {
@@ -50,10 +57,10 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
         val cleanStr = readingStr.replace("""\.+""".toRegex(), " ").replace("""\s+""".toRegex(), " ").trim()
         if (cleanStr.isEmpty()) return null
 
-        // 1. Try exact match for book name only (e.g. "Genesis" or "1 Samuel")
+        // 1. Try exact match for book name only
         bookNameToId[cleanStr]?.let { return Triple(it, cleanStr, "1") }
 
-        // 2. Try splitting by last space to separate book from chapter (e.g. "Genesis 1-2" or "1 Samuel 1")
+        // 2. Try splitting by last space to separate book from chapter
         val lastSpaceIndex = cleanStr.lastIndexOf(' ')
         if (lastSpaceIndex != -1) {
             var bookPart = cleanStr.substring(0, lastSpaceIndex).trim()
@@ -61,16 +68,10 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
 
             var bookId = bookNameToId[bookPart]
             
-            // 2a. Handle leading artifact/number (e.g. "1 Isaiah 46-47" -> "Isaiah" "46-47")
-            if (bookId == null) {
-                val firstSpaceIndex = bookPart.indexOf(' ')
-                if (firstSpaceIndex != -1) {
-                    val candidateBook = bookPart.substring(firstSpaceIndex + 1).trim()
-                    bookNameToId[candidateBook]?.let {
-                        bookId = it
-                        bookPart = candidateBook
-                    }
-                }
+            // 2a. Handle trailing dot in abbreviations if map lookup fails
+            if (bookId == null && !bookPart.endsWith(".")) {
+                bookId = bookNameToId["$bookPart."]
+                if (bookId != null) bookPart = "$bookPart."
             }
 
             if (bookId != null) {
@@ -81,34 +82,47 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
         // 3. Last resort: If we still haven't matched, but there's a book name inside the string
         for ((name, id) in bookNameToId) {
             if (cleanStr.contains(name, ignoreCase = true)) {
-                // Try to extract chapters by removing the book name
                 val chapters = cleanStr.replace(name, "", ignoreCase = true).replace("""\s+""".toRegex(), " ").trim()
                 return Triple(id, name, chapters.ifBlank { "1" })
             }
         }
 
-        // If all else fails, return as unknown book so it still shows up in the UI
         return Triple(-1, cleanStr, "")
     }
 
     private suspend fun parseReading(readingStr: String, type: String, date: String, translationCode: String): List<TargetReadingDetails> {
-        val parsed = parseReadingInternal(readingStr) ?: return emptyList()
-        val (bookId, bookName, chaptersStr) = parsed
+        val results = mutableListOf<TargetReadingDetails>()
+        // Split by semicolon to support multiple readings in one track (e.g. "2 John 1; 3 John 1")
+        val parts = readingStr.split(";")
         
-        val chapters = mutableListOf<Int>()
-        if (chaptersStr.contains("-")) {
-            val parts = chaptersStr.split("-")
-            val start = parts[0].toIntOrNull() ?: 1
-            val end = if (parts.size > 1) parts[1].toIntOrNull() ?: start else start
-            for (i in start..end) chapters.add(i)
-        } else {
-            chaptersStr.toIntOrNull()?.let { chapters.add(it) }
+        for (part in parts) {
+            val parsed = parseReadingInternal(part.trim()) ?: continue
+            val (bookId, bookName, chaptersStr) = parsed
+            
+            val chapters = mutableListOf<Int>()
+            // Support both range "1-2" and comma separated "1,2"
+            if (chaptersStr.isNotEmpty()) {
+                val chapterParts = chaptersStr.split(",")
+                for (cpPart in chapterParts) {
+                    val trimmedPart = cpPart.trim()
+                    if (trimmedPart.contains("-")) {
+                        val rangeParts = trimmedPart.split("-")
+                        val start = rangeParts.firstOrNull()?.trim()?.toIntOrNull() ?: 1
+                        val end = rangeParts.lastOrNull()?.trim()?.toIntOrNull() ?: start
+                        for (i in start..end) chapters.add(i)
+                    } else {
+                        trimmedPart.toIntOrNull()?.let { chapters.add(it) }
+                    }
+                }
+            }
+
+            if (chapters.isNotEmpty()) {
+                results.addAll(combinedDao.getVersesForReading(date, bookId, chapters, type, translationCode, bookName))
+            }
         }
-
-        if (chapters.isEmpty()) return emptyList()
-
-        return combinedDao.getVersesForReading(date, bookId, chapters, type, translationCode, bookName)
+        return results
     }
+
 
     suspend fun getReadingsForMonth(monthStr: String): Map<String, List<SimpleReading>> {
         // monthStr is "YYYY-MM"

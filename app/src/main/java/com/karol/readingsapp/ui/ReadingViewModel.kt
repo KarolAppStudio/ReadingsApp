@@ -45,7 +45,11 @@ class ReadingViewModel(
 
     private fun loadTranslations() {
         viewModelScope.launch {
-            _availableTranslations.value = repository.getAvailableTranslations()
+            val translations = repository.getAvailableTranslations()
+            _availableTranslations.value = translations
+            translations.forEach { 
+                android.util.Log.d("ReadingViewModel", "Translation: code=${it.code}, language=${it.language}, name=${it.name}")
+            }
         }
     }
 
