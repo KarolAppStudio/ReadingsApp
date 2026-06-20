@@ -8,14 +8,14 @@ import androidx.room.PrimaryKey
 data class ReadingPlan(
     @PrimaryKey 
     @ColumnInfo(name = "day_of_year") 
-    val day_of_year: Int?,
+    val dayOfYear: Int?,
     
     @ColumnInfo(name = "track_1") 
-    val track_1: String?,
+    val track1: String?,
     
     @ColumnInfo(name = "track_2") 
-    val track_2: String?,
+    val track2: String?,
     
     @ColumnInfo(name = "track_3") 
-    val track_3: String?
+    val track3: String?,
 )

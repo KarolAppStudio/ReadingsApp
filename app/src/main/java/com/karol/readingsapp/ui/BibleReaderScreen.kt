@@ -94,7 +94,7 @@ fun BibleReaderScreen(
                             fontSize = 16.sp,
                             color = TextBlue,
                             lineHeight = 24.sp,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         )
                     }
                 }

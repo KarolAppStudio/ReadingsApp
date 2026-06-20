@@ -41,7 +41,7 @@ fun ReadingPlanScreen(
     onHomeClick: () -> Unit,
     onBibleClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    today: LocalDate = LocalDate.now()
+    today: LocalDate = LocalDate.now(),
 ) {
     var currentMonth by remember { mutableStateOf(YearMonth.from(today)) }
     val monthlyPlan by viewModel.monthlyPlan.collectAsState()
@@ -68,15 +68,64 @@ fun ReadingPlanScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
+            Column {
+                // Custom 40dp Navigation Bar with centered icon and Home button
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp),
+                    color = BackgroundBlue,
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        IconButton(
+                            onClick = onHomeClick,
+                            modifier = Modifier.align(Alignment.CenterStart)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Home,
+                                contentDescription = "Home",
+                                tint = TextBlue,
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
+
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = null,
+                            tint = TextBlue,
+                            modifier = Modifier
+                                .size(18.dp)
+                                .align(Alignment.Center)
+                        )
+                    }
+                }
+                
+                // Month Selector Bar
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    color = BackgroundBlue,
+                ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(end = 16.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        IconButton(onClick = { currentMonth = currentMonth.minusMonths(1) }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Month", tint = TextBlue)
+                        IconButton(
+                            onClick = { currentMonth = currentMonth.minusMonths(1) },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Previous Month",
+                                tint = TextBlue,
+                                modifier = Modifier.size(20.dp)
+                            )
                         }
 
                         Text(
@@ -88,15 +137,20 @@ fun ReadingPlanScreen(
                             textAlign = TextAlign.Center
                         )
 
-                        IconButton(onClick = { currentMonth = currentMonth.plusMonths(1) }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Month", tint = TextBlue)
+                        IconButton(
+                            onClick = { currentMonth = currentMonth.plusMonths(1) },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = "Next Month",
+                                tint = TextBlue,
+                                modifier = Modifier.size(20.dp)
+                            )
                         }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BackgroundBlue,
-                ),
-            )
+                }
+            }
         },
         bottomBar = {
             NavigationBar(
@@ -235,13 +289,12 @@ fun ReadingDayItem(
 
             Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 4.dp),
+                    .weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 if (readings.isEmpty()) {
                     Text(
-                        text = "No readings scheduled",
+                        text = "No readings",
                         fontSize = 13.sp,
                         color = Color.Gray,
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
@@ -249,7 +302,7 @@ fun ReadingDayItem(
                 } else {
                     readings.forEach { reading ->
                         DynamicReadingText(
-                            text = "${reading.readingType}: ${reading.reference}",
+                            text = reading.reference,
                             translationCode = translationCode
                         )
                     }
@@ -272,7 +325,7 @@ fun DynamicReadingText(
     translationCode: String
 ) {
     var fontSize by remember(text, translationCode) { mutableStateOf(14.sp) }
-    var readyToDraw by remember(text, translationCode) { mutableStateOf(false) }
+    var readyToDraw by remember(text, translationCode) { mutableStateOf(value = false) }
 
     Text(
         text = text,
@@ -283,7 +336,7 @@ fun DynamicReadingText(
         overflow = TextOverflow.Clip,
         softWrap = false,
         onTextLayout = { textLayoutResult ->
-            if (textLayoutResult.hasVisualOverflow && fontSize > 10.sp) {
+            if ((textLayoutResult.hasVisualOverflow) && (fontSize > 10.sp)) {
                 fontSize = (fontSize.value - 0.5f).sp
             } else {
                 readyToDraw = true

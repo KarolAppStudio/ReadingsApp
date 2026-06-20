@@ -25,7 +25,7 @@ fun AboutScreen(onBackClick: () -> Unit) {
                         "About", 
                         color = TextBlue,
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     ) 
                 },
                 navigationIcon = {

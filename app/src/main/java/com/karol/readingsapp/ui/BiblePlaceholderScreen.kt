@@ -23,7 +23,7 @@ import com.karol.readingsapp.ui.theme.TextBlue
 fun BiblePlaceholderScreen(
     onHomeClick: () -> Unit,
     onCalendarClick: () -> Unit,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
 ) {
     Scaffold(
         topBar = {

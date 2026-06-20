@@ -1,6 +1,7 @@
 package com.karol.readingsapp.data
 
 import android.content.Context
+import androidx.core.content.edit
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -62,13 +63,13 @@ abstract class AppDatabase : RoomDatabase() {
                 val lastAssetVersion = prefs.getInt("bibles_db_version", 0)
 
                 // Ensure the external bibles.db is copied and up to date
-                if (!attachedDbFile.exists() || lastAssetVersion < BIBLES_DB_ASSET_VERSION) {
+                if ((!attachedDbFile.exists()) || (lastAssetVersion < BIBLES_DB_ASSET_VERSION)) {
                     context.assets.open("bibles.db").use { input ->
                         attachedDbFile.outputStream().use { output ->
                             input.copyTo(output)
                         }
                     }
-                    prefs.edit().putInt("bibles_db_version", BIBLES_DB_ASSET_VERSION).apply()
+                    prefs.edit { putInt("bibles_db_version", BIBLES_DB_ASSET_VERSION) }
                 }
 
                 val instance = Room.databaseBuilder(
@@ -78,7 +79,7 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                 .createFromAsset("readingplan.db")
                 .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration(dropAllTables = true)
                 .addCallback(
                     object : Callback() {
                         override fun onOpen(db: SupportSQLiteDatabase) {

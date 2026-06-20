@@ -50,7 +50,7 @@ fun SettingsScreen(
                 ),
             )
         },
-        containerColor = BackgroundBlue
+        containerColor = BackgroundBlue,
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier

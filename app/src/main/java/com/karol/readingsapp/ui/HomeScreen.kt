@@ -41,9 +41,9 @@ fun HomeScreen(
     
     val displayDate = remember(selectedDate) {
         try {
-            val dateToParse = if (selectedDate.isEmpty()) todayString else selectedDate
+            val dateToParse = selectedDate.ifEmpty { todayString }
             LocalDate.parse(dateToParse).format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.US))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             today.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.US))
         }
     }
@@ -173,7 +173,7 @@ fun HomeScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            if (selectedDate == todayString || selectedDate.isEmpty()) "Today's Readings" else "Selected Readings",
+                            if ((selectedDate == todayString) || (selectedDate.isEmpty())) "Today's Readings" else "Selected Readings",
                             color = TextBlue,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
@@ -255,36 +255,46 @@ fun ReadingSection(
     items: List<TargetReadingDetails>,
     onItemClick: (TargetReadingDetails) -> Unit,
 ) {
+    val distinctReadings = remember(items) { items.distinctBy { "${it.bookName} ${it.chapter}" } }
+    val itemCount = distinctReadings.size
+    
+    // Dynamic dimensions based on item count
+    val sectionPadding = if (itemCount > 2) 12.dp else 16.dp
+    val titleSize = if (itemCount > 2) 12.sp else 14.sp
+    val innerSpacer = if (itemCount > 2) 8.dp else 12.dp
+    val itemSpacing = if (itemCount > 2) 6.dp else 8.dp
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = CardLavender),
         shape = RoundedCornerShape(16.dp),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(sectionPadding),
         ) {
             Text(
                 title,
                 color = TextBlue.copy(alpha = 0.6f),
                 fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
+                fontSize = titleSize,
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(innerSpacer))
             
             if (items.isEmpty()) {
                 Text(
                     "No readings scheduled for this section.",
                     color = TextBlue.copy(alpha = 0.5f),
-                    fontSize = 14.sp,
+                    fontSize = 13.sp,
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
             } else {
-                // Group by book and chapter to avoid repeating for each verse
-                val distinctReadings = items.distinctBy { "${it.bookName} ${it.chapter}" }
                 distinctReadings.forEachIndexed { index, item ->
-                    ReadingItemRow(item) { onItemClick(item) }
+                    ReadingItemRow(
+                        item = item, 
+                        dense = itemCount > 2,
+                    ) { onItemClick(item) }
                     if (index < (distinctReadings.size - 1)) {
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(itemSpacing))
                     }
                 }
             }
@@ -293,7 +303,29 @@ fun ReadingSection(
 }
 
 @Composable
-fun ReadingItemRow(item: TargetReadingDetails, onClick: () -> Unit) {
+fun ReadingItemRow(
+    item: TargetReadingDetails, 
+    dense: Boolean,
+    onClick: () -> Unit
+) {
+    val text = "${item.bookName} ${item.chapter}"
+    val isLong = text.length > 20
+    
+    // Scaling font and padding based on density and text length
+    val fontSize = when {
+        dense && isLong -> 13.sp
+        dense || isLong -> 14.sp
+        else -> 16.sp
+    }
+    
+    val verticalPadding = when {
+        dense && isLong -> 10.dp
+        dense -> 12.dp
+        else -> 16.dp
+    }
+
+    val horizontalPadding = if (isLong) 12.dp else 16.dp
+
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
@@ -301,10 +333,12 @@ fun ReadingItemRow(item: TargetReadingDetails, onClick: () -> Unit) {
         shape = RoundedCornerShape(12.dp),
     ) {
         Text(
-            text = "${item.bookName} ${item.chapter}",
-            modifier = Modifier.padding(16.dp),
+            text = text,
+            modifier = Modifier.padding(horizontal = horizontalPadding, vertical = verticalPadding),
             fontWeight = FontWeight.Bold,
             color = Color.Black,
+            fontSize = fontSize,
+            maxLines = 1
         )
     }
 }

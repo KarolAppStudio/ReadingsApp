@@ -2,7 +2,6 @@ package com.karol.readingsapp.data
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 class ReadingRepository(private val combinedDao: CombinedDao) {
 
@@ -21,7 +20,7 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
         "1 Thessalonians" to 51, "2 Thessalonians" to 52, "1 Timothy" to 53, "2 Timothy" to 54,
         "Titus" to 55, "Philemon" to 56, "Hebrews" to 57, "James" to 58, "1 Peter" to 59,
         "2 Peter" to 60, "1 John" to 61, "2 John" to 62, "3 John" to 63, "Jude" to 64,
-        "Revelation" to 65, "Chronicles" to 12 // Supporting both "1 Chronicles" and just "Chronicles" if needed
+        "Revelation" to 65, "Chronicles" to 12, // Supporting both "1 Chronicles" and just "Chronicles" if needed
     )
 
     suspend fun getReadingsForDate(date: String, translationCode: String = "ENG"): Map<String, List<TargetReadingDetails>> {
@@ -32,9 +31,9 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
 
         val readings = mutableListOf<TargetReadingDetails>()
         
-        readings.addAll(parseReading(plan.track_1 ?: "", "First Reading", date, translationCode))
-        readings.addAll(parseReading(plan.track_2 ?: "", "Second Reading", date, translationCode))
-        readings.addAll(parseReading(plan.track_3 ?: "", "Third Reading", date, translationCode))
+        readings.addAll(parseReading(plan.track1 ?: "", "First Reading", date, translationCode))
+        readings.addAll(parseReading(plan.track2 ?: "", "Second Reading", date, translationCode))
+        readings.addAll(parseReading(plan.track3 ?: "", "Third Reading", date, translationCode))
 
         return readings.groupBy { it.readingType }
     }
@@ -85,9 +84,9 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
             
             combinedDao.getReadingPlanByDay(dayIndex)?.let { plan ->
                 val simpleList = listOf(
-                    SimpleReading(fullDate, plan.track_1 ?: "", "First Reading"),
-                    SimpleReading(fullDate, plan.track_2 ?: "", "Second Reading"),
-                    SimpleReading(fullDate, plan.track_3 ?: "", "Third Reading")
+                    SimpleReading(fullDate, plan.track1 ?: "", "First Reading"),
+                    SimpleReading(fullDate, plan.track2 ?: "", "Second Reading"),
+                    SimpleReading(fullDate, plan.track3 ?: "", "Third Reading"),
                 )
                 result[fullDate] = simpleList
             }

@@ -4,6 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -21,6 +25,7 @@ import com.karol.readingsapp.ui.HomeScreen
 import com.karol.readingsapp.ui.ReadingPlanScreen
 import com.karol.readingsapp.ui.ReadingViewModel
 import com.karol.readingsapp.ui.SettingsScreen
+import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.ReadingsAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -42,85 +47,92 @@ class MainActivity : ComponentActivity() {
 
                 val navController = rememberNavController()
 
-                NavHost(navController = navController, startDestination = "home") {
-                    composable("home") {
-                        HomeScreen(
-                            viewModel = viewModel,
-                            onReadingClick = { reading ->
-                                navController.navigate("reader/${reading.bookName}/${reading.chapter}")
-                            },
-                            onCalendarClick = {
-                                navController.navigate("reading_plan")
-                            },
-                            onBibleClick = {
-                                navController.navigate("bible")
-                            },
-                            onSettingsClick = {
-                                navController.navigate("settings")
-                            },
-                            onAboutClick = {
-                                navController.navigate("about")
-                            },
-                        )
-                    }
-                    composable("about") {
-                        AboutScreen {
-                            navController.popBackStack()
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .systemBarsPadding(),
+                    color = BackgroundBlue,
+                ) {
+                    NavHost(navController = navController, startDestination = "home") {
+                        composable("home") {
+                            HomeScreen(
+                                viewModel = viewModel,
+                                onReadingClick = { reading ->
+                                    navController.navigate("reader/${reading.bookName}/${reading.chapter}")
+                                },
+                                onCalendarClick = {
+                                    navController.navigate("reading_plan")
+                                },
+                                onBibleClick = {
+                                    navController.navigate("bible")
+                                },
+                                onSettingsClick = {
+                                    navController.navigate("settings")
+                                },
+                                onAboutClick = {
+                                    navController.navigate("about")
+                                }
+                            )
                         }
-                    }
-                    composable("settings") {
-                        SettingsScreen(
-                            viewModel = viewModel,
-                        ) {
-                            navController.popBackStack()
+                        composable("about") {
+                            AboutScreen {
+                                navController.popBackStack()
+                            }
                         }
-                    }
-                    composable("reading_plan") {
-                        ReadingPlanScreen(
-                            viewModel = viewModel,
-                            onDateClick = { date ->
-                                viewModel.loadReading(date)
-                                navController.popBackStack("home", inclusive = false)
-                            },
-                            onHomeClick = {
-                                navController.popBackStack("home", inclusive = false)
-                            },
-                            onBibleClick = {
-                                navController.navigate("bible")
-                            },
-                            onSettingsClick = {
-                                navController.navigate("settings")
+                        composable("settings") {
+                            SettingsScreen(
+                                viewModel = viewModel,
+                            ) {
+                                navController.popBackStack()
                             }
-                        )
-                    }
-                    composable("bible") {
-                        BiblePlaceholderScreen(
-                            onHomeClick = {
-                                navController.popBackStack("home", inclusive = false)
-                            },
-                            onCalendarClick = {
-                                navController.navigate("reading_plan")
-                            },
-                            onSettingsClick = {
-                                navController.navigate("settings")
+                        }
+                        composable("reading_plan") {
+                            ReadingPlanScreen(
+                                viewModel = viewModel,
+                                onDateClick = { date ->
+                                    viewModel.loadReading(date)
+                                    navController.popBackStack("home", inclusive = false)
+                                },
+                                onHomeClick = {
+                                    navController.popBackStack("home", inclusive = false)
+                                },
+                                onBibleClick = {
+                                    navController.navigate("bible")
+                                },
+                                onSettingsClick = {
+                                    navController.navigate("settings")
+                                }
+                            )
+                        }
+                        composable("bible") {
+                            BiblePlaceholderScreen(
+                                onHomeClick = {
+                                    navController.popBackStack("home", inclusive = false)
+                                },
+                                onCalendarClick = {
+                                    navController.navigate("reading_plan")
+                                },
+                                onSettingsClick = {
+                                    navController.navigate("settings")
+                                }
+                            )
+                        }
+                        composable(
+                            route = "reader/{bookName}/{chapter}",
+                            arguments = listOf(
+                                navArgument("bookName") { type = NavType.StringType },
+                                navArgument("chapter") { type = NavType.IntType },
+                            ),
+                        ) { backStackEntry ->
+                            val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
+                            val chapter = backStackEntry.arguments?.getInt("chapter") ?: 0
+                            BibleReaderScreen(
+                                bookName = bookName,
+                                chapter = chapter,
+                                viewModel = viewModel
+                            ) {
+                                navController.popBackStack()
                             }
-                        )
-                    }
-                    composable(
-                        route = "reader/{bookName}/{chapter}",
-                        arguments = listOf(
-                            navArgument("bookName") { type = NavType.StringType },
-                            navArgument("chapter") { type = NavType.IntType },
-                        ),
-                    ) { backStackEntry ->
-                        val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
-                        val chapter = backStackEntry.arguments?.getInt("chapter") ?: 0
-                        BibleReaderScreen(
-                            bookName = bookName,
-                            chapter = chapter,
-                            viewModel = viewModel
-                        ) {
-                            navController.popBackStack()
                         }
                     }
                 }
