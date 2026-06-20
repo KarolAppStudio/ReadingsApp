@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,6 +27,7 @@ fun BibleReaderScreen(
     bookId: Int,
     chapter: Int,
     viewModel: ReadingViewModel,
+    onHomeClick: () -> Unit,
     onBackClick: () -> Unit,
 ) {
     val verses = viewModel.getVersesByBookId(bookId, chapter)
@@ -64,19 +65,30 @@ fun BibleReaderScreen(
                     }
                 },
                 navigationIcon = {
-                    Column(modifier = Modifier.padding(start = 4.dp)) {
-                        IconButton(onClick = { /* Handle menu click */ }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = TextBlue)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(start = 8.dp),
+                    ) {
+                        IconButton(onClick = onHomeClick) {
+                            Icon(
+                                imageVector = Icons.Default.Home,
+                                contentDescription = "Home",
+                                tint = TextBlue,
+                                modifier = Modifier.size(35.dp),
+                            )
                         }
                         IconButton(onClick = onBackClick) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextBlue)
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = TextBlue,
+                            )
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = BackgroundBlue,
                 ),
-                modifier = Modifier.height(112.dp),
             )
         },
         containerColor = BackgroundBlue,

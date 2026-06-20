@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
@@ -50,9 +49,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
 
                 Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .systemBarsPadding(),
+                    modifier = Modifier.fillMaxSize(),
                     color = BackgroundBlue,
                 ) {
                     NavHost(navController = navController, startDestination = "home") {
@@ -139,7 +136,10 @@ class MainActivity : ComponentActivity() {
                             BibleReaderScreen(
                                 bookId = bookId,
                                 chapter = chapter,
-                                viewModel = viewModel
+                                viewModel = viewModel,
+                                onHomeClick = {
+                                    navController.popBackStack("home", inclusive = false)
+                                },
                             ) {
                                 navController.popBackStack()
                             }

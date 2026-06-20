@@ -46,6 +46,7 @@ fun BibleSelectionScreen(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .statusBarsPadding()
                     .height(40.dp),
                 color = BackgroundBlue,
             ) {
@@ -144,7 +145,7 @@ fun BibleSelectionScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
             }
-            
+
             items(translations) { translation ->
                 val isSelected = translation.code == selectedCode
                 Card(
@@ -176,7 +177,7 @@ fun BibleSelectionScreen(
                                 color = Color.Gray
                             )
                         }
-                        
+
                         if (isSelected) {
                             RadioButton(
                                 selected = true,

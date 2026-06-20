@@ -11,15 +11,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.TargetReadingDetails
 import com.karol.readingsapp.ui.theme.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -166,84 +168,92 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Icon(
-                    Icons.Default.Home,
-                    contentDescription = null,
-                    tint = TextBlue,
-                    modifier = Modifier.size(32.dp),
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
+                val selectedName = translations.find { it.code == selectedCode }?.name ?: "Select Bible"
+                var expanded by remember { mutableStateOf(value = false) }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            if ((selectedDate == todayString) || (selectedDate.isEmpty())) strings.todaysReadings else strings.selectedReadings,
-                            color = TextBlue,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                        )
-                        Text(
-                            displayDate,
-                            color = DateGrey,
-                            fontSize = 14.sp,
-                        )
-                    }
+                    Icon(
+                        Icons.Default.Home,
+                        contentDescription = null,
+                        tint = TextBlue,
+                        modifier = Modifier.size(30.dp),
+                    )
 
-                    val selectedName = translations.find { it.code == selectedCode }?.name ?: "Select Bible"
-                    var expanded by remember { mutableStateOf(value = false) }
-
-                    Box {
-                        Surface(
-                            onClick = { expanded = true },
-                            color = CardLavender,
-                            shape = RoundedCornerShape(8.dp),
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically,
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp)
+                    ) {
+                        Box(modifier = Modifier.align(Alignment.CenterEnd)) {
+                            Surface(
+                                onClick = { expanded = true },
+                                color = CardLavender,
+                                shape = RoundedCornerShape(8.dp),
                             ) {
-                                if (isDownloading) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(16.dp),
-                                        strokeWidth = 2.dp,
-                                        color = TextBlue
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    if (isDownloading) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(16.dp),
+                                            strokeWidth = 2.dp,
+                                            color = TextBlue,
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                    }
+                                    Text(
+                                        text = selectedName,
+                                        color = TextBlue,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp,
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(
+                                        Icons.Default.ArrowDropDown,
+                                        contentDescription = null,
+                                        tint = TextBlue,
+                                    )
                                 }
-                                Text(
-                                    text = selectedName,
-                                    color = TextBlue,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                )
-                                Icon(
-                                    Icons.Default.ArrowDropDown,
-                                    contentDescription = null,
-                                    tint = TextBlue,
-                                )
                             }
-                        }
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                        ) {
-                            translations.forEach { translation ->
-                                DropdownMenuItem(
-                                    text = { Text(translation.name) },
-                                    onClick = {
-                                        viewModel.setTranslation(translation.code)
-                                        expanded = false
-                                    },
-                                )
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                            ) {
+                                translations.forEach { translation ->
+                                    DropdownMenuItem(
+                                        text = { Text(translation.name) },
+                                        onClick = {
+                                            viewModel.setTranslation(translation.code)
+                                            expanded = false
+                                        },
+                                    )
+                                }
                             }
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    AutoResizingText(
+                        text = if ((selectedDate == todayString) || (selectedDate.isEmpty())) strings.todaysReadings else strings.selectedReadings,
+                        color = TextBlue,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                    )
+                    AutoResizingText(
+                        text = displayDate,
+                        color = DateGrey,
+                        fontSize = 14.sp,
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
             // Dynamically show sections based on available data, or default if empty
@@ -267,10 +277,47 @@ fun HomeScreen(
                     noReadingsText = strings.noReadings,
                     onItemClick = onReadingClick,
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(4.dp))
             }
         }
     }
+}
+
+@Composable
+fun AutoResizingText(
+    text: String,
+    fontSize: TextUnit,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
+    fontWeight: FontWeight? = null,
+    maxLines: Int = 1,
+) {
+    var currentFontSize by remember(text) { mutableStateOf(fontSize) }
+    var readyToDraw by remember(text) { mutableStateOf(false) }
+
+    Text(
+        text = text,
+        color = color,
+        fontWeight = fontWeight,
+        fontSize = currentFontSize,
+        modifier = modifier.drawWithContent {
+            if (readyToDraw) drawContent()
+        },
+        softWrap = false,
+        maxLines = maxLines,
+        overflow = TextOverflow.Clip,
+        onTextLayout = { layoutResult ->
+            if (layoutResult.didOverflowWidth) {
+                if (currentFontSize.value > 10f) {
+                    currentFontSize = (currentFontSize.value - 0.5f).sp
+                } else {
+                    readyToDraw = true
+                }
+            } else {
+                readyToDraw = true
+            }
+        }
+    )
 }
 
 @Composable
@@ -284,16 +331,16 @@ fun ReadingSection(
     val distinctReadings = remember(items) { items.distinctBy { "${it.bookId} ${it.chapter}" } }
     val itemCount = distinctReadings.size
     
-    // Dynamic dimensions based on item count
-    val sectionPadding = if (itemCount > 2) 12.dp else 16.dp
-    val titleSize = if (itemCount > 2) 12.sp else 14.sp
-    val innerSpacer = if (itemCount > 2) 8.dp else 12.dp
-    val itemSpacing = if (itemCount > 2) 6.dp else 8.dp
+    // Dynamic dimensions for maximum compactness
+    val sectionPadding = 8.dp
+    val titleSize = 12.sp
+    val innerSpacer = 4.dp
+    val itemSpacing = 4.dp
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = CardLavender),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(12.dp),
     ) {
         Column(
             modifier = Modifier.padding(sectionPadding),
@@ -334,32 +381,20 @@ fun ReadingItemRow(
     item: TargetReadingDetails, 
     strings: LocalizedStrings,
     dense: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val bookName = strings.bookNames[item.bookId] ?: item.bookName
     val text = "$bookName ${item.chapter}"
-    val isLong = text.length > 20
     
-    // Scaling font and padding based on density and text length
-    val fontSize = when {
-        dense && isLong -> 11.sp
-        dense || isLong -> 12.sp
-        else -> 14.sp
-    }
-    
-    val verticalPadding = when {
-        dense && isLong -> 10.dp
-        dense -> 12.dp
-        else -> 16.dp
-    }
-
-    val horizontalPadding = if (isLong) 12.dp else 16.dp
+    val fontSize = 12.sp
+    val verticalPadding = 6.dp
+    val horizontalPadding = 12.dp
 
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         color = Color.White,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(8.dp),
     ) {
         Text(
             text = text,

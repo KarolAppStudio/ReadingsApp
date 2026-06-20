@@ -74,7 +74,7 @@ fun ReadingPlanScreen(
 
     Scaffold(
         topBar = {
-            Column {
+            Column(modifier = Modifier.statusBarsPadding()) {
                 // Custom 40dp Navigation Bar with centered icon and Home button
                 Surface(
                     modifier = Modifier
@@ -83,11 +83,11 @@ fun ReadingPlanScreen(
                     color = BackgroundBlue,
                 ) {
                     Box(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
                     ) {
                         IconButton(
                             onClick = onHomeClick,
-                            modifier = Modifier.align(Alignment.CenterStart)
+                            modifier = Modifier.align(Alignment.CenterStart),
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Home,
@@ -103,7 +103,7 @@ fun ReadingPlanScreen(
                             tint = TextBlue,
                             modifier = Modifier
                                 .size(18.dp)
-                                .align(Alignment.Center)
+                                .align(Alignment.Center),
                         )
                     }
                 }
@@ -124,7 +124,7 @@ fun ReadingPlanScreen(
                     ) {
                         IconButton(
                             onClick = { currentMonth = currentMonth.minusMonths(1) },
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier.size(36.dp),
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
@@ -140,12 +140,12 @@ fun ReadingPlanScreen(
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.weight(1f),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                         )
 
                         IconButton(
                             onClick = { currentMonth = currentMonth.plusMonths(1) },
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier.size(36.dp),
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowForward,
@@ -219,7 +219,7 @@ fun ReadingPlanScreen(
                     icon = { Icon(Icons.Default.ArrowDownward, contentDescription = null) },
                     text = { Text(strings.nextReading) },
                     containerColor = TextBlue,
-                    contentColor = Color.White
+                    contentColor = Color.White,
                 )
             }
         },
@@ -236,9 +236,7 @@ fun ReadingPlanScreen(
         ) {
             itemsIndexed(datesInMonth) { _, date ->
                 val readings = monthlyPlan[date] ?: emptyList()
-                ReadingDayItem(date, readings, selectedTranslation, strings) {
-                    onDateClick(date)
-                }
+                ReadingDayItem(date, readings, selectedTranslation, strings)
             }
         }
     }
@@ -249,8 +247,7 @@ fun ReadingDayItem(
     date: String,
     readings: List<SimpleReading>,
     translationCode: String,
-    strings: LocalizedStrings,
-    onClick: () -> Unit
+    strings: LocalizedStrings
 ) {
     val parsedDate = try {
         LocalDate.parse(date)
@@ -263,8 +260,7 @@ fun ReadingDayItem(
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
+            .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -316,13 +312,6 @@ fun ReadingDayItem(
                     }
                 }
             }
-
-            Icon(
-                Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = null,
-                tint = CardLavender,
-                modifier = Modifier.size(20.dp)
-            )
         }
     }
 }

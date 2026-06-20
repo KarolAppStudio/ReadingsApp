@@ -12,13 +12,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 import com.karol.readingsapp.data.LanguageService
-import com.karol.readingsapp.data.LanguageStatus
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.asStateFlow
 
 class ReadingViewModel(
     private val repository: ReadingRepository,
-    private val languageService: LanguageService
+    private val languageService: LanguageService,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<Map<String, List<TargetReadingDetails>>>(emptyMap())
     val uiState: StateFlow<Map<String, List<TargetReadingDetails>>> = _uiState

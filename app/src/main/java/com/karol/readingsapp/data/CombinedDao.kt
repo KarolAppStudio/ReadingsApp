@@ -24,9 +24,7 @@ data class SimpleReading(
     val bookName: String,
     val chaptersStr: String,
     val readingType: String,
-) {
-    val reference: String get() = "$bookName $chaptersStr"
-}
+)
 
 @Entity(tableName = "translations")
 data class BibleTranslation(
@@ -70,7 +68,7 @@ interface CombinedDao {
         SELECT :date AS date, :bookId AS bookId, :bookName AS bookName, chapter, verse AS verseId, text, :readingType AS readingType, translation_code AS translationCode
         FROM bible_db.verses
         WHERE book_id = :bookId AND chapter IN (:chapters) AND translation_code = :translationCode
-        """
+        """,
     )
     suspend fun getVersesForReading(
         date: String,
@@ -78,6 +76,6 @@ interface CombinedDao {
         chapters: List<Int>,
         readingType: String,
         translationCode: String,
-        bookName: String
+        bookName: String,
     ): List<TargetReadingDetails>
 }

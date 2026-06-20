@@ -23,6 +23,7 @@ fun AboutScreen(onHomeClick: () -> Unit) {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .statusBarsPadding()
                     .height(40.dp),
                 color = BackgroundBlue,
             ) {

@@ -27,7 +27,7 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
         "Ezek." to 25, "Dan." to 26, "Habak." to 34, "Zephan." to 35, "Matt." to 39,
         "Gal." to 47, "Ephes." to 48, "Philip." to 49, "Col." to 50, "1 Thess." to 51,
         "2 Thess." to 52, "1 Tim." to 53, "2 Tim." to 54, "Heb." to 57, "1 Pet." to 59,
-        "2 Pet." to 60, "Rev." to 65, "Chronicles" to 12
+        "2 Pet." to 60, "Rev." to 65, "Chronicles" to 12,
     )
 
     suspend fun getReadingsForDate(date: String, translationCode: String = "ENG"): Map<String, List<TargetReadingDetails>> {
@@ -69,14 +69,14 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
             var bookId = bookNameToId[bookPart]
             
             // 2a. Handle trailing dot in abbreviations if map lookup fails
-            if (bookId == null && !bookPart.endsWith(".")) {
+            if ((bookId == null) && !bookPart.endsWith(".")) {
                 bookId = bookNameToId["$bookPart."]
-                if (bookId != null) bookPart = "$bookPart."
+                if (bookId != null) {
+                    bookPart = "$bookPart."
+                }
             }
 
-            if (bookId != null) {
-                return Triple(bookId!!, bookPart, chapterPart)
-            }
+            bookId?.let { return Triple(it, bookPart, chapterPart) }
         }
 
         // 3. Last resort: If we still haven't matched, but there's a book name inside the string
@@ -141,7 +141,7 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
                 listOf(
                     plan.track1 to "First Reading",
                     plan.track2 to "Second Reading",
-                    plan.track3 to "Third Reading"
+                    plan.track3 to "Third Reading",
                 ).forEach { (ref, type) ->
                     if (!ref.isNullOrBlank()) {
                         parseReadingInternal(ref)?.let { (bookId, bookName, chaptersStr) ->

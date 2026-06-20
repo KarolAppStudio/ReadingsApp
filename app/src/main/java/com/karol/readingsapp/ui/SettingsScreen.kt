@@ -44,15 +44,16 @@ fun SettingsScreen(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .statusBarsPadding()
                     .height(40.dp),
                 color = BackgroundBlue,
             ) {
                 Box(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 ) {
                     IconButton(
                         onClick = onHomeClick,
-                        modifier = Modifier.align(Alignment.CenterStart)
+                        modifier = Modifier.align(Alignment.CenterStart),
                     ) {
                         Icon(
                             imageVector = Icons.Default.Home,
@@ -68,7 +69,7 @@ fun SettingsScreen(
                         tint = TextBlue,
                         modifier = Modifier
                             .size(18.dp)
-                            .align(Alignment.Center)
+                            .align(Alignment.Center),
                     )
                 }
             }
@@ -139,7 +140,7 @@ fun SettingsScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
                     ) {
                         Text(
                             strings.bibleTranslation,
@@ -162,12 +163,12 @@ fun SettingsScreen(
                                     onClick = { expanded = true },
                                     color = CardLavender,
                                     shape = RoundedCornerShape(8.dp),
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth(),
                                 ) {
                                     Row(
                                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
                                         verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween
+                                        horizontalArrangement = Arrangement.SpaceBetween,
                                     ) {
                                         Text(
                                             text = selectedName,
@@ -202,7 +203,7 @@ fun SettingsScreen(
                                 onClick = { viewModel.setTranslation(stagedSelection) },
                                 colors = ButtonDefaults.buttonColors(containerColor = TextBlue),
                                 shape = RoundedCornerShape(8.dp),
-                                contentPadding = PaddingValues(horizontal = 12.dp)
+                                contentPadding = PaddingValues(horizontal = 12.dp),
                             ) {
                                 Text(strings.saveConfig, color = Color.White, fontSize = 12.sp)
                             }

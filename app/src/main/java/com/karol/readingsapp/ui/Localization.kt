@@ -21,7 +21,7 @@ data class LocalizedStrings(
     val bibleTranslation: String,
     val saveConfig: String,
     val locale: Locale,
-    val bookNames: Map<Int, String> = emptyMap()
+    val bookNames: Map<Int, String> = emptyMap(),
 )
 
 object Localization {
@@ -34,7 +34,7 @@ object Localization {
         19 to "Proverbs", 20 to "Ecclesiastes", 21 to "Song of Solomon", 22 to "Isaiah",
         23 to "Jeremiah", 24 to "Lamentations", 25 to "Ezekiel", 26 to "Daniel",
         39 to "Matthew", 40 to "Mark", 41 to "Luke", 42 to "John", 43 to "Acts",
-        44 to "Romans", 65 to "Revelation"
+        44 to "Romans", 65 to "Revelation",
     )
 
     private val HindiBooks = mapOf(
@@ -45,7 +45,7 @@ object Localization {
         19 to "नीतिवचन", 20 to "सभोपदेशक", 21 to "श्रेष्ठगीत", 22 to "यशायाह",
         23 to "यिर्मयाह", 24 to "विलापगीत", 25 to "यहेजकेल", 26 to "दानिय्येल",
         39 to "मत्ती", 40 to "मरकुस", 41 to "लूका", 42 to "यूहन्ना", 43 to "प्रेरितों के काम",
-        44 to "रोमियों", 65 to "प्रकाशितवाक्य"
+        44 to "रोमियों", 65 to "प्रकाशितवाक्य",
     )
 
     private val BanglaBooks = mapOf(
@@ -63,7 +63,7 @@ object Localization {
         51 to "১ থিষলনীকীয়", 52 to "২ থিষলনীকীয়", 53 to "১ তীমথিয়", 54 to "২ তীমথিয়",
         55 to "তীত", 56 to "ফিলীমন", 57 to "ইব্রীয়", 58 to "যাকোব", 59 to "১ পিতর",
         60 to "২ পিতর", 61 to "১ যোহন", 62 to "২ যোহন", 63 to "৩ যোহন", 64 to "যিহূদা",
-        65 to "প্রকাশিত বাক্য"
+        65 to "প্রকাশিত বাক্য",
     )
 
     private val KannadaBooks = mapOf(
@@ -74,7 +74,7 @@ object Localization {
         19 to "ಜ್ಞಾನೋಕ್ತಿಗಳು", 20 to "ಪ್ರಸಂಗಿ", 21 to "ಪರಮ ಗೀತ", 22 to "ಯೆಶಾಯ",
         23 to "ಯೆರೆಮಿಯ", 24 to "ಪ್ರಲಾಪಗಳು", 25 to "ಯೆಹೆಚ್ಚೇಲನು", 26 to "ದಾನಿಯೇಲನು",
         39 to "ಮತ್ತಾಯನು", 40 to "ಮಾರ್ಕನು", 41 to "ಲೂಕನು", 42 to "ಯೋಹಾನನು", 43 to "ಅಪೊಸ್ತಲರ ಕೃತ್ಯಗಳು",
-        44 to "ರೋಮಾಪುರದವರಿಗೆ", 65 to "ಪ್ರಕಟನೆ"
+        44 to "ರೋಮಾಪುರದವರಿಗೆ", 65 to "ಪ್ರಕಟನೆ",
     )
 
     private val MalayalamBooks = mapOf(
@@ -85,7 +85,7 @@ object Localization {
         19 to "സദൃശവാക്യങ്ങൾ", 20 to "സഭാപ്രസംഗി", 21 to "ഉത്തമഗീതം", 22 to "യെശയ്യാവ്",
         23 to "യിരെമ്യാവ്", 24 to "വിലാപങ്ങൾ", 25 to "യെഹെസ്കേൽ", 26 to "ദാനീയേൽ",
         39 to "മത്തായി", 40 to "മർക്കോസ്", 41 to "ലൂക്കോസ്", 42 to "യോഹന്നാൻ", 43 to "പ്രവൃത്തികൾ",
-        44 to "റോമർ", 65 to "വെളിപാട്"
+        44 to "റോമർ", 65 to "വെളിപാട്",
     )
 
     private val TamilBooks = mapOf(
@@ -96,7 +96,7 @@ object Localization {
         19 to "நீதிமொழிகள்", 20 to "பிரசங்கி", 21 to "உன்னதப்பாட்டு", 22 to "ஏசாயா",
         23 to "எரேமியா", 24 to "புலம்பல்", 25 to "எசேக்கியேல்", 26 to "தானியேல்",
         39 to "மத்தேயு", 40 to "மாற்கு", 41 to "லூக்கா", 42 to "யோவான்", 43 to "அப்போஸ்தலர் நடபடிகள்",
-        44 to "ரோமர்", 65 to "வெளிப்படுத்தின விசேஷம்"
+        44 to "ரோமர்", 65 to "வெளிப்படுத்தின விசேஷம்",
     )
 
     private val TeluguBooks = mapOf(
@@ -107,7 +107,7 @@ object Localization {
         19 to "సామెతలు", 20 to "ప్రసంగి", 21 to "పరమగీతము", 22 to "యెషయా",
         23 to "యిర్మీయా", 24 to "విలాపవాక్యములు", 25 to "యెహెజ్కేలు", 26 to "దానియేలు",
         39 to "మత్తయి", 40 to "మార్కు", 41 to "లూకా", 42 to "యోహాను", 43 to "అపొస్తలుల కార్యములు",
-        44 to "రోమీయులకు", 65 to "ప్రకటన గ్రంథము"
+        44 to "రోమీయులకు", 65 to "ప్రకటన గ్రంథము",
     )
 
     private val English = LocalizedStrings(
@@ -129,7 +129,7 @@ object Localization {
         bibleTranslation = "Bible Translation",
         saveConfig = "Save Configuration",
         locale = Locale.US,
-        bookNames = EnglishBooks
+        bookNames = EnglishBooks,
     )
 
     private val Polish = LocalizedStrings(
@@ -150,7 +150,7 @@ object Localization {
         appTitle = "Codzienny Towarzysz Czytań",
         bibleTranslation = "Tłumaczenie Biblii",
         saveConfig = "Zapisz konfigurację",
-        locale = Locale.forLanguageTag("pl-PL")
+        locale = Locale.forLanguageTag("pl"),
     )
 
     private val Bangla = LocalizedStrings(
@@ -171,8 +171,8 @@ object Localization {
         appTitle = "দৈনিক পাঠ সঙ্গী",
         bibleTranslation = "বাইবেল অনুবাদ",
         saveConfig = "সেভ করুন",
-        locale = Locale("bn", "BD"),
-        bookNames = BanglaBooks
+        locale = Locale.forLanguageTag("bn-BD"),
+        bookNames = BanglaBooks,
     )
 
     private val Hindi = LocalizedStrings(
@@ -193,8 +193,8 @@ object Localization {
         appTitle = "दैनिक पाठ साथी",
         bibleTranslation = "बाइबिल अनुवाद",
         saveConfig = "सहेजें",
-        locale = Locale("hi", "IN"),
-        bookNames = HindiBooks
+        locale = Locale.forLanguageTag("hi-IN"),
+        bookNames = HindiBooks,
     )
 
     private val Kannada = LocalizedStrings(
@@ -215,8 +215,8 @@ object Localization {
         appTitle = "ದೈನಂದಿನ ಓದುವ ಒಡನಾಡಿ",
         bibleTranslation = "ಬೈಬಲ್ ಅನುವಾದ",
         saveConfig = "ಉಳಿಸಿ",
-        locale = Locale("kn", "IN"),
-        bookNames = KannadaBooks
+        locale = Locale.forLanguageTag("kn-IN"),
+        bookNames = KannadaBooks,
     )
 
     private val Malayalam = LocalizedStrings(
@@ -237,8 +237,8 @@ object Localization {
         appTitle = "ദിനവായന സഹായി",
         bibleTranslation = "ബൈബിൾ വിവർത്തനം",
         saveConfig = "സേവ് ചെയ്യുക",
-        locale = Locale("ml", "IN"),
-        bookNames = MalayalamBooks
+        locale = Locale.forLanguageTag("ml-IN"),
+        bookNames = MalayalamBooks,
     )
 
     private val Tamil = LocalizedStrings(
@@ -259,8 +259,8 @@ object Localization {
         appTitle = "தினசரி வாసిப்புத் துணை",
         bibleTranslation = "பைபிள் மொழிபெயர்ப்பு",
         saveConfig = "சேமி",
-        locale = Locale("ta", "IN"),
-        bookNames = TamilBooks
+        locale = Locale.forLanguageTag("ta-IN"),
+        bookNames = TamilBooks,
     )
 
     private val Telugu = LocalizedStrings(
@@ -281,8 +281,8 @@ object Localization {
         appTitle = "రోజువారీ పఠన తోడు",
         bibleTranslation = "బైబిల్ అనువాదం",
         saveConfig = "సేవ్ చేయండి",
-        locale = Locale("te", "IN"),
-        bookNames = TeluguBooks
+        locale = Locale.forLanguageTag("te-IN"),
+        bookNames = TeluguBooks,
     )
 
     fun getStrings(language: String): LocalizedStrings {
