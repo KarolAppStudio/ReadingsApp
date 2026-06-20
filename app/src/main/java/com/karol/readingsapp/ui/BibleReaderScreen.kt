@@ -81,13 +81,22 @@ fun BibleReaderScreen(
                 }
             } else {
                 items(verses) { verse ->
-                    Text(
-                        text = verse.text,
-                        modifier = Modifier.padding(vertical = 4.dp),
-                        fontSize = 16.sp,
-                        color = TextBlue,
-                        lineHeight = 24.sp,
-                    )
+                    Row(modifier = Modifier.padding(vertical = 4.dp)) {
+                        Text(
+                            text = "${verse.verseId}",
+                            fontSize = 12.sp,
+                            color = TextBlue.copy(alpha = 0.6f),
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 2.dp, end = 8.dp)
+                        )
+                        Text(
+                            text = verse.text,
+                            fontSize = 16.sp,
+                            color = TextBlue,
+                            lineHeight = 24.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
         }

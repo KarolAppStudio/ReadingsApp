@@ -18,6 +18,7 @@ import com.karol.readingsapp.ui.BibleReaderScreen
 import com.karol.readingsapp.ui.HomeScreen
 import com.karol.readingsapp.ui.ReadingPlanScreen
 import com.karol.readingsapp.ui.ReadingViewModel
+import com.karol.readingsapp.ui.SettingsScreen
 import com.karol.readingsapp.ui.theme.ReadingsAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -48,6 +49,17 @@ class MainActivity : ComponentActivity() {
                             },
                             onCalendarClick = {
                                 navController.navigate("reading_plan")
+                            },
+                            onSettingsClick = {
+                                navController.navigate("settings")
+                            }
+                        )
+                    }
+                    composable("settings") {
+                        SettingsScreen(
+                            viewModel = viewModel,
+                            onBackClick = {
+                                navController.popBackStack()
                             }
                         )
                     }

@@ -27,6 +27,7 @@ fun HomeScreen(
     viewModel: ReadingViewModel,
     onCalendarClick: () -> Unit,
     onReadingClick: (TargetReadingDetails) -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     val readingsGrouped by viewModel.uiState.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
@@ -103,7 +104,7 @@ fun HomeScreen(
                     icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
                     label = { Text("Settings") },
                     selected = false,
-                    onClick = { },
+                    onClick = onSettingsClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
                         unselectedTextColor = TextBlue,

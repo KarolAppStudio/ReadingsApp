@@ -11,6 +11,7 @@ data class TargetReadingDetails(
     val date: String,
     val bookName: String,
     val chapter: Int,
+    val verseId: Int,
     val text: String,
     val readingType: String,
     val translationCode: String,
@@ -30,12 +31,12 @@ data class BibleTranslation(
     val name: String,
 )
 
-@Entity(tableName = "verses", primaryKeys = ["translation_code", "book_id", "chapter", "verse_id"])
+@Entity(tableName = "verses", primaryKeys = ["translation_code", "book_id", "chapter", "verse"])
 data class Verse(
     @ColumnInfo(name = "translation_code") val translationCode: String,
     @ColumnInfo(name = "book_id") val bookId: Int,
     val chapter: Int,
-    @ColumnInfo(name = "verse_id") val verseId: Int,
+    @ColumnInfo(name = "verse") val verseId: Int,
     val text: String
 )
 
@@ -50,9 +51,13 @@ interface CombinedDao {
     suspend fun getAnyVerse(): Verse?
 
     @SkipQueryVerification
+    @Query("SELECT DISTINCT book_id FROM bible_db.verses LIMIT 10")
+    suspend fun getBookIds(): List<Int>
+
+    @SkipQueryVerification
     @Query(
         """
-        SELECT s.date, s.bookName, s.chapter, v.text, s.readingType, v.translation_code AS translationCode
+        SELECT s.date, s.bookName, s.chapter, v.verse AS verseId, v.text, s.readingType, v.translation_code AS translationCode
         FROM reading_schedule AS s
         INNER JOIN bible_db.verses AS v 
         ON v.book_id = s.bookId AND v.chapter = s.chapter
@@ -65,7 +70,7 @@ interface CombinedDao {
     @SkipQueryVerification
     @Query(
         """
-        SELECT s.date, s.bookName, s.chapter, v.text, s.readingType, v.translation_code AS translationCode
+        SELECT s.date, s.bookName, s.chapter, v.verse AS verseId, v.text, s.readingType, v.translation_code AS translationCode
         FROM reading_schedule AS s
         INNER JOIN bible_db.verses AS v 
         ON v.book_id = s.bookId AND v.chapter = s.chapter

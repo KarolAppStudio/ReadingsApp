@@ -48,7 +48,8 @@ class ReadingViewModel(private val repository: ReadingRepository) : ViewModel() 
     fun loadReading(date: String) {
         currentDate = date
         viewModelScope.launch {
-            _uiState.value = repository.getReadingsForDate(date, _selectedTranslationCode.value)
+            val readings = repository.getReadingsForDate(date, _selectedTranslationCode.value)
+            _uiState.value = readings
         }
     }
 
