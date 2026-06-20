@@ -25,6 +25,8 @@ fun HomeScreen(
     onReadingClick: (TargetReadingDetails) -> Unit,
 ) {
     val readingsGrouped by viewModel.uiState.collectAsState()
+    val translations by viewModel.availableTranslations.collectAsState()
+    val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     
     LaunchedEffect(Unit) {
         viewModel.loadReading("2026-06-12") // To match the screenshot date
@@ -112,12 +114,59 @@ fun HomeScreen(
         ) {
             item {
                 Spacer(modifier = Modifier.height(16.dp))
-                Icon(
-                    Icons.Default.Home,
-                    contentDescription = null,
-                    tint = TextBlue,
-                    modifier = Modifier.size(32.dp),
-                )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    val selectedName = translations.find { it.code == selectedCode }?.name ?: "Select Bible"
+                    var expanded by remember { mutableStateOf(false) }
+
+                    Box(modifier = Modifier.align(Alignment.CenterStart)) {
+                        Surface(
+                            onClick = { expanded = true },
+                            color = CardLavender,
+                            shape = RoundedCornerShape(8.dp),
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = selectedName,
+                                    color = TextBlue,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                )
+                                Icon(
+                                    Icons.Default.ArrowDropDown,
+                                    contentDescription = null,
+                                    tint = TextBlue,
+                                )
+                            }
+                        }
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                        ) {
+                            translations.forEach { translation ->
+                                DropdownMenuItem(
+                                    text = { Text(translation.name) },
+                                    onClick = {
+                                        viewModel.setTranslation(translation.code)
+                                        expanded = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+
+                    Icon(
+                        Icons.Default.Home,
+                        contentDescription = null,
+                        tint = TextBlue,
+                        modifier = Modifier.size(32.dp),
+                    )
+                }
                 Spacer(modifier = Modifier.height(16.dp))
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -143,6 +192,7 @@ fun HomeScreen(
                 ReadingSection(
                     title = type,
                     items = readingsGrouped[type] ?: emptyList(),
+                    selectedTranslationCode = selectedCode,
                     onItemClick = onReadingClick,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -155,6 +205,7 @@ fun HomeScreen(
 fun ReadingSection(
     title: String,
     items: List<TargetReadingDetails>,
+    selectedTranslationCode: String,
     onItemClick: (TargetReadingDetails) -> Unit,
 ) {
     Card(
@@ -178,21 +229,21 @@ fun ReadingSection(
                 when (title) {
                     "First Reading" -> {
                         ReadingItemPlaceholder("Judges 10") {
-                            onItemClick(TargetReadingDetails("", "Judges", 10, "Placeholder text", title))
+                            onItemClick(TargetReadingDetails("", "Judges", 10, "Placeholder text", title, selectedTranslationCode))
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         ReadingItemPlaceholder("Judges 11") {
-                            onItemClick(TargetReadingDetails("", "Judges", 11, "Placeholder text", title))
+                            onItemClick(TargetReadingDetails("", "Judges", 11, "Placeholder text", title, selectedTranslationCode))
                         }
                     }
                     "Second Reading" -> {
                         ReadingItemPlaceholder("Isaiah 36") {
-                            onItemClick(TargetReadingDetails("", "Isaiah", 36, "Placeholder text", title))
+                            onItemClick(TargetReadingDetails("", "Isaiah", 36, "Placeholder text", title, selectedTranslationCode))
                         }
                     }
                     "Third Reading" -> {
                         ReadingItemPlaceholder("1 Peter 2") {
-                            onItemClick(TargetReadingDetails("", "1 Peter", 2, "Placeholder text", title))
+                            onItemClick(TargetReadingDetails("", "1 Peter", 2, "Placeholder text", title, selectedTranslationCode))
                         }
                     }
                 }
