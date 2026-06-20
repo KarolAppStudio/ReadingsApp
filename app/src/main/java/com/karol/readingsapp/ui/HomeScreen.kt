@@ -26,6 +26,7 @@ import java.util.Locale
 fun HomeScreen(
     viewModel: ReadingViewModel,
     onCalendarClick: () -> Unit,
+    onBibleClick: () -> Unit,
     onReadingClick: (TargetReadingDetails) -> Unit,
     onSettingsClick: () -> Unit,
     onAboutClick: () -> Unit,
@@ -33,15 +34,26 @@ fun HomeScreen(
     val readingsGrouped by viewModel.uiState.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
+    val selectedDate by viewModel.currentDate.collectAsState()
     
     val today = remember { LocalDate.now() }
-    val dateString = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-    val displayDate = today.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.US))
+    val todayString = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    
+    val displayDate = remember(selectedDate) {
+        try {
+            val dateToParse = if (selectedDate.isEmpty()) todayString else selectedDate
+            LocalDate.parse(dateToParse).format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.US))
+        } catch (e: Exception) {
+            today.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.US))
+        }
+    }
 
     var menuExpanded by remember { mutableStateOf(value = false) }
 
-    LaunchedEffect(dateString) {
-        viewModel.loadReading(dateString)
+    LaunchedEffect(Unit) {
+        if (selectedDate.isEmpty()) {
+            viewModel.loadReading(todayString)
+        }
     }
 
     Scaffold(
@@ -51,7 +63,7 @@ fun HomeScreen(
                     Text(
                         "Daily Reading Companion",
                         color = TextBlue,
-                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                     )
                 },
@@ -118,7 +130,7 @@ fun HomeScreen(
                     icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Bible") },
                     label = { Text("Bible") },
                     selected = false,
-                    onClick = { },
+                    onClick = onBibleClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
                         unselectedTextColor = TextBlue,
@@ -161,7 +173,7 @@ fun HomeScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Today's Readings",
+                            if (selectedDate == todayString || selectedDate.isEmpty()) "Today's Readings" else "Selected Readings",
                             color = TextBlue,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
@@ -218,8 +230,14 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
-            val types = listOf("First Reading", "Second Reading", "Third Reading")
-            items(types) { type ->
+            // Dynamically show sections based on available data, or default if empty
+            val sectionsToShow = if (readingsGrouped.isEmpty()) {
+                listOf("First Reading", "Second Reading", "Third Reading")
+            } else {
+                readingsGrouped.keys.sortedBy { it }
+            }
+
+            items(sectionsToShow) { type ->
                 ReadingSection(
                     title = type,
                     items = readingsGrouped[type] ?: emptyList(),
@@ -255,7 +273,7 @@ fun ReadingSection(
             
             if (items.isEmpty()) {
                 Text(
-                    "No readings scheduled for this section today.",
+                    "No readings scheduled for this section.",
                     color = TextBlue.copy(alpha = 0.5f),
                     fontSize = 14.sp,
                     modifier = Modifier.padding(vertical = 8.dp),

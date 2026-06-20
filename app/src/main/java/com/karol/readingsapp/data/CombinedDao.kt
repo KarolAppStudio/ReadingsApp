@@ -19,8 +19,7 @@ data class TargetReadingDetails(
 
 data class SimpleReading(
     val date: String,
-    val bookName: String,
-    val chapter: Int,
+    val reference: String,
     val readingType: String,
 )
 
@@ -54,32 +53,26 @@ interface CombinedDao {
     @Query("SELECT DISTINCT book_id FROM bible_db.verses LIMIT 10")
     suspend fun getBookIds(): List<Int>
 
-    @SkipQueryVerification
-    @Query(
-        """
-        SELECT s.date, s.bookName, s.chapter, v.verse AS verseId, v.text, s.readingType, v.translation_code AS translationCode
-        FROM reading_schedule AS s
-        INNER JOIN bible_db.verses AS v 
-        ON v.book_id = s.bookId AND v.chapter = s.chapter
-        -- Must filter by translationCode to avoid duplicate verses from different translations
-        WHERE s.date = :targetDate AND v.translation_code = :translationCode
-        """,
-    )
-    suspend fun getReadingForDate(targetDate: String, translationCode: String): List<TargetReadingDetails>
+    @Query("SELECT * FROM reading_plan WHERE day_of_year = :dayOfYear LIMIT 1")
+    suspend fun getReadingPlanByDay(dayOfYear: Int): ReadingPlan?
+
+    @Query("SELECT * FROM reading_plan WHERE day_of_year BETWEEN :startDay AND :endDay ORDER BY day_of_year ASC")
+    suspend fun getReadingPlanInRange(startDay: Int, endDay: Int): List<ReadingPlan>
 
     @SkipQueryVerification
     @Query(
         """
-        SELECT s.date, s.bookName, s.chapter, v.verse AS verseId, v.text, s.readingType, v.translation_code AS translationCode
-        FROM reading_schedule AS s
-        INNER JOIN bible_db.verses AS v 
-        ON v.book_id = s.bookId AND v.chapter = s.chapter
-        WHERE s.date LIKE :monthPattern AND v.translation_code = :translationCode
-        ORDER BY s.date ASC, s.readingType ASC
+        SELECT :date AS date, :bookName AS bookName, chapter, verse AS verseId, text, :readingType AS readingType, translation_code AS translationCode
+        FROM bible_db.verses
+        WHERE book_id = :bookId AND chapter IN (:chapters) AND translation_code = :translationCode
         """
     )
-    suspend fun getReadingsForMonth(monthPattern: String, translationCode: String): List<TargetReadingDetails>
-
-    @Query("SELECT date, bookName, chapter, readingType FROM reading_schedule WHERE date LIKE :monthPattern ORDER BY date ASC, readingType ASC")
-    suspend fun getSimpleReadingsForMonth(monthPattern: String): List<SimpleReading>
+    suspend fun getVersesForReading(
+        date: String,
+        bookId: Int,
+        chapters: List<Int>,
+        readingType: String,
+        translationCode: String,
+        bookName: String
+    ): List<TargetReadingDetails>
 }

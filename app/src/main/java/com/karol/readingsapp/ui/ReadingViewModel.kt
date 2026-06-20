@@ -24,7 +24,9 @@ class ReadingViewModel(private val repository: ReadingRepository) : ViewModel() 
     private val _selectedTranslationCode = MutableStateFlow("ENG")
     val selectedTranslationCode = _selectedTranslationCode.asStateFlow()
 
-    private var currentDate = ""
+    private val _currentDate = MutableStateFlow("")
+    val currentDate: StateFlow<String> = _currentDate.asStateFlow()
+
     private var currentMonth = ""
 
     init {
@@ -39,14 +41,14 @@ class ReadingViewModel(private val repository: ReadingRepository) : ViewModel() 
 
     fun setTranslation(translationCode: String) {
         _selectedTranslationCode.value = translationCode
-        if (currentDate.isNotEmpty()) {
-            loadReading(currentDate)
+        if (_currentDate.value.isNotEmpty()) {
+            loadReading(_currentDate.value)
         }
         // Monthly plan is translation-independent now as it only shows the schedule
     }
 
     fun loadReading(date: String) {
-        currentDate = date
+        _currentDate.value = date
         viewModelScope.launch {
             val readings = repository.getReadingsForDate(date, _selectedTranslationCode.value)
             _uiState.value = readings

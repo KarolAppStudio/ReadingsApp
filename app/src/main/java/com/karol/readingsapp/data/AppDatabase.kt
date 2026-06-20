@@ -8,8 +8,8 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
-    entities = [ReadingSchedule::class, BibleTranslation::class, Verse::class],
-    version = 3,
+    entities = [ReadingPlan::class, BibleTranslation::class, Verse::class],
+    version = 5,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -35,6 +35,18 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `reading_schedule`")
+            }
+        }
+
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `bible_companion`")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val attachedDbFile = context.getDatabasePath("bibles.db")
@@ -57,7 +69,8 @@ abstract class AppDatabase : RoomDatabase() {
                     "readingplan.db",
                 )
                 .createFromAsset("readingplan.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                .fallbackToDestructiveMigration()
                 .addCallback(
                     object : Callback() {
                         override fun onOpen(db: SupportSQLiteDatabase) {
@@ -68,9 +81,6 @@ abstract class AppDatabase : RoomDatabase() {
 
                             // 2. Validate integrity and schema of the attached database
                             validateExternalDatabase(db)
-
-                            // 3. Prepopulate reading_schedule if empty
-                            prepopulateIfEmpty(db)
                         }
                     },
                 )
@@ -102,36 +112,6 @@ abstract class AppDatabase : RoomDatabase() {
                     throw IllegalStateException("External bibles.db is missing required table: $table")
                 }
             }
-        }
-
-        private fun prepopulateIfEmpty(db: SupportSQLiteDatabase) {
-            val cursor = db.query("SELECT COUNT(*) FROM reading_schedule")
-            if (cursor.moveToFirst()) {
-                val count = cursor.getInt(0)
-                if (count == 0) {
-                    val sampleData = listOf(
-                        "'2026-06-18', 0, 'Genesis', 17, 'First Reading'",
-                        "'2026-06-18', 18, 'Psalms', 19, 'Second Reading'",
-                        "'2026-06-18', 39, 'Matthew', 4, 'Third Reading'",
-                        "'2026-06-19', 0, 'Genesis', 18, 'First Reading'",
-                        "'2026-06-19', 18, 'Psalms', 20, 'Second Reading'",
-                        "'2026-06-19', 39, 'Matthew', 5, 'Third Reading'",
-                        "'2026-06-20', 0, 'Genesis', 19, 'First Reading'",
-                        "'2026-06-20', 18, 'Psalms', 21, 'Second Reading'",
-                        "'2026-06-20', 39, 'Matthew', 6, 'Third Reading'",
-                        "'2026-06-21', 0, 'Genesis', 20, 'First Reading'",
-                        "'2026-06-21', 18, 'Psalms', 22, 'Second Reading'",
-                        "'2026-06-21', 39, 'Matthew', 7, 'Third Reading'",
-                        "'2026-06-22', 0, 'Genesis', 21, 'First Reading'",
-                        "'2026-06-22', 18, 'Psalms', 23, 'Second Reading'",
-                        "'2026-06-22', 39, 'Matthew', 8, 'Third Reading'",
-                    )
-                    sampleData.forEachIndexed { index, values ->
-                        db.execSQL("INSERT INTO reading_schedule (id, date, bookId, bookName, chapter, readingType) VALUES (${index + 1}, $values)")
-                    }
-                }
-            }
-            cursor.close()
         }
     }
 }

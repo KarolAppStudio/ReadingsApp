@@ -20,7 +20,14 @@ fun AboutScreen(onBackClick: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("About", color = TextBlue) },
+                title = { 
+                    Text(
+                        "About", 
+                        color = TextBlue,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    ) 
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(

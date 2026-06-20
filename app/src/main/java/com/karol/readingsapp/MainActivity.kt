@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import com.karol.readingsapp.data.AppDatabase
 import com.karol.readingsapp.data.ReadingRepository
 import com.karol.readingsapp.ui.AboutScreen
+import com.karol.readingsapp.ui.BiblePlaceholderScreen
 import com.karol.readingsapp.ui.BibleReaderScreen
 import com.karol.readingsapp.ui.HomeScreen
 import com.karol.readingsapp.ui.ReadingPlanScreen
@@ -51,6 +52,9 @@ class MainActivity : ComponentActivity() {
                             onCalendarClick = {
                                 navController.navigate("reading_plan")
                             },
+                            onBibleClick = {
+                                navController.navigate("bible")
+                            },
                             onSettingsClick = {
                                 navController.navigate("settings")
                             },
@@ -78,9 +82,29 @@ class MainActivity : ComponentActivity() {
                                 viewModel.loadReading(date)
                                 navController.popBackStack("home", inclusive = false)
                             },
-                        ) {
-                            navController.popBackStack("home", inclusive = false)
-                        }
+                            onHomeClick = {
+                                navController.popBackStack("home", inclusive = false)
+                            },
+                            onBibleClick = {
+                                navController.navigate("bible")
+                            },
+                            onSettingsClick = {
+                                navController.navigate("settings")
+                            }
+                        )
+                    }
+                    composable("bible") {
+                        BiblePlaceholderScreen(
+                            onHomeClick = {
+                                navController.popBackStack("home", inclusive = false)
+                            },
+                            onCalendarClick = {
+                                navController.navigate("reading_plan")
+                            },
+                            onSettingsClick = {
+                                navController.navigate("settings")
+                            }
+                        )
                     }
                     composable(
                         route = "reader/{bookName}/{chapter}",

@@ -1,0 +1,142 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "3c26a6d48c84ae6fcc38f6fc6deccbc4",
+    "entities": [
+      {
+        "tableName": "reading_plan",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`day_of_year` INTEGER NOT NULL, `track_1_book` TEXT NOT NULL, `track_1_chapters` TEXT NOT NULL, `track_2_book` TEXT NOT NULL, `track_2_chapters` TEXT NOT NULL, `track_3_book` TEXT NOT NULL, `track_3_chapters` TEXT NOT NULL, PRIMARY KEY(`day_of_year`))",
+        "fields": [
+          {
+            "fieldPath": "dayOfYear",
+            "columnName": "day_of_year",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "track1Book",
+            "columnName": "track_1_book",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "track1Chapters",
+            "columnName": "track_1_chapters",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "track2Book",
+            "columnName": "track_2_book",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "track2Chapters",
+            "columnName": "track_2_chapters",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "track3Book",
+            "columnName": "track_3_book",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "track3Chapters",
+            "columnName": "track_3_chapters",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "day_of_year"
+          ]
+        }
+      },
+      {
+        "tableName": "translations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`code` TEXT NOT NULL, `language` TEXT NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`code`))",
+        "fields": [
+          {
+            "fieldPath": "code",
+            "columnName": "code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "code"
+          ]
+        }
+      },
+      {
+        "tableName": "verses",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`translation_code` TEXT NOT NULL, `book_id` INTEGER NOT NULL, `chapter` INTEGER NOT NULL, `verse` INTEGER NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`translation_code`, `book_id`, `chapter`, `verse`))",
+        "fields": [
+          {
+            "fieldPath": "translationCode",
+            "columnName": "translation_code",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookId",
+            "columnName": "book_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chapter",
+            "columnName": "chapter",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "verseId",
+            "columnName": "verse",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "translation_code",
+            "book_id",
+            "chapter",
+            "verse"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3c26a6d48c84ae6fcc38f6fc6deccbc4')"
+    ]
+  }
+}
