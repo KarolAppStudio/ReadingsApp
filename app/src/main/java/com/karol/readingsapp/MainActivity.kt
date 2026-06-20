@@ -76,14 +76,14 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("about") {
                             AboutScreen {
-                                navController.popBackStack()
+                                navController.popBackStack("home", inclusive = false)
                             }
                         }
                         composable("settings") {
                             SettingsScreen(
                                 viewModel = viewModel,
                             ) {
-                                navController.popBackStack()
+                                navController.popBackStack("home", inclusive = false)
                             }
                         }
                         composable("reading_plan") {

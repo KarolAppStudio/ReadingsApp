@@ -27,19 +27,37 @@ fun BiblePlaceholderScreen(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Bible",
-                        color = TextBlue,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp),
+                color = BackgroundBlue,
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    IconButton(
+                        onClick = onHomeClick,
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Home,
+                            contentDescription = "Home",
+                            tint = TextBlue,
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                        contentDescription = null,
+                        tint = TextBlue,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .align(Alignment.Center)
                     )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BackgroundBlue,
-                ),
-            )
+                }
+            }
         },
         bottomBar = {
             NavigationBar(

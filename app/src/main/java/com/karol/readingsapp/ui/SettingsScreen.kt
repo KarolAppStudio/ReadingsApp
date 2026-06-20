@@ -4,8 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,7 +23,7 @@ import com.karol.readingsapp.ui.theme.TextBlue
 @Composable
 fun SettingsScreen(
     viewModel: ReadingViewModel,
-    onBackClick: () -> Unit,
+    onHomeClick: () -> Unit,
 ) {
     val translations by viewModel.availableTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
@@ -31,24 +32,37 @@ fun SettingsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Settings",
-                        color = TextBlue,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextBlue)
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp),
+                color = BackgroundBlue,
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    IconButton(
+                        onClick = onHomeClick,
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Home,
+                            contentDescription = "Home",
+                            tint = TextBlue,
+                            modifier = Modifier.size(32.dp)
+                        )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BackgroundBlue,
-                ),
-            )
+
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = null,
+                        tint = TextBlue,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .align(Alignment.Center)
+                    )
+                }
+            }
         },
         containerColor = BackgroundBlue,
     ) { innerPadding ->

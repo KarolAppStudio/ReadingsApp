@@ -2,7 +2,8 @@ package com.karol.readingsapp.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,31 +17,40 @@ import com.karol.readingsapp.ui.theme.TextBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutScreen(onBackClick: () -> Unit) {
+fun AboutScreen(onHomeClick: () -> Unit) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { 
-                    Text(
-                        "About", 
-                        color = TextBlue,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                    ) 
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp),
+                color = BackgroundBlue,
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    IconButton(
+                        onClick = onHomeClick,
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            imageVector = Icons.Default.Home,
+                            contentDescription = "Home",
                             tint = TextBlue,
+                            modifier = Modifier.size(32.dp)
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BackgroundBlue,
-                ),
-            )
+
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = TextBlue,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .align(Alignment.Center)
+                    )
+                }
+            }
         },
         containerColor = BackgroundBlue,
     ) { innerPadding ->
