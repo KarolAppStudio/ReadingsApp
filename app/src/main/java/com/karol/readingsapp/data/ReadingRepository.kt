@@ -26,17 +26,25 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
 
     suspend fun getReadingsForDate(date: String, translationCode: String = "ENG"): Map<String, List<TargetReadingDetails>> {
         val localDate = LocalDate.parse(date)
-        val dayOfYear = localDate.dayOfYear
+        val dayIndex = getPlanDayIndex(localDate)
 
-        val plan = combinedDao.getReadingPlanByDay(dayOfYear) ?: return emptyMap()
+        val plan = combinedDao.getReadingPlanByDay(dayIndex) ?: return emptyMap()
 
         val readings = mutableListOf<TargetReadingDetails>()
         
-        readings.addAll(parseReading("${plan.track1Book} ${plan.track1Chapters}", "First Reading", date, translationCode))
-        readings.addAll(parseReading("${plan.track2Book} ${plan.track2Chapters}", "Second Reading", date, translationCode))
-        readings.addAll(parseReading("${plan.track3Book} ${plan.track3Chapters}", "Third Reading", date, translationCode))
+        readings.addAll(parseReading(plan.track_1 ?: "", "First Reading", date, translationCode))
+        readings.addAll(parseReading(plan.track_2 ?: "", "Second Reading", date, translationCode))
+        readings.addAll(parseReading(plan.track_3 ?: "", "Third Reading", date, translationCode))
 
         return readings.groupBy { it.readingType }
+    }
+
+    private fun getPlanDayIndex(date: LocalDate): Int {
+        if (!date.isLeapYear) return date.dayOfYear
+        val doy = date.dayOfYear
+        // Standard adjustment: Feb 29 and Mar 1 both use day 60 if only 365 readings exist.
+        // A better fix would be a 366-day table, but this ensures no crashes and continuity.
+        return if (doy <= 59) doy else if (doy == 60) 60 else doy - 1
     }
 
     private suspend fun parseReading(readingStr: String, type: String, date: String, translationCode: String): List<TargetReadingDetails> {
@@ -67,25 +75,22 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
     suspend fun getReadingsForMonth(monthStr: String): Map<String, List<SimpleReading>> {
         // monthStr is "YYYY-MM"
         val firstOfMonth = LocalDate.parse("$monthStr-01")
-        val lastOfMonth = firstOfMonth.withDayOfMonth(firstOfMonth.lengthOfMonth())
-        
-        val startDay = firstOfMonth.dayOfYear
-        val endDay = lastOfMonth.dayOfYear
-        
-        val planList = combinedDao.getReadingPlanInRange(startDay, endDay)
+        val daysInMonth = firstOfMonth.lengthOfMonth()
         
         val result = mutableMapOf<String, List<SimpleReading>>()
-        planList.forEach { plan ->
-            val localDate = LocalDate.ofYearDay(firstOfMonth.year, plan.dayOfYear)
-            val fullDate = localDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
+        for (day in 1..daysInMonth) {
+            val date = firstOfMonth.withDayOfMonth(day)
+            val dayIndex = getPlanDayIndex(date)
+            val fullDate = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
             
-            val simpleList = listOf(
-                SimpleReading(fullDate, "${plan.track1Book} ${plan.track1Chapters}", "First Reading"),
-                SimpleReading(fullDate, "${plan.track2Book} ${plan.track2Chapters}", "Second Reading"),
-                SimpleReading(fullDate, "${plan.track3Book} ${plan.track3Chapters}", "Third Reading")
-            )
-            
-            result[fullDate] = simpleList
+            combinedDao.getReadingPlanByDay(dayIndex)?.let { plan ->
+                val simpleList = listOf(
+                    SimpleReading(fullDate, plan.track_1 ?: "", "First Reading"),
+                    SimpleReading(fullDate, plan.track_2 ?: "", "Second Reading"),
+                    SimpleReading(fullDate, plan.track_3 ?: "", "Third Reading")
+                )
+                result[fullDate] = simpleList
+            }
         }
         return result
     }
