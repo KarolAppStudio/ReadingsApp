@@ -119,7 +119,7 @@ fun ReadingPlanScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPadding),
         ) {
             // Month Navigation Header
             Row(
@@ -195,7 +195,7 @@ fun ReadingDayItem(
 ) {
     val parsedDate = try {
         LocalDate.parse(date)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null
     }
     

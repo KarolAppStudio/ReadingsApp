@@ -83,11 +83,11 @@ fun BibleReaderScreen(
                 items(verses) { verse ->
                     Row(modifier = Modifier.padding(vertical = 4.dp)) {
                         Text(
-                            text = "${verse.verseId}",
+                            text = verse.verseId.toString(),
                             fontSize = 12.sp,
                             color = TextBlue.copy(alpha = 0.6f),
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(top = 2.dp, end = 8.dp)
+                            modifier = Modifier.padding(top = 2.dp, end = 8.dp),
                         )
                         Text(
                             text = verse.text,

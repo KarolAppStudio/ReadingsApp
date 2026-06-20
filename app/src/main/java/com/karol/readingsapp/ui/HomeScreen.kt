@@ -28,6 +28,7 @@ fun HomeScreen(
     onCalendarClick: () -> Unit,
     onReadingClick: (TargetReadingDetails) -> Unit,
     onSettingsClick: () -> Unit,
+    onAboutClick: () -> Unit,
 ) {
     val readingsGrouped by viewModel.uiState.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
@@ -36,6 +37,8 @@ fun HomeScreen(
     val today = remember { LocalDate.now() }
     val dateString = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
     val displayDate = today.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.US))
+
+    var menuExpanded by remember { mutableStateOf(value = false) }
 
     LaunchedEffect(dateString) {
         viewModel.loadReading(dateString)
@@ -53,8 +56,29 @@ fun HomeScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle menu click */ }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu", tint = TextBlue)
+                    Box {
+                        IconButton(onClick = { menuExpanded = true }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = TextBlue)
+                        }
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("About") },
+                                onClick = {
+                                    menuExpanded = false
+                                    onAboutClick()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Info,
+                                        contentDescription = null,
+                                        tint = TextBlue,
+                                    )
+                                },
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -150,7 +174,7 @@ fun HomeScreen(
                     }
 
                     val selectedName = translations.find { it.code == selectedCode }?.name ?: "Select Bible"
-                    var expanded by remember { mutableStateOf(false) }
+                    var expanded by remember { mutableStateOf(value = false) }
 
                     Box {
                         Surface(
@@ -234,7 +258,7 @@ fun ReadingSection(
                     "No readings scheduled for this section today.",
                     color = TextBlue.copy(alpha = 0.5f),
                     fontSize = 14.sp,
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    modifier = Modifier.padding(vertical = 8.dp),
                 )
             } else {
                 // Group by book and chapter to avoid repeating for each verse

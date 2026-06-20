@@ -37,7 +37,7 @@ data class Verse(
     @ColumnInfo(name = "book_id") val bookId: Int,
     val chapter: Int,
     @ColumnInfo(name = "verse") val verseId: Int,
-    val text: String
+    val text: String,
 )
 
 @Dao

@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.karol.readingsapp.data.AppDatabase
 import com.karol.readingsapp.data.ReadingRepository
+import com.karol.readingsapp.ui.AboutScreen
 import com.karol.readingsapp.ui.BibleReaderScreen
 import com.karol.readingsapp.ui.HomeScreen
 import com.karol.readingsapp.ui.ReadingPlanScreen
@@ -52,16 +53,23 @@ class MainActivity : ComponentActivity() {
                             },
                             onSettingsClick = {
                                 navController.navigate("settings")
-                            }
+                            },
+                            onAboutClick = {
+                                navController.navigate("about")
+                            },
                         )
+                    }
+                    composable("about") {
+                        AboutScreen {
+                            navController.popBackStack()
+                        }
                     }
                     composable("settings") {
                         SettingsScreen(
                             viewModel = viewModel,
-                            onBackClick = {
-                                navController.popBackStack()
-                            }
-                        )
+                        ) {
+                            navController.popBackStack()
+                        }
                     }
                     composable("reading_plan") {
                         ReadingPlanScreen(
@@ -70,16 +78,15 @@ class MainActivity : ComponentActivity() {
                                 viewModel.loadReading(date)
                                 navController.popBackStack("home", inclusive = false)
                             },
-                            onHomeClick = {
-                                navController.popBackStack("home", inclusive = false)
-                            }
-                        )
+                        ) {
+                            navController.popBackStack("home", inclusive = false)
+                        }
                     }
                     composable(
                         route = "reader/{bookName}/{chapter}",
                         arguments = listOf(
                             navArgument("bookName") { type = NavType.StringType },
-                            navArgument("chapter") { type = NavType.IntType }
+                            navArgument("chapter") { type = NavType.IntType },
                         ),
                     ) { backStackEntry ->
                         val bookName = backStackEntry.arguments?.getString("bookName") ?: ""
