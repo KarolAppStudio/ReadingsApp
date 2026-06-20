@@ -17,19 +17,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.TargetReadingDetails
 import com.karol.readingsapp.ui.theme.*
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: ReadingViewModel,
+    onCalendarClick: () -> Unit,
     onReadingClick: (TargetReadingDetails) -> Unit,
 ) {
     val readingsGrouped by viewModel.uiState.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     
-    LaunchedEffect(Unit) {
-        viewModel.loadReading("2026-06-12") // To match the screenshot date
+    val today = remember { LocalDate.now() }
+    val dateString = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    val displayDate = today.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.US))
+
+    LaunchedEffect(dateString) {
+        viewModel.loadReading(dateString)
     }
 
     Scaffold(
@@ -75,7 +83,7 @@ fun HomeScreen(
                     icon = { Icon(Icons.Default.DateRange, contentDescription = "Calendar") },
                     label = { Text("Calendar") },
                     selected = false,
-                    onClick = { },
+                    onClick = onCalendarClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
                         unselectedTextColor = TextBlue,
@@ -114,14 +122,36 @@ fun HomeScreen(
         ) {
             item {
                 Spacer(modifier = Modifier.height(16.dp))
-                Box(
+                Icon(
+                    Icons.Default.Home,
+                    contentDescription = null,
+                    tint = TextBlue,
+                    modifier = Modifier.size(32.dp),
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "Today's Readings",
+                            color = TextBlue,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                        )
+                        Text(
+                            displayDate,
+                            color = DateGrey,
+                            fontSize = 14.sp,
+                        )
+                    }
+
                     val selectedName = translations.find { it.code == selectedCode }?.name ?: "Select Bible"
                     var expanded by remember { mutableStateOf(false) }
 
-                    Box(modifier = Modifier.align(Alignment.CenterStart)) {
+                    Box {
                         Surface(
                             onClick = { expanded = true },
                             color = CardLavender,
@@ -159,30 +189,6 @@ fun HomeScreen(
                             }
                         }
                     }
-
-                    Icon(
-                        Icons.Default.Home,
-                        contentDescription = null,
-                        tint = TextBlue,
-                        modifier = Modifier.size(32.dp),
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    Text(
-                        "Today's Readings",
-                        color = TextBlue,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                    )
-                    Text(
-                        "Friday, 12 June 2026",
-                        color = DateGrey,
-                        fontSize = 14.sp,
-                    )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             }
@@ -192,7 +198,6 @@ fun HomeScreen(
                 ReadingSection(
                     title = type,
                     items = readingsGrouped[type] ?: emptyList(),
-                    selectedTranslationCode = selectedCode,
                     onItemClick = onReadingClick,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -205,7 +210,6 @@ fun HomeScreen(
 fun ReadingSection(
     title: String,
     items: List<TargetReadingDetails>,
-    selectedTranslationCode: String,
     onItemClick: (TargetReadingDetails) -> Unit,
 ) {
     Card(
@@ -225,28 +229,12 @@ fun ReadingSection(
             Spacer(modifier = Modifier.height(12.dp))
             
             if (items.isEmpty()) {
-                // For demonstration, if no items, show a placeholder matching the screenshot
-                when (title) {
-                    "First Reading" -> {
-                        ReadingItemPlaceholder("Judges 10") {
-                            onItemClick(TargetReadingDetails("", "Judges", 10, "Placeholder text", title, selectedTranslationCode))
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        ReadingItemPlaceholder("Judges 11") {
-                            onItemClick(TargetReadingDetails("", "Judges", 11, "Placeholder text", title, selectedTranslationCode))
-                        }
-                    }
-                    "Second Reading" -> {
-                        ReadingItemPlaceholder("Isaiah 36") {
-                            onItemClick(TargetReadingDetails("", "Isaiah", 36, "Placeholder text", title, selectedTranslationCode))
-                        }
-                    }
-                    "Third Reading" -> {
-                        ReadingItemPlaceholder("1 Peter 2") {
-                            onItemClick(TargetReadingDetails("", "1 Peter", 2, "Placeholder text", title, selectedTranslationCode))
-                        }
-                    }
-                }
+                Text(
+                    "No readings scheduled for this section today.",
+                    color = TextBlue.copy(alpha = 0.5f),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
             } else {
                 // Group by book and chapter to avoid repeating for each verse
                 val distinctReadings = items.distinctBy { "${it.bookName} ${it.chapter}" }
@@ -271,23 +259,6 @@ fun ReadingItemRow(item: TargetReadingDetails, onClick: () -> Unit) {
     ) {
         Text(
             text = "${item.bookName} ${item.chapter}",
-            modifier = Modifier.padding(16.dp),
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-        )
-    }
-}
-
-@Composable
-fun ReadingItemPlaceholder(text: String, onClick: () -> Unit) {
-    Surface(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
-        shape = RoundedCornerShape(12.dp),
-    ) {
-        Text(
-            text = text,
             modifier = Modifier.padding(16.dp),
             fontWeight = FontWeight.Bold,
             color = Color.Black,

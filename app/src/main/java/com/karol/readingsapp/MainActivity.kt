@@ -16,6 +16,7 @@ import com.karol.readingsapp.data.AppDatabase
 import com.karol.readingsapp.data.ReadingRepository
 import com.karol.readingsapp.ui.BibleReaderScreen
 import com.karol.readingsapp.ui.HomeScreen
+import com.karol.readingsapp.ui.ReadingPlanScreen
 import com.karol.readingsapp.ui.ReadingViewModel
 import com.karol.readingsapp.ui.theme.ReadingsAppTheme
 
@@ -41,10 +42,26 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController = navController, startDestination = "home") {
                     composable("home") {
                         HomeScreen(
-                            viewModel = viewModel
-                        ) { reading ->
-                            navController.navigate("reader/${reading.bookName}/${reading.chapter}")
-                        }
+                            viewModel = viewModel,
+                            onReadingClick = { reading ->
+                                navController.navigate("reader/${reading.bookName}/${reading.chapter}")
+                            },
+                            onCalendarClick = {
+                                navController.navigate("reading_plan")
+                            }
+                        )
+                    }
+                    composable("reading_plan") {
+                        ReadingPlanScreen(
+                            viewModel = viewModel,
+                            onDateClick = { date ->
+                                viewModel.loadReading(date)
+                                navController.popBackStack("home", inclusive = false)
+                            },
+                            onHomeClick = {
+                                navController.popBackStack("home", inclusive = false)
+                            }
+                        )
                     }
                     composable(
                         route = "reader/{bookName}/{chapter}",

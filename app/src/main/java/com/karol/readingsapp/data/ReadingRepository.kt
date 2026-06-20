@@ -5,6 +5,11 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
         return combinedDao.getReadingForDate(date, translationCode).groupBy { it.readingType }
     }
 
+    suspend fun getReadingsForMonth(month: String): Map<String, List<SimpleReading>> {
+        // month should be in YYYY-MM format
+        return combinedDao.getSimpleReadingsForMonth("$month%").groupBy { it.date }
+    }
+
     suspend fun getAvailableTranslations(): List<BibleTranslation> {
         return combinedDao.getAvailableTranslations()
     }
