@@ -15,9 +15,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.karol.readingsapp.data.AppDatabase
 import com.karol.readingsapp.data.LanguageService
 import com.karol.readingsapp.data.ReadingRepository
+import com.karol.readingsapp.data.bible.BibleDatabase
+import com.karol.readingsapp.data.plan.ReadingPlanDatabase
 import com.karol.readingsapp.ui.AboutScreen
 import com.karol.readingsapp.ui.BibleReaderScreen
 import com.karol.readingsapp.ui.BibleSelectionScreen
@@ -34,8 +35,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ReadingsAppTheme {
-                val database = AppDatabase.getDatabase(applicationContext)
-                val repository = ReadingRepository(database.combinedDao())
+                val bibleDatabase = BibleDatabase.getDatabase(applicationContext)
+                val planDatabase = ReadingPlanDatabase.getDatabase(applicationContext)
+                val repository = ReadingRepository(
+                    bibleDatabase.bibleDao(),
+                    planDatabase.readingPlanDao()
+                )
                 val languageService = LanguageService()
                 val viewModel: ReadingViewModel = viewModel(
                     factory = object : ViewModelProvider.Factory {

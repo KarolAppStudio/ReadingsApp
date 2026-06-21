@@ -1,9 +1,19 @@
 package com.karol.readingsapp.data
 
+import com.karol.readingsapp.data.bible.BibleDao
+import com.karol.readingsapp.data.bible.TargetReadingDetails
+import com.karol.readingsapp.data.bible.TranslationEntity
+import com.karol.readingsapp.data.plan.ReadingPlanDao
+import com.karol.readingsapp.data.plan.SimpleReading
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class ReadingRepository(private val combinedDao: CombinedDao) {
+class ReadingRepository(
+    private val bibleDao: BibleDao,
+    private val planDao: ReadingPlanDao
+) {
 
     private val bookNameToId = mapOf(
         "Genesis" to 0, "Exodus" to 1, "Leviticus" to 2, "Numbers" to 3, "Deuteronomy" to 4,
@@ -30,11 +40,11 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
         "2 Pet." to 60, "Rev." to 65, "Chronicles" to 12,
     )
 
-    suspend fun getReadingsForDate(date: String, translationCode: String = "ENG"): Map<String, List<TargetReadingDetails>> {
+    suspend fun getReadingsForDate(date: String, translationCode: String = "ENG"): Map<String, List<TargetReadingDetails>> = withContext(Dispatchers.IO) {
         val localDate = LocalDate.parse(date)
         val dayIndex = getPlanDayIndex(localDate)
 
-        val plan = combinedDao.getReadingPlanByDay(dayIndex) ?: return emptyMap()
+        val plan = planDao.getReadingPlanByDay(dayIndex) ?: return@withContext emptyMap()
 
         val readings = mutableListOf<TargetReadingDetails>()
         
@@ -42,14 +52,12 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
         readings.addAll(parseReading(plan.track2 ?: "", "Second Reading", date, translationCode))
         readings.addAll(parseReading(plan.track3 ?: "", "Third Reading", date, translationCode))
 
-        return readings.groupBy { it.readingType }
+        readings.groupBy { it.readingType }
     }
 
     private fun getPlanDayIndex(date: LocalDate): Int {
         if (!date.isLeapYear) return date.dayOfYear
         val doy = date.dayOfYear
-        // Standard adjustment: Feb 29 and Mar 1 both use day 60 if only 365 readings exist.
-        // A better fix would be a 366-day table, but this ensures no crashes and continuity.
         return if (doy <= 60) doy else doy - 1
     }
 
@@ -57,10 +65,8 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
         val cleanStr = readingStr.replace("""\.+""".toRegex(), " ").replace("""\s+""".toRegex(), " ").trim()
         if (cleanStr.isEmpty()) return null
 
-        // 1. Try exact match for book name only
         bookNameToId[cleanStr]?.let { return Triple(it, cleanStr, "1") }
 
-        // 2. Try splitting by last space to separate book from chapter
         val lastSpaceIndex = cleanStr.lastIndexOf(' ')
         if (lastSpaceIndex != -1) {
             var bookPart = cleanStr.substring(0, lastSpaceIndex).trim()
@@ -68,7 +74,6 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
 
             var bookId = bookNameToId[bookPart]
             
-            // 2a. Handle trailing dot in abbreviations if map lookup fails
             if ((bookId == null) && !bookPart.endsWith(".")) {
                 bookId = bookNameToId["$bookPart."]
                 if (bookId != null) {
@@ -79,7 +84,6 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
             bookId?.let { return Triple(it, bookPart, chapterPart) }
         }
 
-        // 3. Last resort: If we still haven't matched, but there's a book name inside the string
         for ((name, id) in bookNameToId) {
             if (cleanStr.contains(name, ignoreCase = true)) {
                 val chapters = cleanStr.replace(name, "", ignoreCase = true).replace("""\s+""".toRegex(), " ").trim()
@@ -92,7 +96,6 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
 
     private suspend fun parseReading(readingStr: String, type: String, date: String, translationCode: String): List<TargetReadingDetails> {
         val results = mutableListOf<TargetReadingDetails>()
-        // Split by semicolon to support multiple readings in one track (e.g. "2 John 1; 3 John 1")
         val parts = readingStr.split(";")
         
         for (part in parts) {
@@ -100,7 +103,6 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
             val (bookId, bookName, chaptersStr) = parsed
             
             val chapters = mutableListOf<Int>()
-            // Support both range "1-2" and comma separated "1,2"
             if (chaptersStr.isNotEmpty()) {
                 val chapterParts = chaptersStr.split(",")
                 for (cpPart in chapterParts) {
@@ -117,15 +119,14 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
             }
 
             if (chapters.isNotEmpty()) {
-                results.addAll(combinedDao.getVersesForReading(date, bookId, chapters, type, translationCode, bookName))
+                results.addAll(bibleDao.getVersesForReading(date, bookId, chapters, type, translationCode, bookName))
             }
         }
         return results
     }
 
 
-    suspend fun getReadingsForMonth(monthStr: String): Map<String, List<SimpleReading>> {
-        // monthStr is "YYYY-MM"
+    suspend fun getReadingsForMonth(monthStr: String): Map<String, List<SimpleReading>> = withContext(Dispatchers.IO) {
         val firstOfMonth = LocalDate.parse("$monthStr-01")
         val daysInMonth = firstOfMonth.lengthOfMonth()
         
@@ -135,7 +136,7 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
             val dayIndex = getPlanDayIndex(date)
             val fullDate = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
             
-            combinedDao.getReadingPlanByDay(dayIndex)?.let { plan ->
+            planDao.getReadingPlanByDay(dayIndex)?.let { plan ->
                 val simpleList = mutableListOf<SimpleReading>()
                 
                 listOf(
@@ -152,10 +153,10 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
                 result[fullDate] = simpleList
             }
         }
-        return result
+        result
     }
 
-    suspend fun getAvailableTranslations(): List<BibleTranslation> {
-        return combinedDao.getAvailableTranslations()
+    suspend fun getAvailableTranslations(): List<TranslationEntity> = withContext(Dispatchers.IO) {
+        bibleDao.getAvailableTranslations()
     }
 }

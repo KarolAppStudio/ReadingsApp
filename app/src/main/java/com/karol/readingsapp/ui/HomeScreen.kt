@@ -54,7 +54,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.karol.readingsapp.data.TargetReadingDetails
+import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.CardLavender
 import com.karol.readingsapp.ui.theme.DateGrey
@@ -214,7 +214,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Icon(
                         Icons.Default.Home,
@@ -332,7 +332,7 @@ fun AutoResizingText(
     maxLines: Int = 1,
 ) {
     var currentFontSize by remember(text) { mutableStateOf(fontSize) }
-    var readyToDraw by remember(text) { mutableStateOf(false) }
+    var readyToDraw by remember(text) { mutableStateOf(value = false) }
 
     Text(
         text = text,
@@ -368,7 +368,6 @@ fun ReadingSection(
     onItemClick: (TargetReadingDetails) -> Unit,
 ) {
     val distinctReadings = remember(items) { items.distinctBy { "${it.bookId} ${it.chapter}" } }
-    val itemCount = distinctReadings.size
     
     // Dynamic dimensions for maximum compactness
     val sectionPadding = 8.dp
@@ -404,7 +403,6 @@ fun ReadingSection(
                     ReadingItemRow(
                         item = item, 
                         strings = strings,
-                        dense = itemCount > 2,
                     ) { onItemClick(item) }
                     if (index < (distinctReadings.size - 1)) {
                         Spacer(modifier = Modifier.height(itemSpacing))
@@ -419,7 +417,6 @@ fun ReadingSection(
 fun ReadingItemRow(
     item: TargetReadingDetails, 
     strings: LocalizedStrings,
-    dense: Boolean,
     onClick: () -> Unit,
 ) {
     val bookName = strings.bookNames[item.bookId] ?: item.bookName

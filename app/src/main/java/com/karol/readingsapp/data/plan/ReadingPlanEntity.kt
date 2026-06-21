@@ -1,11 +1,11 @@
-package com.karol.readingsapp.data
+package com.karol.readingsapp.data.plan
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "reading_plan")
-data class ReadingPlan(
+data class ReadingPlanEntity(
     @PrimaryKey 
     @ColumnInfo(name = "day_of_year") 
     val dayOfYear: Int?,
@@ -18,4 +18,12 @@ data class ReadingPlan(
     
     @ColumnInfo(name = "track_3") 
     val track3: String?,
+)
+
+data class SimpleReading(
+    val date: String,
+    val bookId: Int,
+    val bookName: String,
+    val chaptersStr: String,
+    val readingType: String,
 )

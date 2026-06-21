@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import com.karol.readingsapp.data.SimpleReading
+import com.karol.readingsapp.data.plan.SimpleReading
 import com.karol.readingsapp.ui.theme.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate

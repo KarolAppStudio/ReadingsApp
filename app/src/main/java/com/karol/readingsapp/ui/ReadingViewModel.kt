@@ -2,16 +2,15 @@ package com.karol.readingsapp.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.karol.readingsapp.data.BibleTranslation
+import com.karol.readingsapp.data.LanguageService
 import com.karol.readingsapp.data.ReadingRepository
-import com.karol.readingsapp.data.SimpleReading
-import com.karol.readingsapp.data.TargetReadingDetails
+import com.karol.readingsapp.data.bible.TargetReadingDetails
+import com.karol.readingsapp.data.bible.TranslationEntity
+import com.karol.readingsapp.data.plan.SimpleReading
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
-import com.karol.readingsapp.data.LanguageService
 
 class ReadingViewModel(
     private val repository: ReadingRepository,
@@ -23,7 +22,7 @@ class ReadingViewModel(
     private val _monthlyPlan = MutableStateFlow<Map<String, List<SimpleReading>>>(emptyMap())
     val monthlyPlan = _monthlyPlan.asStateFlow()
 
-    private val _availableTranslations = MutableStateFlow<List<BibleTranslation>>(emptyList())
+    private val _availableTranslations = MutableStateFlow<List<TranslationEntity>>(emptyList())
     val availableTranslations = _availableTranslations.asStateFlow()
 
     private val _selectedTranslationCode = MutableStateFlow("ENG")
@@ -42,9 +41,6 @@ class ReadingViewModel(
         viewModelScope.launch {
             val translations = repository.getAvailableTranslations()
             _availableTranslations.value = translations
-            translations.forEach { 
-                android.util.Log.d("ReadingViewModel", "Translation: code=${it.code}, language=${it.language}, name=${it.name}")
-            }
         }
     }
 
