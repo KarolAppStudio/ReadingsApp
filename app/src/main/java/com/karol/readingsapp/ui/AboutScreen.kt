@@ -13,6 +13,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.karol.readingsapp.R
 import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.TextBlue
 
@@ -104,7 +106,7 @@ fun AboutScreen(onHomeClick: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Daily Reading Companion",
+                    text = stringResource(R.string.companion_app_name),
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextBlue.copy(alpha = 0.7f),
                     fontWeight = FontWeight.SemiBold
