@@ -297,10 +297,20 @@ fun HomeScreen(
                             DropdownMenu(
                                 expanded = expanded,
                                 onDismissRequest = { expanded = false },
+                                modifier = Modifier
+                                    .background(Color.White)
+                                    .border(1.dp, Color.Gray, RoundedCornerShape(2.dp)),
                             ) {
                                 translations.forEach { translation ->
                                     DropdownMenuItem(
-                                        text = { Text(translation.name) },
+                                        text = {
+                                            Text(
+                                                translation.name,
+                                                color = Color.Black,
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Normal,
+                                            )
+                                        },
                                         onClick = {
                                             viewModel.setTranslation(translation.code)
                                             expanded = false
