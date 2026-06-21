@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
             ReadingsAppTheme {
                 val database = AppDatabase.getDatabase(applicationContext)
                 val repository = ReadingRepository(database.combinedDao())
-                val languageService = LanguageService(applicationContext)
+                val languageService = LanguageService()
                 val viewModel: ReadingViewModel = viewModel(
                     factory = object : ViewModelProvider.Factory {
                         @Suppress("UNCHECKED_CAST")

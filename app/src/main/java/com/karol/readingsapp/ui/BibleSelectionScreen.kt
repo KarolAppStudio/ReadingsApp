@@ -25,7 +25,6 @@ import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.CardLavender
 import com.karol.readingsapp.ui.theme.TextBlue
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BibleSelectionScreen(
     viewModel: ReadingViewModel,
@@ -146,7 +145,7 @@ fun BibleSelectionScreen(
                 )
             }
 
-            items(translations) { translation ->
+            items(translations, key = { it.code }) { translation ->
                 val isSelected = translation.code == selectedCode
                 Card(
                     modifier = Modifier

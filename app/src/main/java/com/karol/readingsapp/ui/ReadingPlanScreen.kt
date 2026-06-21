@@ -33,7 +33,6 @@ import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReadingPlanScreen(
     viewModel: ReadingViewModel,
@@ -234,9 +233,11 @@ fun ReadingPlanScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(bottom = 80.dp) // Extra padding for FAB
         ) {
-            itemsIndexed(datesInMonth) { _, date ->
+            itemsIndexed(datesInMonth, key = { _, date -> date }) { _, date ->
                 val readings = monthlyPlan[date] ?: emptyList()
-                ReadingDayItem(date, readings, selectedTranslation, strings)
+                ReadingDayItem(date, readings, selectedTranslation, strings) {
+                    onDateClick(date)
+                }
             }
         }
     }
@@ -247,7 +248,8 @@ fun ReadingDayItem(
     date: String,
     readings: List<SimpleReading>,
     translationCode: String,
-    strings: LocalizedStrings
+    strings: LocalizedStrings,
+    onClick: () -> Unit,
 ) {
     val parsedDate = try {
         LocalDate.parse(date)
@@ -260,7 +262,8 @@ fun ReadingDayItem(
 
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)

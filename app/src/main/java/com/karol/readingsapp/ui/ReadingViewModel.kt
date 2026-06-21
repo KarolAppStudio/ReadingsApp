@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 import com.karol.readingsapp.data.LanguageService
-import kotlinx.coroutines.flow.asStateFlow
 
 class ReadingViewModel(
     private val repository: ReadingRepository,
@@ -34,8 +33,6 @@ class ReadingViewModel(
 
     private val _currentDate = MutableStateFlow("")
     val currentDate: StateFlow<String> = _currentDate.asStateFlow()
-
-    private var currentMonth = ""
 
     init {
         loadTranslations()
@@ -73,7 +70,6 @@ class ReadingViewModel(
     }
 
     fun loadMonthlyPlan(month: String) {
-        currentMonth = month
         viewModelScope.launch {
             _monthlyPlan.value = repository.getReadingsForMonth(month)
         }

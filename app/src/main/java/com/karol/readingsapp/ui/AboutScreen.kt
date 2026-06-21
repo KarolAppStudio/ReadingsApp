@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.TextBlue
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(onHomeClick: () -> Unit) {
     Scaffold(

@@ -22,7 +22,7 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
         "2 Peter" to 60, "1 John" to 61, "2 John" to 62, "3 John" to 63, "Jude" to 64,
         "Revelation" to 65,
         // Abbreviations from readings.xml
-        "Lev." to 2, "Deut." to 4, "1 Sam." to 8, "2 Sam." to 9, "1 Kings" to 10, "2 Kings" to 11,
+        "Lev." to 2, "Deut." to 4, "1 Sam." to 8, "2 Sam." to 9,
         "1 Chron." to 12, "2 Chron." to 13, "Nehem." to 15, "Song" to 21, "Lament." to 24,
         "Ezek." to 25, "Dan." to 26, "Habak." to 34, "Zephan." to 35, "Matt." to 39,
         "Gal." to 47, "Ephes." to 48, "Philip." to 49, "Col." to 50, "1 Thess." to 51,
@@ -50,7 +50,7 @@ class ReadingRepository(private val combinedDao: CombinedDao) {
         val doy = date.dayOfYear
         // Standard adjustment: Feb 29 and Mar 1 both use day 60 if only 365 readings exist.
         // A better fix would be a 366-day table, but this ensures no crashes and continuity.
-        return if (doy <= 59) doy else if (doy == 60) 60 else doy - 1
+        return if (doy <= 60) doy else doy - 1
     }
 
     private fun parseReadingInternal(readingStr: String): Triple<Int, String, String>? {

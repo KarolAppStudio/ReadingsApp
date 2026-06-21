@@ -108,7 +108,7 @@ fun BibleReaderScreen(
                     )
                 }
             } else {
-                items(verses) { verse ->
+                items(verses, key = { "${it.translationCode}_${it.bookId}_${it.chapter}_${it.verseId}" }) { verse ->
                     Row(modifier = Modifier.padding(vertical = 4.dp)) {
                         Text(
                             text = numberFormatter.format(verse.verseId),

@@ -1,6 +1,5 @@
 package com.karol.readingsapp.data
 
-import android.content.Context
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -9,7 +8,7 @@ enum class LanguageStatus {
     NOT_DOWNLOADED, DOWNLOADING, DOWNLOADED, ERROR
 }
 
-class LanguageService(private val context: Context) {
+class LanguageService() {
     private val _downloadStatus = MutableStateFlow<Map<String, LanguageStatus>>(emptyMap())
     val downloadStatus = _downloadStatus.asStateFlow()
 
