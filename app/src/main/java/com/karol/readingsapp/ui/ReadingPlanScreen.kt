@@ -92,7 +92,7 @@ fun ReadingPlanScreen(
                                 imageVector = Icons.Default.Home,
                                 contentDescription = strings.home,
                                 tint = TextBlue,
-                                modifier = Modifier.size(32.dp)
+                                modifier = Modifier.size(32.dp),
                             )
                         }
 

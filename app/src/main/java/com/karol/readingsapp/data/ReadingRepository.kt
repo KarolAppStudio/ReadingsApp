@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter
 
 class ReadingRepository(
     private val bibleDao: BibleDao,
-    private val planDao: ReadingPlanDao
+    private val planDao: ReadingPlanDao,
 ) {
 
     private val bookNameToId = mapOf(
@@ -143,7 +143,7 @@ class ReadingRepository(
                 }
             }
 
-            if (chapters.isNotEmpty() && bookId != -1) {
+            if ((chapters.isNotEmpty()) && (bookId != -1)) {
                 results.addAll(bibleDao.getVersesForReading(date, bookId, chapters, type, translationCode, bookName))
             }
         }

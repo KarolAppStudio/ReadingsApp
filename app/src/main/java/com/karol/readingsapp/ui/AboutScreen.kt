@@ -34,13 +34,13 @@ fun AboutScreen(onHomeClick: () -> Unit) {
                 ) {
                     IconButton(
                         onClick = onHomeClick,
-                        modifier = Modifier.align(Alignment.CenterStart)
+                        modifier = Modifier.align(Alignment.CenterStart),
                     ) {
                         Icon(
                             imageVector = Icons.Default.Home,
                             contentDescription = "Home",
                             tint = TextBlue,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(32.dp),
                         )
                     }
 
@@ -50,7 +50,7 @@ fun AboutScreen(onHomeClick: () -> Unit) {
                         tint = TextBlue,
                         modifier = Modifier
                             .size(18.dp)
-                            .align(Alignment.Center)
+                            .align(Alignment.Center),
                     )
                 }
             }

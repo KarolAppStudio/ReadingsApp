@@ -58,7 +58,7 @@ fun SettingsScreen(
                             imageVector = Icons.Default.Home,
                             contentDescription = strings.home,
                             tint = TextBlue,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(32.dp),
                         )
                     }
 
@@ -129,14 +129,14 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(16.dp),
         ) {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -146,13 +146,13 @@ fun SettingsScreen(
                             style = MaterialTheme.typography.titleMedium,
                             color = TextBlue,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 16.dp)
+                            modifier = Modifier.padding(bottom = 16.dp),
                         )
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             val selectedName = translations.find { it.code == stagedSelection }?.name ?: strings.selectBible
                             var expanded by remember { mutableStateOf(value = false) }

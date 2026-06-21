@@ -5,6 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
@@ -32,7 +36,13 @@ import com.karol.readingsapp.ui.theme.ReadingsAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
+        var keepSplashScreen = true
+        splashScreen.setKeepOnScreenCondition { keepSplashScreen }
+        lifecycleScope.launch {
+            delay(2.seconds)
+            keepSplashScreen = false
+        }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {

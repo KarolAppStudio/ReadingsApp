@@ -34,17 +34,17 @@ fun BiblePlaceholderScreen(
                 color = BackgroundBlue,
             ) {
                 Box(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 ) {
                     IconButton(
                         onClick = onHomeClick,
-                        modifier = Modifier.align(Alignment.CenterStart)
+                        modifier = Modifier.align(Alignment.CenterStart),
                     ) {
                         Icon(
                             imageVector = Icons.Default.Home,
                             contentDescription = "Home",
                             tint = TextBlue,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(32.dp),
                         )
                     }
 
