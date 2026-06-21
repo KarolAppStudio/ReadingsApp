@@ -1,5 +1,7 @@
 package com.karol.readingsapp.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -124,9 +126,41 @@ fun HomeScreen(
                         DropdownMenu(
                             expanded = menuExpanded,
                             onDismissRequest = { menuExpanded = false },
+                            modifier = Modifier
+                                .background(Color.White)
+                                .border(1.dp, Color.Gray, RoundedCornerShape(2.dp))
                         ) {
                             DropdownMenuItem(
-                                text = { Text(strings.about) },
+                                text = { 
+                                    Text(
+                                        strings.settings, 
+                                        color = Color.Black, 
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Normal
+                                    ) 
+                                },
+                                onClick = {
+                                    menuExpanded = false
+                                    onSettingsClick()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Settings,
+                                        contentDescription = null,
+                                        tint = Color.DarkGray,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { 
+                                    Text(
+                                        strings.about, 
+                                        color = Color.Black, 
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Normal
+                                    ) 
+                                },
                                 onClick = {
                                     menuExpanded = false
                                     onAboutClick()
@@ -135,7 +169,8 @@ fun HomeScreen(
                                     Icon(
                                         Icons.Default.Info,
                                         contentDescription = null,
-                                        tint = TextBlue,
+                                        tint = Color.DarkGray,
+                                        modifier = Modifier.size(18.dp)
                                     )
                                 },
                             )

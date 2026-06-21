@@ -127,14 +127,14 @@ fun ReadingPlanScreen(
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Previous Month",
+                                contentDescription = strings.previousMonth,
                                 tint = TextBlue,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
 
                         Text(
-                            text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", strings.locale)),
+                            text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM", strings.locale)),
                             color = TextBlue,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
@@ -148,7 +148,7 @@ fun ReadingPlanScreen(
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Next Month",
+                                contentDescription = strings.nextMonth,
                                 tint = TextBlue,
                                 modifier = Modifier.size(20.dp)
                             )

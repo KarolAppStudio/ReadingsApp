@@ -154,7 +154,7 @@ fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            val selectedName = translations.find { it.code == stagedSelection }?.name ?: "Select Bible"
+                            val selectedName = translations.find { it.code == stagedSelection }?.name ?: strings.selectBible
                             var expanded by remember { mutableStateOf(value = false) }
 
                             Box(modifier = Modifier.weight(1f)) {

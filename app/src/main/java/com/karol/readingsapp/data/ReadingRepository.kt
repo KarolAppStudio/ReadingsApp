@@ -31,14 +31,35 @@ class ReadingRepository(
         "Titus" to 55, "Philemon" to 56, "Hebrews" to 57, "James" to 58, "1 Peter" to 59,
         "2 Peter" to 60, "1 John" to 61, "2 John" to 62, "3 John" to 63, "Jude" to 64,
         "Revelation" to 65,
-        // Abbreviations from readings.xml
-        "Lev." to 2, "Deut." to 4, "1 Sam." to 8, "2 Sam." to 9,
-        "1 Chron." to 12, "2 Chron." to 13, "Nehem." to 15, "Song" to 21, "Lament." to 24,
-        "Ezek." to 25, "Dan." to 26, "Habak." to 34, "Zephan." to 35, "Matt." to 39,
-        "Gal." to 47, "Ephes." to 48, "Philip." to 49, "Col." to 50, "1 Thess." to 51,
-        "2 Thess." to 52, "1 Tim." to 53, "2 Tim." to 54, "Heb." to 57, "1 Pet." to 59,
-        "2 Pet." to 60, "Rev." to 65, "Chronicles" to 12,
+        // Common Abbreviations
+        "Gen" to 0, "Ex" to 1, "Exod" to 1, "Lev" to 2, "Num" to 3, "Deut" to 4,
+        "Josh" to 5, "Judg" to 6, "1Sam" to 8, "2Sam" to 9, "1Kings" to 10, "2Kings" to 11,
+        "1Chr" to 12, "2Chr" to 13, "Neh" to 15, "Esth" to 16, "Ps" to 18, "Prov" to 19,
+        "Eccl" to 20, "Song" to 21, "Isa" to 22, "Jer" to 23, "Lam" to 24, "Ezek" to 25,
+        "Dan" to 26, "Hos" to 27, "Mic" to 32, "Hab" to 34, "Zeph" to 35, "Hag" to 36,
+        "Zech" to 37, "Mal" to 38, "Matt" to 39, "Mt" to 39, "Mk" to 40, "Lk" to 41,
+        "Jn" to 42, "Rom" to 44, "1Cor" to 45, "2Cor" to 46, "Gal" to 47, "Eph" to 48,
+        "Phil" to 49, "Col" to 50, "1Thess" to 51, "2Thess" to 52, "1Tim" to 53, "2Tim" to 54,
+        "Tit" to 55, "Philem" to 56, "Heb" to 57, "Jas" to 58, "1Pet" to 59, "2Pet" to 60,
+        "1Jn" to 61, "2Jn" to 62, "3Jn" to 63, "Rev" to 65,
+        // With spaces and periods
+        "1 Sam" to 8, "2 Sam" to 9, "1 Kings" to 10, "2 Kings" to 11,
+        "1 Chron" to 12, "2 Chron" to 13, "1 Cor" to 45, "2 Cor" to 46,
+        "1 Thess" to 51, "2 Thess" to 52, "1 Tim" to 53, "2 Tim" to 54,
+        "1 Pet" to 59, "2 Pet" to 60, "1 John" to 61, "2 John" to 62, "3 John" to 63,
+        "Gen." to 0, "Exod." to 1, "Lev." to 2, "Num." to 3, "Deut." to 4,
+        "Josh." to 5, "Judg." to 6, "1 Sam." to 8, "2 Sam." to 9, "1 Kings." to 10, "2 Kings." to 11,
+        "1 Chron." to 12, "2 Chron." to 13, "Neh." to 15, "Esth." to 16, "Ps." to 18, "Prov." to 19,
+        "Eccl." to 20, "Isa." to 22, "Jer." to 23, "Lam." to 24, "Lament" to 24, "Ezek." to 25,
+        "Dan." to 26, "Hos." to 27, "Mic." to 32, "Hab." to 34, "Zeph." to 35, "Hag." to 36,
+        "Zech." to 37, "Mal." to 38, "Matt." to 39, "Gal." to 47, "Eph." to 48,
+        "Phil." to 49, "Col." to 50, "1 Thess." to 51, "2 Thess." to 52, "1 Tim." to 53,
+        "2 Tim." to 54, "Heb." to 57, "1 Pet." to 59, "2 Pet." to 60, "Rev." to 65,
+        "1 Cor." to 45, "2 Cor." to 46, "1 John." to 61, "2 John." to 62, "3 John." to 63,
+        "Chronicles" to 12, "Song of Songs" to 21,
     )
+
+    private val sortedBookNames = bookNameToId.keys.sortedByDescending { it.length }
 
     suspend fun getReadingsForDate(date: String, translationCode: String = "ENG"): Map<String, List<TargetReadingDetails>> = withContext(Dispatchers.IO) {
         val localDate = LocalDate.parse(date)
@@ -65,8 +86,7 @@ class ReadingRepository(
         val cleanStr = readingStr.replace("""\.+""".toRegex(), " ").replace("""\s+""".toRegex(), " ").trim()
         if (cleanStr.isEmpty()) return null
 
-        bookNameToId[cleanStr]?.let { return Triple(it, cleanStr, "1") }
-
+        // Try exact match first on the cleaned book name part
         val lastSpaceIndex = cleanStr.lastIndexOf(' ')
         if (lastSpaceIndex != -1) {
             var bookPart = cleanStr.substring(0, lastSpaceIndex).trim()
@@ -82,9 +102,14 @@ class ReadingRepository(
             }
 
             bookId?.let { return Triple(it, bookPart, chapterPart) }
+        } else {
+            // No space, try bookNameToId directly
+            bookNameToId[cleanStr]?.let { return Triple(it, cleanStr, "1") }
         }
 
-        for ((name, id) in bookNameToId) {
+        // Try partial matches using sorted names to avoid "Lam" matching "Lamentations" prematurely
+        for (name in sortedBookNames) {
+            val id = bookNameToId[name]!!
             if (cleanStr.contains(name, ignoreCase = true)) {
                 val chapters = cleanStr.replace(name, "", ignoreCase = true).replace("""\s+""".toRegex(), " ").trim()
                 return Triple(id, name, chapters.ifBlank { "1" })
@@ -118,7 +143,7 @@ class ReadingRepository(
                 }
             }
 
-            if (chapters.isNotEmpty()) {
+            if (chapters.isNotEmpty() && bookId != -1) {
                 results.addAll(bibleDao.getVersesForReading(date, bookId, chapters, type, translationCode, bookName))
             }
         }

@@ -20,12 +20,16 @@ data class LocalizedStrings(
     val appTitle: String,
     val bibleTranslation: String,
     val saveConfig: String,
+    val back: String,
+    val loadingReading: String,
+    val previousMonth: String,
+    val nextMonth: String,
+    val selectBible: String,
     val locale: Locale,
     val bookNames: Map<Int, String> = emptyMap(),
 )
 
 object Localization {
-    // English Book Names (IDs from ReadingRepository)
     private val EnglishBooks = mapOf(
         0 to "Genesis", 1 to "Exodus", 2 to "Leviticus", 3 to "Numbers", 4 to "Deuteronomy",
         5 to "Joshua", 6 to "Judges", 7 to "Ruth", 8 to "1 Samuel", 9 to "2 Samuel",
@@ -33,8 +37,15 @@ object Localization {
         14 to "Ezra", 15 to "Nehemiah", 16 to "Esther", 17 to "Job", 18 to "Psalms",
         19 to "Proverbs", 20 to "Ecclesiastes", 21 to "Song of Solomon", 22 to "Isaiah",
         23 to "Jeremiah", 24 to "Lamentations", 25 to "Ezekiel", 26 to "Daniel",
-        39 to "Matthew", 40 to "Mark", 41 to "Luke", 42 to "John", 43 to "Acts",
-        44 to "Romans", 65 to "Revelation",
+        27 to "Hosea", 28 to "Joel", 29 to "Amos", 30 to "Obadiah", 31 to "Jonah",
+        32 to "Micah", 33 to "Nahum", 34 to "Habakkuk", 35 to "Zephaniah", 36 to "Haggai",
+        37 to "Zechariah", 38 to "Malachi", 39 to "Matthew", 40 to "Mark", 41 to "Luke",
+        42 to "John", 43 to "Acts", 44 to "Romans", 45 to "1 Corinthians", 46 to "2 Corinthians",
+        47 to "Galatians", 48 to "Ephesians", 49 to "Philippians", 50 to "Colossians",
+        51 to "1 Thessalonians", 52 to "2 Thessalonians", 53 to "1 Timothy", 54 to "2 Timothy",
+        55 to "Titus", 56 to "Philemon", 57 to "Hebrews", 58 to "James", 59 to "1 Peter",
+        60 to "2 Peter", 61 to "1 John", 62 to "2 John", 63 to "3 John", 64 to "Jude",
+        65 to "Revelation",
     )
 
     private val HindiBooks = mapOf(
@@ -44,13 +55,20 @@ object Localization {
         14 to "एज्रा", 15 to "नहेमायाह", 16 to "एस्तेर", 17 to "अय्यूब", 18 to "भजन संहिता",
         19 to "नीतिवचन", 20 to "सभोपदेशक", 21 to "श्रेष्ठगीत", 22 to "यशायाह",
         23 to "यिर्मयाह", 24 to "विलापगीत", 25 to "यहेजकेल", 26 to "दानिय्येल",
-        39 to "मत्ती", 40 to "मरकुस", 41 to "लूका", 42 to "यूहन्ना", 43 to "प्रेरितों के काम",
-        44 to "रोमियों", 65 to "प्रकाशितवाक्य",
+        27 to "होशे", 28 to "योएल", 29 to "आमोस", 30 to "ओबद्याह", 31 to "योना",
+        32 to "मीका", 33 to "नहूम", 34 to "हबक्कूक", 35 to "सपन्याह", 36 to "हाग्गै",
+        37 to "जकर्याह", 38 to "मलाकी", 39 to "मत्ती", 40 to "मरकुस", 41 to "लूका",
+        42 to "यूहन्ना", 43 to "प्रेरितों के काम", 44 to "रोमियों", 45 to "1 कुरिन्थियों", 46 to "2 कुरिन्थियों",
+        47 to "गलातियों", 48 to "इफिसियों", 49 to "फिलिप्पियों", 50 to "कुलुस्सियों",
+        51 to "1 थिस्सलुनीकियों", 52 to "2 थिस्सलुनीकियों", 53 to "1 तीमुथियुस", 54 to "2 तीमुथियुस",
+        55 to "तीतुस", 56 to "फिलेमोन", 57 to "इब्रानियों", 58 to "याकूब", 59 to "1 पतरस",
+        60 to "2 पतरस", 61 to "1 यूहन्ना", 62 to "2 यूहन्ना", 63 to "3 यूहन्ना", 64 to "यहूదా",
+        65 to "प्रकाशितवाक्य",
     )
 
     private val BanglaBooks = mapOf(
         0 to "আদিপুস্তক", 1 to "যাত্রাপুস্তক", 2 to "লেবীয়পুস্তক", 3 to "গণনাপুস্তক", 4 to "দ্বিতীয় বিবরণ",
-        5 to "যিহোশূয়", 6 to "বিচারকচরিত", 7 to "রুথ", 8 to "১ শমূয়েল", 9 to "২ শমূয়েল",
+        5 to "যিহোশূয়", 6 to "বিচারকর্তৃগণের বিবরণ", 7 to "রুথ", 8 to "১ শমূয়েল", 9 to "২ শমূয়েল",
         10 to "১ রাজাবলি", 11 to "২ রাজাবলি", 12 to "১ বংশাবলি", 13 to "২ বংশাবলি",
         14 to "এজরা", 15 to "নেহেমিয়া", 16 to "এস্থার", 17 to "ইয়োব", 18 to "গীতসংহিতা",
         19 to "হিতোপদেশ", 20 to "উপদেশক", 21 to "পরম গীত", 22 to "যিশাইয়",
@@ -73,8 +91,15 @@ object Localization {
         14 to "ಎಜ್ರನು", 15 to "ನೆಹೆಮಿಯ", 16 to "ಎಸ್ತೇರಳು", 17 to "ಯೋಬನು", 18 to "ಕೀರ್ತನೆಗಳು",
         19 to "ಜ್ಞಾನೋಕ್ತಿಗಳು", 20 to "ಪ್ರಸಂಗಿ", 21 to "ಪರಮ ಗೀತ", 22 to "ಯೆಶಾಯ",
         23 to "ಯೆರೆಮಿಯ", 24 to "ಪ್ರಲಾಪಗಳು", 25 to "ಯೆಹೆಚ್ಚೇಲನು", 26 to "ದಾನಿಯೇಲನು",
-        39 to "ಮತ್ತಾಯನು", 40 to "ಮಾರ್ಕನು", 41 to "ಲೂಕನು", 42 to "ಯೋಹಾನನು", 43 to "ಅಪೊಸ್ತಲರ ಕೃತ್ಯಗಳು",
-        44 to "ರೋಮಾಪುರದವರಿಗೆ", 65 to "ಪ್ರಕಟನೆ",
+        27 to "ಹೋಶೇಯ", 28 to "ಯೋವೇಲ", 29 to "ಆಮೋಸ", 30 to "ಓಬದ್ಯ", 31 to "ಯೋನ",
+        32 to "ಮೀಕ", 33 to "ನಹೂಮ", 34 to "ಹಬಕ್ಕೂಕ್ಕ", 35 to "ಚೆಫನ್ಯ", 36 to "ಹಗ್ಗಾಯ",
+        37 to "ಜೆಕರ್ಯ", 38 to "ಮಲಾಕಿ", 39 to "ಮತ್ತಾಯನು", 40 to "ಮಾರ್ಕನು", 41 to "ಲೂಕನು",
+        42 to "ಯೋಹಾನನು", 43 to "ಅಪೊಸ್ತಲರ ಕೃತ್ಯಗಳು", 44 to "ರೋಮಾಪುರದವರಿಗೆ", 45 to "1 ಕೊರಿಂಥದವರಿಗೆ", 46 to "2 ಕೊರಿಂಥದವರಿಗೆ",
+        47 to "ಗಲಾತ್ಯದವರಿಗೆ", 48 to "ಎಫೆಸದವರಿಗೆ", 49 to "ಫಿಲಿಪ್ಪಿಯವರಿಗೆ", 50 to "ಕೊಲೊಸ್ಸೆಯವರಿಗೆ",
+        51 to "1 ಥೆಸಲೊನೀಕದವರಿಗೆ", 52 to "2 ಥೆಸಲೊನೀಕದವರಿಗೆ", 53 to "1 ತಿಮೊಥೆಯನಿಗೆ", 54 to "2 ತಿಮೊಥೆಯನಿಗೆ",
+        55 to "ತೀತನಿಗೆ", 56 to "ಫಿಲೆಮೋನನಿಗೆ", 57 to "ಇಬ್ರಿಯರಿಗೆ", 58 to "ಯಾಕೋಬನು", 59 to "1 ಪೇತ್ರನು",
+        60 to "2 ಪೇತ್ರನು", 61 to "1 ಯೋಹಾನನು", 62 to "2 ಯೋಹಾನನು", 63 to "3 ಯೋಹಾನನು", 64 to "ಯೂದನು",
+        65 to "ಪ್ರಕಟನೆ",
     )
 
     private val MalayalamBooks = mapOf(
@@ -84,8 +109,15 @@ object Localization {
         14 to "എസ്ര", 15 to "നെഹെമ്യാവ്", 16 to "എസ്തേർ", 17 to "ഇയ്യോബ്", 18 to "സങ്കീർത്തനങ്ങൾ",
         19 to "സദൃശവാക്യങ്ങൾ", 20 to "സഭാപ്രസംഗി", 21 to "ഉത്തമഗീതം", 22 to "യെശയ്യാവ്",
         23 to "യിരെമ്യാവ്", 24 to "വിലാപങ്ങൾ", 25 to "യെഹെസ്കേൽ", 26 to "ദാനീയേൽ",
-        39 to "മത്തായി", 40 to "മർക്കോസ്", 41 to "ലൂക്കോസ്", 42 to "യോഹന്നാൻ", 43 to "പ്രവൃത്തികൾ",
-        44 to "റോമർ", 65 to "വെളിപാട്",
+        27 to "ഹോശേയ", 28 to "യോവേൽ", 29 to "ആമോസ്", 30 to "ഓബദ്യാവ്", 31 to "യോനാ",
+        32 to "മീഖാ", 33 to "നഹൂം", 34 to "ഹബക്കൂക്", 35 to "സെഫന്യാവ്", 36 to "ഹഗ്ഗായി",
+        37 to "സെഖര്യാവ്", 38 to "മലാഖി", 39 to "മത്തായി", 40 to "മർക്കോസ്", 41 to "ലൂക്കോസ്",
+        42 to "യോഹന്നാൻ", 43 to "പ്രവൃത്തികൾ", 44 to "റോമർ", 45 to "1 കൊരിന്ത്യർ", 46 to "2 കൊരിന്ത്യർ",
+        47 to "ഗലാത്യർ", 48 to "എഫെസ്യർ", 49 to "ഫിലിപ്പിയർ", 50 to "കൊലോസ്യർ",
+        51 to "1 തെസ്സലോനിക്യർ", 52 to "2 തെസ്സലോനിക്യർ", 53 to "1 തിമൊഥെയൊസ്", 54 to "2 തിമൊഥെയൊസ്",
+        55 to "തീത്തോസ്", 56 to "ഫിലേമോൻ", 57 to "എബ്രായർ", 58 to "യാക്കോബ്", 59 to "1 പത്രോസ്",
+        60 to "2 പത്രോസ്", 61 to "1 യോഹന്നാൻ", 62 to "2 യോഹന്നാൻ", 63 to "3 യോഹന്നാൻ", 64 to "യൂദാ",
+        65 to "വെളിപാട്",
     )
 
     private val TamilBooks = mapOf(
@@ -94,9 +126,16 @@ object Localization {
         10 to "1 இராஜாக்கள்", 11 to "2 இராஜாக்கள்", 12 to "1 நாளாகமம்", 13 to "2 நாளாகமம்",
         14 to "எஸ்றா", 15 to "நெகேமியா", 16 to "எஸ்தர்", 17 to "யோபு", 18 to "சங்கீதம்",
         19 to "நீதிமொழிகள்", 20 to "பிரசங்கி", 21 to "உன்னதப்பாட்டு", 22 to "ஏசாயா",
-        23 to "எரேமியா", 24 to "புலம்பல்", 25 to "எசேக்கியேல்", 26 to "தானியேல்",
-        39 to "மத்தேயு", 40 to "மாற்கு", 41 to "லூக்கா", 42 to "யோவான்", 43 to "அப்போஸ்தலர் நடபடிகள்",
-        44 to "ரோமர்", 65 to "வெளிப்படுத்தின விசேஷம்",
+        23 to "எரேமியா", 24 to "புலம்பல்", 25 to "எசேக்கியேൽ", 26 to "தானியேல்",
+        27 to "ஓசியா", 28 to "யோவேல்", 29 to "ஆமோஸ்", 30 to "ஒபதியா", 31 to "யோனா",
+        32 to "மீகா", 33 to "நாகூம்", 34 to "ஆபகூக்", 35 to "செப்பனியா", 36 to "ஆகாய்",
+        37 to "சகரியா", 38 to "மல்கியா", 39 to "மத்தேயு", 40 to "மாற்கு", 41 to "லூக்கா",
+        42 to "யோவான்", 43 to "அப்போஸ்தலர் நடபடிகள்", 44 to "ரோமர்", 45 to "1 கொரிந்தியர்", 46 to "2 கொரிந்தியர்",
+        47 to "கலாத்தியர்", 48 to "எபேசியர்", 49 to "பிலிப்பியர்", 50 to "கொலோசெயர்",
+        51 to "1 தெசலோனிக்கேயர்", 52 to "2 தெசலோனிக்கேயர்", 53 to "1 தீமோத்தேயு", 54 to "2 தீமோத்தேயு",
+        55 to "தீத்து", 56 to "பிலேமோன்", 57 to "எபிரெயர்", 58 to "யாக்கோபு", 59 to "1 பேதுரு",
+        60 to "2 பேதுரு", 61 to "1 யோவான்", 62 to "2 யோவான்", 63 to "3 யோவான்", 64 to "யூதா",
+        65 to "வெளிப்படுத்தின விசேஷம்",
     )
 
     private val TeluguBooks = mapOf(
@@ -106,8 +145,15 @@ object Localization {
         14 to "ఎజ్రా", 15 to "నెహెమ్యా", 16 to "ఎస్తేరు", 17 to "యోబు", 18 to "కీర్తనల గ్రంథము",
         19 to "సామెతలు", 20 to "ప్రసంగి", 21 to "పరమగీతము", 22 to "యెషయా",
         23 to "యిర్మీయా", 24 to "విలాపవాక్యములు", 25 to "యెహెజ్కేలు", 26 to "దానియేలు",
-        39 to "మత్తయి", 40 to "మార్కు", 41 to "లూకా", 42 to "యోహాను", 43 to "అపొస్తలుల కార్యములు",
-        44 to "రోమీయులకు", 65 to "ప్రకటన గ్రంథము",
+        27 to "హోషేయ", 28 to "యోవేలు", 29 to "ఆమోసు", 30 to "ఓబద్యా", 31 to "యోనా",
+        32 to "మీకా", 33 to "నహూము", 34 to "హబక్కూకు", 35 to "జెఫన్యా", 36 to "హగ్గయి",
+        37 to "జెకర్యా", 38 to "మలాకీ", 39 to "మత్తయి", 40 to "మార్కు", 41 to "లూకా",
+        42 to "యోహాను", 43 to "అపొస్తలుల కార్యములు", 44 to "రోమీయులకు", 45 to "1 కొరింథీయులకు", 46 to "2 కొరింథీయులకు",
+        47 to "గలతీయులకు", 48 to "ఎఫెసీయులకు", 49 to "ఫిలిప్పీయులకు", 50 to "కొలొస్సయులకు",
+        51 to "1 థెస్సలొనీకయులకు", 52 to "2 థెస్సలొనీకయులకు", 53 to "1 తిమోతికి", 54 to "2 తిమోతికి",
+        55 to "తీతుకు", 56 to "ఫిలేమోనుకు", 57 to "హెబ్రీయులకు", 58 to "యాకోబు", 59 to "1 పేతురు",
+        60 to "2 పేతురు", 61 to "1 యోహాను", 62 to "2 యోహాను", 63 to "3 యోహాను", 64 to "యూదా",
+        65 to "ప్రకటన గ్రంథము",
     )
 
     private val English = LocalizedStrings(
@@ -128,29 +174,13 @@ object Localization {
         appTitle = "Daily Reading Companion",
         bibleTranslation = "Bible Translation",
         saveConfig = "Save Configuration",
+        back = "Back",
+        loadingReading = "Loading content...",
+        previousMonth = "Previous Month",
+        nextMonth = "Next Month",
+        selectBible = "Select Bible",
         locale = Locale.US,
         bookNames = EnglishBooks,
-    )
-
-    private val Polish = LocalizedStrings(
-        todaysReadings = "Dzisiejsze Czytania",
-        selectedReadings = "Wybrane Czytania",
-        firstReading = "Pierwsze Czytanie",
-        secondReading = "Drugie Czytanie",
-        thirdReading = "Trzecie Czytanie",
-        nextReading = "Następne Czytanie",
-        noReadings = "Brak zaplanowanych czytań dla tej sekcji.",
-        noReadingsShort = "Brak czytań",
-        availableBibles = "Dostępne Biblie",
-        home = "Główna",
-        calendar = "Kalendarz",
-        bible = "Biblia",
-        settings = "Ustawienia",
-        about = "O aplikacji",
-        appTitle = "Codzienny Towarzysz Czytań",
-        bibleTranslation = "Tłumaczenie Biblii",
-        saveConfig = "Zapisz konfigurację",
-        locale = Locale.forLanguageTag("pl"),
     )
 
     private val Bangla = LocalizedStrings(
@@ -171,6 +201,11 @@ object Localization {
         appTitle = "দৈনিক পাঠ সঙ্গী",
         bibleTranslation = "বাইবেল অনুবাদ",
         saveConfig = "সেভ করুন",
+        back = "পিছনে",
+        loadingReading = "লোড হচ্ছে...",
+        previousMonth = "পূর্ববর্তী মাস",
+        nextMonth = "পরবর্তী মাস",
+        selectBible = "বাইবেল নির্বাচন করুন",
         locale = Locale.forLanguageTag("bn-BD"),
         bookNames = BanglaBooks,
     )
@@ -193,6 +228,11 @@ object Localization {
         appTitle = "दैनिक पाठ साथी",
         bibleTranslation = "बाइबिल अनुवाद",
         saveConfig = "सहेजें",
+        back = "पीछे",
+        loadingReading = "सामग्री लोड हो रही है...",
+        previousMonth = "पिछला महीना",
+        nextMonth = "अगला महीना",
+        selectBible = "बाइबिल चुनें",
         locale = Locale.forLanguageTag("hi-IN"),
         bookNames = HindiBooks,
     )
@@ -215,6 +255,11 @@ object Localization {
         appTitle = "ದೈನಂದಿನ ಓದುವ ಒಡನಾಡಿ",
         bibleTranslation = "ಬೈಬಲ್ ಅನುವಾದ",
         saveConfig = "ಉಳಿಸಿ",
+        back = "ಹಿಂದಕ್ಕೆ",
+        loadingReading = "ವಿಷಯ ಲೋಡ್ ಆಗುತ್ತಿದೆ...",
+        previousMonth = "ಹಿಂದಿನ ತಿಂಗಳು",
+        nextMonth = "ಮುಂದಿನ ತಿಂಗಳು",
+        selectBible = "ಬೈಬಲ್ ಆಯ್ಕೆಮಾಡಿ",
         locale = Locale.forLanguageTag("kn-IN"),
         bookNames = KannadaBooks,
     )
@@ -236,7 +281,12 @@ object Localization {
         about = "കുറിച്ച്",
         appTitle = "ദിനവായന സഹായി",
         bibleTranslation = "ബൈബിൾ വിവർത്തനം",
-        saveConfig = "സേവ് ചെയ്യുക",
+        saveConfig = "ക്രമീകരണം സംരക്ഷിക്കുക",
+        back = "പുറകോട്ട്",
+        loadingReading = "ഉള്ളടക്കം ലോഡ് ചെയ്യുന്നു...",
+        previousMonth = "കഴിഞ്ഞ മാസം",
+        nextMonth = "അടുത്ത മാസം",
+        selectBible = "ബൈബിൾ തിരഞ്ഞെടുക്കുക",
         locale = Locale.forLanguageTag("ml-IN"),
         bookNames = MalayalamBooks,
     )
@@ -256,9 +306,14 @@ object Localization {
         bible = "வேதாகமம்",
         settings = "அமைப்புகள்",
         about = "பற்றி",
-        appTitle = "தினசரி வாసిப்புத் துணை",
+        appTitle = "தினசரி வாசிப்புத் துணை",
         bibleTranslation = "பைபிள் மொழிபெயர்ப்பு",
         saveConfig = "சேமி",
+        back = "பின்செல்",
+        loadingReading = "உள்ளடக்கம் ஏற்றப்படுகிறது...",
+        previousMonth = "முந்தைய மாதம்",
+        nextMonth = "அடுத்த மாதம்",
+        selectBible = "பைபிளைத் தேர்ந்தெடுக்கவும்",
         locale = Locale.forLanguageTag("ta-IN"),
         bookNames = TamilBooks,
     )
@@ -281,21 +336,34 @@ object Localization {
         appTitle = "రోజువారీ పఠన తోడు",
         bibleTranslation = "బైబిల్ అనువాదం",
         saveConfig = "సేవ్ చేయండి",
+        back = "వెనుకకు",
+        loadingReading = "కంటెంట్ లోడ్ అవుతోంది...",
+        previousMonth = "గత నెల",
+        nextMonth = "వచ్చే నెల",
+        selectBible = "బైబిల్‌ను ఎంచుకోండి",
         locale = Locale.forLanguageTag("te-IN"),
         bookNames = TeluguBooks,
     )
 
     fun getStrings(language: String): LocalizedStrings {
         android.util.Log.d("Localization", "Requested language: '$language'")
-        return when (language.lowercase().trim()) {
-            "polish", "polski", "pl" -> Polish
-            "bangla", "bengali", "bn", "ben", "bnangla" -> Bangla
+        val baseStrings = when (language.lowercase().trim()) {
+            "bangla", "bengali", "bn", "ben" -> Bangla
             "hindi", "hi", "hin" -> Hindi
             "kannada", "kn", "kan" -> Kannada
             "malayalam", "ml", "mal" -> Malayalam
             "tamil", "ta", "tam" -> Tamil
             "telugu", "te", "tel" -> Telugu
             else -> English
+        }
+        
+        // Ensure bookNames is never empty by falling back to English for missing entries
+        return if (baseStrings.bookNames.size < 66) {
+            val completeBookNames = EnglishBooks.toMutableMap()
+            completeBookNames.putAll(baseStrings.bookNames)
+            baseStrings.copy(bookNames = completeBookNames)
+        } else {
+            baseStrings
         }
     }
 }

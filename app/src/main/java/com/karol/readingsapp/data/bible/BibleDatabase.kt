@@ -26,7 +26,7 @@ abstract class BibleDatabase : RoomDatabase() {
                 val prefs = context.getSharedPreferences("bible_db_prefs", Context.MODE_PRIVATE)
                 val lastVersion = prefs.getInt("version", 0)
 
-                if (!dbFile.exists() || lastVersion < ASSET_VERSION) {
+                if (!dbFile.exists() || (lastVersion < ASSET_VERSION)) {
                     context.assets.open("bibles.db").use { input ->
                         dbFile.outputStream().use { output ->
                             input.copyTo(output)
@@ -38,21 +38,26 @@ abstract class BibleDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     BibleDatabase::class.java,
-                    "bibles.db"
+                    "bibles.db",
                 )
-                .fallbackToDestructiveMigration()
-                .addCallback(object : Callback() {
-                    override fun onOpen(db: SupportSQLiteDatabase) {
-                        super.onOpen(db)
-                        validateDatabase(db)
-                    }
-                }).build()
+                .fallbackToDestructiveMigration(dropAllTables = true)
+                .addCallback(
+                    object : Callback() {
+                        override fun onOpen(db: SupportSQLiteDatabase) {
+                            super.onOpen(db)
+                            validateDatabase(db)
+                        }
+                    },
+                ).build()
                 INSTANCE = instance
                 instance
             }
         }
 
         private fun validateDatabase(db: SupportSQLiteDatabase) {
+            // Remove Polish translations if they exist
+            db.execSQL("DELETE FROM translations WHERE language LIKE 'Polish' OR language = 'pl' OR code = 'POL'")
+
             val integrityCursor = db.query("PRAGMA integrity_check")
             if (integrityCursor.moveToFirst()) {
                 val result = integrityCursor.getString(0)

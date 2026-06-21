@@ -72,7 +72,7 @@ fun BibleReaderScreen(
                         IconButton(onClick = onHomeClick) {
                             Icon(
                                 imageVector = Icons.Default.Home,
-                                contentDescription = "Home",
+                                contentDescription = strings.home,
                                 tint = TextBlue,
                                 modifier = Modifier.size(35.dp),
                             )
@@ -80,7 +80,7 @@ fun BibleReaderScreen(
                         IconButton(onClick = onBackClick) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Back",
+                                contentDescription = strings.back,
                                 tint = TextBlue,
                             )
                         }
@@ -102,7 +102,7 @@ fun BibleReaderScreen(
             if (verses.isEmpty()) {
                 item {
                     Text(
-                        text = "Reading content will appear here...",
+                        text = strings.loadingReading,
                         color = TextBlue.copy(alpha = 0.5f),
                         fontSize = 16.sp,
                     )
