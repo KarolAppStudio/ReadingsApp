@@ -32,8 +32,14 @@ class ReadingViewModel(
     private val _chapterVerses = MutableStateFlow<List<TargetReadingDetails>>(emptyList())
     val chapterVerses = _chapterVerses.asStateFlow()
 
+    private val _secondChapterVerses = MutableStateFlow<List<TargetReadingDetails>>(emptyList())
+    val secondChapterVerses = _secondChapterVerses.asStateFlow()
+
     private val _selectedTranslationCode = MutableStateFlow("ENG")
     val selectedTranslationCode = _selectedTranslationCode.asStateFlow()
+
+    private val _secondTranslationCode = MutableStateFlow("ENG")
+    val secondTranslationCode = _secondTranslationCode.asStateFlow()
 
     val downloadStatus = languageService.downloadStatus
 
@@ -93,9 +99,25 @@ class ReadingViewModel(
         }
     }
 
+    fun loadSecondChapterVerses(bookId: Int, chapter: Int, translationCode: String) {
+        viewModelScope.launch {
+            _secondTranslationCode.value = translationCode
+            _secondChapterVerses.value = repository.getChapterVerses(bookId, chapter, translationCode)
+        }
+    }
+
     fun loadMonthlyPlan(month: String) {
         viewModelScope.launch {
             _monthlyPlan.value = repository.getReadingsForMonth(month)
+        }
+    }
+
+    fun resetBothToEnglish(bookId: Int, chapter: Int) {
+        viewModelScope.launch {
+            _selectedTranslationCode.value = "ENG"
+            _secondTranslationCode.value = "ENG"
+            _chapterVerses.value = repository.getChapterVerses(bookId, chapter, "ENG")
+            _secondChapterVerses.value = repository.getChapterVerses(bookId, chapter, "ENG")
         }
     }
 

@@ -28,6 +28,7 @@ import com.karol.readingsapp.ui.AboutScreen
 import com.karol.readingsapp.ui.BibleReaderScreen
 import com.karol.readingsapp.ui.BibleSelectionScreen
 import com.karol.readingsapp.ui.HomeScreen
+import com.karol.readingsapp.ui.ParallelReadingScreen
 import com.karol.readingsapp.ui.ReadingPlanScreen
 import com.karol.readingsapp.ui.ReadingViewModel
 import com.karol.readingsapp.ui.SettingsScreen
@@ -141,8 +142,28 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onChapterClick = { bookId, chapter ->
                                     navController.navigate("reader/$bookId/$chapter")
+                                },
+                                onParallelClick = { bookId, chapter ->
+                                    navController.navigate("parallel_reader/$bookId/$chapter")
                                 }
                             )
+                        }
+                        composable(
+                            route = "parallel_reader/{bookId}/{chapter}",
+                            arguments = listOf(
+                                navArgument("bookId") { type = NavType.IntType },
+                                navArgument("chapter") { type = NavType.IntType },
+                            ),
+                        ) { backStackEntry ->
+                            val bookId = backStackEntry.arguments?.getInt("bookId") ?: 0
+                            val chapter = backStackEntry.arguments?.getInt("chapter") ?: 0
+                            ParallelReadingScreen(
+                                bookId = bookId,
+                                chapter = chapter,
+                                viewModel = viewModel,
+                            ) {
+                                navController.popBackStack()
+                            }
                         }
                         composable(
                             route = "reader/{bookId}/{chapter}",

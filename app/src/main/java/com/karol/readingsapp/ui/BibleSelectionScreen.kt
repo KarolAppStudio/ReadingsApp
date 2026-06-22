@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
@@ -39,6 +40,7 @@ fun BibleSelectionScreen(
     onCalendarClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onChapterClick: (Int, Int) -> Unit,
+    onParallelClick: (Int, Int) -> Unit,
 ) {
     val translations by viewModel.availableTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
@@ -102,18 +104,38 @@ fun BibleSelectionScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
 
-                    if (selectedBook != null) {
-                        IconButton(
-                            onClick = {
-                                if (selectedChapter != 0) {
-                                    selectedChapter = 0
-                                } else {
-                                    selectedBook = null
-                                }
-                            },
-                            modifier = Modifier.align(Alignment.CenterEnd)
-                        ) {
-                            Icon(Icons.Default.Close, contentDescription = "Clear selection", tint = TextBlue)
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = {
+                            val bookId = selectedBook?.id ?: 0
+                            val chapter = if (selectedChapter > 0) selectedChapter else 1
+                            onParallelClick(bookId, chapter)
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.AutoStories,
+                                contentDescription = "Parallel Reading",
+                                tint = TextBlue
+                            )
+                        }
+
+                        if (selectedBook != null) {
+                            IconButton(
+                                onClick = {
+                                    if (selectedChapter != 0) {
+                                        selectedChapter = 0
+                                    } else {
+                                        selectedBook = null
+                                    }
+                                },
+                            ) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = "Clear selection",
+                                    tint = TextBlue
+                                )
+                            }
                         }
                     }
                 }
