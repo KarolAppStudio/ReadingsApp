@@ -21,9 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.bible.BookEntity
+import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.CardLavender
 import com.karol.readingsapp.ui.theme.TextBlue
@@ -349,6 +351,7 @@ fun VerseSelection(
 
 @Composable
 fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) -> Unit) {
+    android.util.Log.d("BookCard", "Book ID: ${book.id}, Name: ${book.name}, Localized: ${strings.bookNames[book.id]}")
     Card(
         onClick = { onClick(book) },
         colors = CardDefaults.cardColors(containerColor = CardLavender),
@@ -360,13 +363,15 @@ fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) 
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(
+            AutoResizingText(
                 text = strings.bookNames[book.id] ?: book.name,
                 textAlign = TextAlign.Center,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextBlue,
-                maxLines = 2
+                maxLines = 1,
+                softWrap = false,
+                minFontSize = 8.sp
             )
         }
     }

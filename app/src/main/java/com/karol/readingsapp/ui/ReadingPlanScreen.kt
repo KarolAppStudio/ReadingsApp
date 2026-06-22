@@ -22,10 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import com.karol.readingsapp.data.plan.SimpleReading
+import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.theme.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -133,7 +132,7 @@ fun ReadingPlanScreen(
                             )
                         }
 
-                        Text(
+                        AutoResizingText(
                             text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM", strings.locale)),
                             color = TextBlue,
                             fontSize = 16.sp,
@@ -235,7 +234,7 @@ fun ReadingPlanScreen(
         ) {
             itemsIndexed(datesInMonth, key = { _, date -> date }) { _, date ->
                 val readings = monthlyPlan[date] ?: emptyList()
-                ReadingDayItem(date, readings, selectedTranslation, strings) {
+                ReadingDayItem(date, readings, strings) {
                     onDateClick(date)
                 }
             }
@@ -247,7 +246,6 @@ fun ReadingPlanScreen(
 fun ReadingDayItem(
     date: String,
     readings: List<SimpleReading>,
-    translationCode: String,
     strings: LocalizedStrings,
     onClick: () -> Unit,
 ) {
@@ -308,9 +306,11 @@ fun ReadingDayItem(
                 } else {
                     readings.forEach { reading ->
                         val bookName = strings.bookNames[reading.bookId] ?: reading.bookName
-                        DynamicReadingText(
+                        AutoResizingText(
                             text = "$bookName ${reading.chaptersStr}",
-                            translationCode = translationCode
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black
                         )
                     }
                 }
@@ -319,31 +319,3 @@ fun ReadingDayItem(
     }
 }
 
-@Composable
-fun DynamicReadingText(
-    text: String,
-    translationCode: String
-) {
-    var fontSize by remember(text, translationCode) { mutableStateOf(14.sp) }
-    var readyToDraw by remember(text, translationCode) { mutableStateOf(value = false) }
-
-    Text(
-        text = text,
-        fontSize = fontSize,
-        color = Color.Black,
-        fontWeight = FontWeight.Medium,
-        maxLines = 1,
-        overflow = TextOverflow.Clip,
-        softWrap = false,
-        onTextLayout = { textLayoutResult ->
-            if ((textLayoutResult.hasVisualOverflow) && (fontSize > 10.sp)) {
-                fontSize = (fontSize.value - 0.5f).sp
-            } else {
-                readyToDraw = true
-            }
-        },
-        modifier = Modifier.drawWithContent {
-            if (readyToDraw) drawContent()
-        }
-    )
-}

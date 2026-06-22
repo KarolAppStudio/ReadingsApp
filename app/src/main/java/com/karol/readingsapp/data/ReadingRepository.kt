@@ -58,6 +58,8 @@ class ReadingRepository(
         "2 Tim." to 54, "Heb." to 57, "1 Pet." to 59, "2 Pet." to 60, "Rev." to 65,
         "1 Cor." to 45, "2 Cor." to 46, "1 John." to 61, "2 John." to 62, "3 John." to 63,
         "Chronicles" to 12, "Song of Songs" to 21,
+        "Thesselonians" to 51, "1 Thesselonians" to 51, "2 Thesselonians" to 52,
+        "1 Thess." to 51, "2 Thess." to 52,
     )
 
     private val sortedBookNames = bookNameToId.keys.sortedByDescending { it.length }
@@ -93,7 +95,14 @@ class ReadingRepository(
     }
 
     private fun parseReadingInternal(readingStr: String): Triple<Int, String, String>? {
-        val cleanStr = readingStr.replace("""\.+""".toRegex(), " ").replace("""\s+""".toRegex(), " ").trim()
+        // Normalize all types of spaces (including non-breaking spaces) to a single standard space
+        val normalizedSpaces = readingStr.replace("""[\s\u00A0\u2007\u202F\u205F\u3000]+""".toRegex(), " ")
+        
+        // Normalize dots: some plans use "Matt.1" others "Matt . 1"
+        // Replacing dots with spaces helps split the book and chapter, but we must ensure
+        // our bookNameToId map handles both "1 Thess" and "1 Thess." (which it does via the fallbacks)
+        val cleanStr = normalizedSpaces.replace("""\.+""".toRegex(), " ").replace("""\s+""".toRegex(), " ").trim()
+
         if (cleanStr.isEmpty()) return null
 
         // Try exact match first on the cleaned book name part

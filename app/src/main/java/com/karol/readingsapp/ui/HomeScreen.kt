@@ -48,15 +48,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.bible.TargetReadingDetails
+import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.CardLavender
 import com.karol.readingsapp.ui.theme.DateGrey
@@ -111,7 +109,7 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
+                    AutoResizingText(
                         strings.appTitle,
                         color = TextBlue,
                         fontSize = 16.sp,
@@ -368,43 +366,6 @@ fun HomeScreen(
 }
 
 @Composable
-fun AutoResizingText(
-    text: String,
-    fontSize: TextUnit,
-    modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified,
-    fontWeight: FontWeight? = null,
-    maxLines: Int = 1,
-) {
-    var currentFontSize by remember(text) { mutableStateOf(fontSize) }
-    var readyToDraw by remember(text) { mutableStateOf(value = false) }
-
-    Text(
-        text = text,
-        color = color,
-        fontWeight = fontWeight,
-        fontSize = currentFontSize,
-        modifier = modifier.drawWithContent {
-            if (readyToDraw) drawContent()
-        },
-        softWrap = false,
-        maxLines = maxLines,
-        overflow = TextOverflow.Clip,
-        onTextLayout = { layoutResult ->
-            if (layoutResult.didOverflowWidth) {
-                if (currentFontSize.value > 10f) {
-                    currentFontSize = (currentFontSize.value - 0.5f).sp
-                } else {
-                    readyToDraw = true
-                }
-            } else {
-                readyToDraw = true
-            }
-        }
-    )
-}
-
-@Composable
 fun ReadingSection(
     title: String,
     items: List<TargetReadingDetails>,
@@ -477,7 +438,7 @@ fun ReadingItemRow(
         color = Color.White,
         shape = RoundedCornerShape(8.dp),
     ) {
-        Text(
+        AutoResizingText(
             text = text,
             modifier = Modifier.padding(horizontal = horizontalPadding, vertical = verticalPadding),
             fontWeight = FontWeight.Bold,
