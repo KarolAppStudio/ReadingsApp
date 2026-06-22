@@ -15,10 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.CardLavender
+import com.karol.readingsapp.ui.theme.DateGrey
 import com.karol.readingsapp.ui.theme.TextBlue
 
 @Composable
@@ -28,15 +30,13 @@ fun SettingsScreen(
     onCalendarClick: () -> Unit,
     onBibleClick: () -> Unit,
 ) {
-    val translations by viewModel.availableTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
+    val translations by viewModel.availableTranslations.collectAsState()
 
     val selectedLanguage = remember(selectedCode, translations) {
         translations.find { it.code == selectedCode }?.language ?: "English"
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
-
-    var stagedSelection by remember(selectedCode) { mutableStateOf(selectedCode) }
 
     Scaffold(
         topBar = {
@@ -80,8 +80,9 @@ fun SettingsScreen(
             ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
-                    label = { Text(strings.home) },
+                    label = { Text(strings.home, textAlign = TextAlign.Center) },
                     selected = false,
+                    alwaysShowLabel = true,
                     onClick = onHomeClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
@@ -90,8 +91,9 @@ fun SettingsScreen(
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.DateRange, contentDescription = strings.calendar) },
-                    label = { Text(strings.calendar) },
+                    label = { Text(strings.calendar, textAlign = TextAlign.Center) },
                     selected = false,
+                    alwaysShowLabel = true,
                     onClick = onCalendarClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
@@ -100,8 +102,9 @@ fun SettingsScreen(
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = strings.bible) },
-                    label = { Text(strings.bible) },
+                    label = { Text(strings.bible, textAlign = TextAlign.Center) },
                     selected = false,
+                    alwaysShowLabel = true,
                     onClick = onBibleClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
@@ -110,8 +113,9 @@ fun SettingsScreen(
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Settings, contentDescription = strings.settings) },
-                    label = { Text(strings.settings) },
+                    label = { Text(strings.settings, textAlign = TextAlign.Center) },
                     selected = true,
+                    alwaysShowLabel = true,
                     onClick = { },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = TextBlue,
@@ -125,90 +129,55 @@ fun SettingsScreen(
         },
         containerColor = BackgroundBlue,
     ) { innerPadding ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(16.dp),
+            contentAlignment = Alignment.Center
         ) {
-            item {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF2E2E3A),
+                        contentColor = Color.White,
+                    ),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(20.dp)
                     ) {
                         Text(
-                            strings.bibleTranslation,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = TextBlue,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 16.dp),
+                            text = "Developer Note",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            ),
+                            modifier = Modifier.padding(bottom = 12.dp)
                         )
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            val selectedName = translations.find { it.code == stagedSelection }?.name ?: strings.selectBible
-                            var expanded by remember { mutableStateOf(value = false) }
-
-                            Box(modifier = Modifier.weight(1f)) {
-                                Surface(
-                                    onClick = { expanded = true },
-                                    color = CardLavender,
-                                    shape = RoundedCornerShape(8.dp),
-                                    modifier = Modifier.fillMaxWidth(),
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                    ) {
-                                        Text(
-                                            text = selectedName,
-                                            color = TextBlue,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 14.sp,
-                                        )
-                                        Icon(
-                                            Icons.Default.ArrowDropDown,
-                                            contentDescription = null,
-                                            tint = TextBlue,
-                                        )
-                                    }
-                                }
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false },
-                                ) {
-                                    translations.forEach { translation ->
-                                        DropdownMenuItem(
-                                            text = { Text(translation.name) },
-                                            onClick = {
-                                                stagedSelection = translation.code
-                                                expanded = false
-                                            },
-                                        )
-                                    }
-                                }
-                            }
-
-                            Button(
-                                onClick = { viewModel.setTranslation(stagedSelection) },
-                                colors = ButtonDefaults.buttonColors(containerColor = TextBlue),
-                                shape = RoundedCornerShape(8.dp),
-                                contentPadding = PaddingValues(horizontal = 12.dp),
-                            ) {
-                                Text(strings.saveConfig, color = Color.White, fontSize = 12.sp)
-                            }
-                        }
+                        Text(
+                            text = "This app is currently under development. Please report any bugs/issues that you encounter by sharing a screenshot of the incident on the whatsapp group created for the app testing as well as a short note explaining the issue you are facing.",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = Color.White.copy(alpha = 0.9f),
+                                lineHeight = 22.sp
+                            )
+                        )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Daily Reading Companion",
+                    color = DateGrey,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }

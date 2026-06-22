@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.theme.BackgroundBlue
@@ -66,8 +67,9 @@ fun BiblePlaceholderScreen(
             ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text("Home") },
+                    label = { Text("Home", textAlign = TextAlign.Center) },
                     selected = false,
+                    alwaysShowLabel = true,
                     onClick = onHomeClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
@@ -76,8 +78,9 @@ fun BiblePlaceholderScreen(
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.DateRange, contentDescription = "Calendar") },
-                    label = { Text("Calendar") },
+                    label = { Text("Calendar", textAlign = TextAlign.Center) },
                     selected = false,
+                    alwaysShowLabel = true,
                     onClick = onCalendarClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
@@ -86,8 +89,9 @@ fun BiblePlaceholderScreen(
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = "Bible") },
-                    label = { Text("Bible") },
+                    label = { Text("Bible", textAlign = TextAlign.Center) },
                     selected = true,
+                    alwaysShowLabel = true,
                     onClick = { },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = TextBlue,
@@ -99,8 +103,9 @@ fun BiblePlaceholderScreen(
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                    label = { Text("Settings") },
+                    label = { Text("Settings", textAlign = TextAlign.Center) },
                     selected = false,
+                    alwaysShowLabel = true,
                     onClick = onSettingsClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,

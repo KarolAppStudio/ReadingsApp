@@ -189,6 +189,7 @@ fun HomeScreen(
                     icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
                     label = { Text(strings.home, textAlign = TextAlign.Center) },
                     selected = true,
+                    alwaysShowLabel = true,
                     onClick = { },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = TextBlue,
@@ -202,6 +203,7 @@ fun HomeScreen(
                     icon = { Icon(Icons.Default.DateRange, contentDescription = strings.calendar) },
                     label = { Text(strings.calendar, textAlign = TextAlign.Center) },
                     selected = false,
+                    alwaysShowLabel = true,
                     onClick = onCalendarClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
@@ -212,6 +214,7 @@ fun HomeScreen(
                     icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = strings.bible) },
                     label = { Text(strings.bible, textAlign = TextAlign.Center) },
                     selected = false,
+                    alwaysShowLabel = true,
                     onClick = onBibleClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
@@ -222,6 +225,7 @@ fun HomeScreen(
                     icon = { Icon(Icons.Default.Settings, contentDescription = strings.settings) },
                     label = { Text(strings.settings, textAlign = TextAlign.Center) },
                     selected = false,
+                    alwaysShowLabel = true,
                     onClick = onSettingsClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,

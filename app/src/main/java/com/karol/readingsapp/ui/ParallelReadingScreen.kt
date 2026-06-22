@@ -1,7 +1,7 @@
 package com.karol.readingsapp.ui
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,7 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -116,8 +117,13 @@ fun ParallelReadingScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { isSyncEnabled = !isSyncEnabled }) {
-                        Box(contentAlignment = Alignment.Center) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .clickable { isSyncEnabled = !isSyncEnabled }
+                            .padding(horizontal = 8.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp)) {
                             if (isSyncEnabled) {
                                 Canvas(modifier = Modifier.size(32.dp)) {
                                     drawCircle(
@@ -133,23 +139,42 @@ fun ParallelReadingScreen(
                                 }
                             }
                             Icon(
-                                imageVector = Icons.Default.Link,
+                                imageVector = if (isSyncEnabled) Icons.Default.Lock else Icons.Default.LockOpen,
                                 contentDescription = strings.sync,
-                                tint = if (isSyncEnabled) Color(0xFF00FF00) else TextBlue
+                                tint = if (isSyncEnabled) Color(0xFF00FF00) else TextBlue,
+                                modifier = Modifier.size(24.dp)
                             )
                         }
+                        Text(
+                            text = "Lock Grids",
+                            color = TextBlue,
+                            fontSize = 10.sp
+                        )
                     }
-                    IconButton(onClick = {
-                        viewModel.resetBothToEnglish(bookId, chapter)
-                        scope.launch {
-                            listState1.animateScrollToItem(0)
-                            listState2.animateScrollToItem(0)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .clickable {
+                                viewModel.resetBothToEnglish(bookId, chapter)
+                                scope.launch {
+                                    listState1.animateScrollToItem(0)
+                                    listState2.animateScrollToItem(0)
+                                }
+                            }
+                            .padding(horizontal = 8.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp)) {
+                            Icon(
+                                imageVector = Icons.Default.RestartAlt,
+                                contentDescription = strings.reset,
+                                tint = TextBlue,
+                                modifier = Modifier.size(24.dp)
+                            )
                         }
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.RestartAlt,
-                            contentDescription = strings.reset,
-                            tint = TextBlue
+                        Text(
+                            text = "Reset",
+                            color = TextBlue,
+                            fontSize = 10.sp
                         )
                     }
                 },

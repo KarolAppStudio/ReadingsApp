@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(
                                 viewModel = viewModel,
                                 onReadingClick = { reading ->
-                                    navController.navigate("reader/${reading.bookId}/${reading.chapter}")
+                                    navController.navigate("reader/${reading.bookId}/${reading.chapter}/1")
                                 },
                                 onCalendarClick = {
                                     navController.navigate("reading_plan")
@@ -140,8 +140,8 @@ class MainActivity : ComponentActivity() {
                                 onSettingsClick = {
                                     navController.navigate("settings")
                                 },
-                                onChapterClick = { bookId, chapter ->
-                                    navController.navigate("reader/$bookId/$chapter")
+                                onChapterClick = { bookId, chapter, verseId ->
+                                    navController.navigate("reader/$bookId/$chapter/$verseId")
                                 },
                                 onParallelClick = { bookId, chapter ->
                                     navController.navigate("parallel_reader/$bookId/$chapter")
@@ -166,24 +166,32 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable(
-                            route = "reader/{bookId}/{chapter}",
+                            route = "reader/{bookId}/{chapter}/{verseId}",
                             arguments = listOf(
                                 navArgument("bookId") { type = NavType.IntType },
                                 navArgument("chapter") { type = NavType.IntType },
+                                navArgument("verseId") { type = NavType.IntType },
                             ),
                         ) { backStackEntry ->
                             val bookId = backStackEntry.arguments?.getInt("bookId") ?: 0
                             val chapter = backStackEntry.arguments?.getInt("chapter") ?: 0
+                            val verseId = backStackEntry.arguments?.getInt("verseId") ?: 1
                             BibleReaderScreen(
                                 bookId = bookId,
                                 chapter = chapter,
+                                initialVerse = verseId,
                                 viewModel = viewModel,
                                 onHomeClick = {
                                     navController.popBackStack("home", inclusive = false)
                                 },
-                            ) {
-                                navController.popBackStack()
-                            }
+                                onBackClick = {
+                                    navController.popBackStack()
+                                },
+                                onParallelClick = { bId, chap ->
+                                    viewModel.loadSecondChapterVerses(bId, chap, "ENG")
+                                    navController.navigate("parallel_reader/$bId/$chap")
+                                }
+                            )
                         }
                     }
                 }

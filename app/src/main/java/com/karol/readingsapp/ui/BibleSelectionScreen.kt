@@ -1,5 +1,6 @@
 package com.karol.readingsapp.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -39,7 +40,7 @@ fun BibleSelectionScreen(
     onHomeClick: () -> Unit,
     onCalendarClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    onChapterClick: (Int, Int) -> Unit,
+    onChapterClick: (Int, Int, Int) -> Unit,
     onParallelClick: (Int, Int) -> Unit,
 ) {
     val translations by viewModel.availableTranslations.collectAsState()
@@ -108,15 +109,26 @@ fun BibleSelectionScreen(
                         modifier = Modifier.align(Alignment.CenterEnd),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(onClick = {
-                            val bookId = selectedBook?.id ?: 0
-                            val chapter = if (selectedChapter > 0) selectedChapter else 1
-                            onParallelClick(bookId, chapter)
-                        }) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .clickable {
+                                    val bookId = selectedBook?.id ?: 0
+                                    val chapter = if (selectedChapter > 0) selectedChapter else 1
+                                    onParallelClick(bookId, chapter)
+                                }
+                                .padding(horizontal = 8.dp)
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.AutoStories,
                                 contentDescription = "Parallel Reading",
-                                tint = TextBlue
+                                tint = TextBlue,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Text(
+                                text = "Parallel",
+                                color = TextBlue,
+                                fontSize = 10.sp
                             )
                         }
 
@@ -148,8 +160,9 @@ fun BibleSelectionScreen(
             ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
-                    label = { Text(strings.home) },
+                    label = { Text(strings.home, textAlign = TextAlign.Center) },
                     selected = false,
+                    alwaysShowLabel = true,
                     onClick = onHomeClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
@@ -158,8 +171,9 @@ fun BibleSelectionScreen(
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.DateRange, contentDescription = strings.calendar) },
-                    label = { Text(strings.calendar) },
+                    label = { Text(strings.calendar, textAlign = TextAlign.Center) },
                     selected = false,
+                    alwaysShowLabel = true,
                     onClick = onCalendarClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
@@ -168,8 +182,9 @@ fun BibleSelectionScreen(
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = strings.bible) },
-                    label = { Text(strings.bible) },
+                    label = { Text(strings.bible, textAlign = TextAlign.Center) },
                     selected = true,
+                    alwaysShowLabel = true,
                     onClick = { },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = TextBlue,
@@ -181,8 +196,9 @@ fun BibleSelectionScreen(
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Settings, contentDescription = strings.settings) },
-                    label = { Text(strings.settings) },
+                    label = { Text(strings.settings, textAlign = TextAlign.Center) },
                     selected = false,
+                    alwaysShowLabel = true,
                     onClick = onSettingsClick,
                     colors = NavigationBarItemDefaults.colors(
                         unselectedIconColor = TextBlue,
@@ -239,7 +255,7 @@ fun BibleSelectionScreen(
                         mode = currentMode,
                         verseCount = verseCount,
                         onVerseClick = { verse ->
-                            onChapterClick(selectedBook!!.id, selectedChapter)
+                            onChapterClick(selectedBook!!.id, selectedChapter, verse)
                         }
                     )
                 }
