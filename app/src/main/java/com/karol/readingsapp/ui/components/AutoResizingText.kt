@@ -26,8 +26,8 @@ fun AutoResizingText(
     minFontSize: TextUnit = 10.sp,
     softWrap: Boolean = false,
 ) {
-    var currentFontSize by remember(text) { mutableStateOf(fontSize) }
-    var readyToDraw by remember(text) { mutableStateOf(false) }
+    var currentFontSize by remember(text) { mutableStateOf(value = fontSize) }
+    var readyToDraw by remember(text) { mutableStateOf(value = false) }
 
     Text(
         text = text,
@@ -43,11 +43,11 @@ fun AutoResizingText(
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
         onTextLayout = { layoutResult ->
-            if (layoutResult.hasVisualOverflow && currentFontSize.value > minFontSize.value) {
+            if (layoutResult.hasVisualOverflow && (currentFontSize.value > minFontSize.value)) {
                 currentFontSize = (currentFontSize.value - 0.5f).sp
             } else {
                 readyToDraw = true
             }
-        }
+        },
     )
 }

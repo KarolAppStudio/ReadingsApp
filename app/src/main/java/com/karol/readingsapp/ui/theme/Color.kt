@@ -7,6 +7,9 @@ val CardLavender = Color(0xFFEEEBFF)
 val TextBlue = Color(0xFF0073B4)
 val DateGrey = Color(0xFF757575)
 
+val OTGreen = Color(0xFFC6E0B4)
+val NTGold = Color(0xFFFFE699)
+
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)

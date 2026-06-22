@@ -12,7 +12,7 @@ data class BookEntity(
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "osis_code") val osisCode: String,
     @ColumnInfo(name = "sort_order") val sortOrder: Int,
-    @ColumnInfo(name = "testament") val testament: String
+    @ColumnInfo(name = "testament") val testament: String,
 )
 
 @Entity(tableName = "translations")

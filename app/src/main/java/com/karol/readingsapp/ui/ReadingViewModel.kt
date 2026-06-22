@@ -1,5 +1,6 @@
 package com.karol.readingsapp.ui
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.karol.readingsapp.data.LanguageService
@@ -16,7 +17,10 @@ import kotlinx.coroutines.launch
 class ReadingViewModel(
     private val repository: ReadingRepository,
     private val languageService: LanguageService,
+    context: Context,
 ) : ViewModel() {
+    private val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+
     private val _uiState = MutableStateFlow<Map<String, List<TargetReadingDetails>>>(emptyMap())
     val uiState: StateFlow<Map<String, List<TargetReadingDetails>>> = _uiState
 
@@ -35,7 +39,7 @@ class ReadingViewModel(
     private val _secondChapterVerses = MutableStateFlow<List<TargetReadingDetails>>(emptyList())
     val secondChapterVerses = _secondChapterVerses.asStateFlow()
 
-    private val _selectedTranslationCode = MutableStateFlow("ENG")
+    private val _selectedTranslationCode = MutableStateFlow(prefs.getString("default_bible", "ENG") ?: "ENG")
     val selectedTranslationCode = _selectedTranslationCode.asStateFlow()
 
     private val _secondTranslationCode = MutableStateFlow("ENG")
@@ -69,6 +73,9 @@ class ReadingViewModel(
         viewModelScope.launch {
             val translations = repository.getAvailableTranslations()
             _availableTranslations.value = translations
+            translations.find { it.code == _selectedTranslationCode.value }?.let {
+                languageService.downloadLanguageScript(it.language)
+            }
         }
     }
 
@@ -78,6 +85,7 @@ class ReadingViewModel(
             viewModelScope.launch {
                 languageService.downloadLanguageScript(it.language)
                 _selectedTranslationCode.value = translationCode
+                prefs.edit().putString("default_bible", translationCode).apply()
                 if (_currentDate.value.isNotEmpty()) {
                     loadReading(_currentDate.value)
                 }
@@ -112,19 +120,14 @@ class ReadingViewModel(
         }
     }
 
-    fun resetBothToEnglish(bookId: Int, chapter: Int) {
+    fun resetParallelReading(bookId: Int, chapter: Int) {
         viewModelScope.launch {
-            _selectedTranslationCode.value = "ENG"
+            // First grid remains the default language Bible (_selectedTranslationCode)
+            // Second grid is strictly set to English
             _secondTranslationCode.value = "ENG"
-            _chapterVerses.value = repository.getChapterVerses(bookId, chapter, "ENG")
+            _chapterVerses.value = repository.getChapterVerses(bookId, chapter, _selectedTranslationCode.value)
             _secondChapterVerses.value = repository.getChapterVerses(bookId, chapter, "ENG")
         }
     }
 
-    fun getVersesByBookId(bookId: Int, chapter: Int): List<TargetReadingDetails> {
-        return _uiState.value.values.asSequence()
-            .flatten()
-            .filter { (it.bookId == bookId) && (it.chapter == chapter) }
-            .toList()
-    }
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.CardLavender
 import com.karol.readingsapp.ui.theme.TextBlue
@@ -84,11 +85,12 @@ fun BibleReaderScreen(
                             modifier = Modifier.size(24.dp),
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            "$bookName ${numberFormatter.format(chapter)}",
+                        AutoResizingText(
+                            text = "$bookName ${numberFormatter.format(chapter)}",
                             color = TextBlue,
-                            style = MaterialTheme.typography.titleMedium,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
+                            maxLines = 1,
                         )
                     }
                 },
@@ -119,7 +121,7 @@ fun BibleReaderScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .clickable { onParallelClick(bookId, chapter) }
-                            .padding(horizontal = 8.dp)
+                            .padding(horizontal = 8.dp),
                     ) {
                         Icon(
                             imageVector = Icons.Default.AutoStories,

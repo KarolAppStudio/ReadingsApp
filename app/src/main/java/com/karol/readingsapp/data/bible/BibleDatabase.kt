@@ -101,7 +101,7 @@ abstract class BibleDatabase : RoomDatabase() {
             }
             genesisCursor.close()
 
-            if (count < 66 || !hasGenesis) {
+            if ((count < 66) || !hasGenesis) {
                 db.execSQL("DELETE FROM books")
                 populateBooks(db)
             }
@@ -123,7 +123,7 @@ abstract class BibleDatabase : RoomDatabase() {
                 "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy",
                 "Titus", "Philemon", "Hebrews", "James", "1 Peter",
                 "2 Peter", "1 John", "2 John", "3 John", "Jude",
-                "Revelation"
+                "Revelation",
             )
             val osis = listOf(
                 "Gen", "Exod", "Lev", "Num", "Deut", "Josh", "Judg", "Ruth", "1Sam", "2Sam",

@@ -1,7 +1,6 @@
 package com.karol.readingsapp.ui
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -134,7 +133,7 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(16.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,

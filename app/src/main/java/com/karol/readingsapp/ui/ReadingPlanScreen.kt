@@ -22,6 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import com.karol.readingsapp.data.plan.SimpleReading
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.theme.*
@@ -33,7 +35,6 @@ import java.util.Locale
 @Composable
 fun ReadingPlanScreen(
     viewModel: ReadingViewModel,
-    onDateClick: (String) -> Unit,
     onHomeClick: () -> Unit,
     onBibleClick: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -67,14 +68,18 @@ fun ReadingPlanScreen(
         datesInMonth.indexOf(today.toString())
     }
 
-    LaunchedEffect(todayIndex, listState.layoutInfo.viewportSize) {
-        if (todayIndex != -1 && listState.layoutInfo.viewportSize.height > 0) {
-            val viewportHeight = listState.layoutInfo.viewportSize.height
-            // Scroll so the top of the item is roughly at the center of the viewport
-            // Subtracting an estimated half-item height (approx 40dp in pixels) to center it better
-            val density = 3f // Approximate density, though using pixel offset is safer
-            val halfItemHeight = (40 * density).toInt() 
-            listState.scrollToItem(todayIndex, -(viewportHeight / 2 - halfItemHeight))
+    LaunchedEffect(todayIndex) {
+        if (todayIndex != -1) {
+            snapshotFlow { listState.layoutInfo.viewportSize.height }
+                .filter { it > 0 }
+                .first()
+                .let { viewportHeight ->
+                    // Scroll so the top of the item is roughly at the center of the viewport
+                    // Subtracting an estimated half-item height (approx 40dp in pixels) to center it better
+                    val density = 3f // Approximate density, though using pixel offset is safer
+                    val halfItemHeight = (40 * density).toInt()
+                    listState.scrollToItem(todayIndex, -(viewportHeight / 2 - halfItemHeight))
+                }
         }
     }
 
@@ -235,10 +240,8 @@ fun ReadingPlanScreen(
                     date = date,
                     readings = readings,
                     strings = strings,
-                    isToday = date == today.toString()
-                ) {
-                    onDateClick(date)
-                }
+                    isToday = date == today.toString(),
+                )
             }
         }
     }
@@ -250,7 +253,6 @@ fun ReadingDayItem(
     readings: List<SimpleReading>,
     strings: LocalizedStrings,
     isToday: Boolean,
-    onClick: () -> Unit,
 ) {
     val parsedDate = try {
         LocalDate.parse(date)
@@ -263,8 +265,7 @@ fun ReadingDayItem(
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isToday) CardLavender else Color.White

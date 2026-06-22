@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -20,12 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.data.bible.TranslationEntity
+import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.CardLavender
 import com.karol.readingsapp.ui.theme.TextBlue
@@ -36,7 +37,7 @@ fun ParallelReadingScreen(
     bookId: Int,
     chapter: Int,
     viewModel: ReadingViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
 ) {
     val verses1 by viewModel.chapterVerses.collectAsState()
     val verses2 by viewModel.secondChapterVerses.collectAsState()
@@ -47,34 +48,13 @@ fun ParallelReadingScreen(
     val listState1 = rememberLazyListState()
     val listState2 = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    var isSyncEnabled by remember { mutableStateOf(false) }
+    var isSyncEnabled by remember { mutableStateOf(value = false) }
 
     LaunchedEffect(isSyncEnabled) {
-        if (isSyncEnabled) {
-            listState2.scrollToItem(
-                listState1.firstVisibleItemIndex,
-                listState1.firstVisibleItemScrollOffset
-            )
-        }
-    }
-
-    if (isSyncEnabled) {
-        LaunchedEffect(listState1.firstVisibleItemIndex, listState1.firstVisibleItemScrollOffset) {
-            if (listState1.isScrollInProgress) {
-                listState2.scrollToItem(
-                    listState1.firstVisibleItemIndex,
-                    listState1.firstVisibleItemScrollOffset
-                )
-            }
-        }
-        LaunchedEffect(listState2.firstVisibleItemIndex, listState2.firstVisibleItemScrollOffset) {
-            if (listState2.isScrollInProgress) {
-                listState1.scrollToItem(
-                    listState2.firstVisibleItemIndex,
-                    listState2.firstVisibleItemScrollOffset
-                )
-            }
-        }
+        listState2.scrollToItem(
+            listState1.firstVisibleItemIndex,
+            listState1.firstVisibleItemScrollOffset
+        )
     }
 
     val selectedLanguage = remember(selectedCode1, translations) {
@@ -100,11 +80,12 @@ fun ParallelReadingScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
+                    AutoResizingText(
                         text = "$bookName $chapter",
                         color = TextBlue,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        maxLines = 1,
                     )
                 },
                 navigationIcon = {
@@ -155,7 +136,7 @@ fun ParallelReadingScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .clickable {
-                                viewModel.resetBothToEnglish(bookId, chapter)
+                                viewModel.resetParallelReading(bookId, chapter)
                                 scope.launch {
                                     listState1.animateScrollToItem(0)
                                     listState2.animateScrollToItem(0)
@@ -214,35 +195,73 @@ fun ParallelReadingScreen(
             }
 
             // Content Row
-            Row(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                // First Column
+            if (isSyncEnabled) {
+                val maxVerses = maxOf(verses1.size, verses2.size)
                 LazyColumn(
                     state = listState1,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .padding(horizontal = 4.dp)
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    items(verses1) { verse ->
-                        VerseItem(verse, numberFormatter)
+                    items(maxVerses) { index ->
+                        val v1 = verses1.getOrNull(index)
+                        val v2 = verses2.getOrNull(index)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(IntrinsicSize.Max)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(horizontal = 4.dp)
+                            ) {
+                                if (v1 != null) VerseItem(v1, numberFormatter)
+                            }
+                            VerticalDivider(
+                                modifier = Modifier.fillMaxHeight(),
+                                thickness = 1.dp,
+                                color = TextBlue.copy(alpha = 0.2f)
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(horizontal = 4.dp)
+                            ) {
+                                if (v2 != null) VerseItem(v2, numberFormatter)
+                            }
+                        }
                     }
                 }
-
-                // Divider
-                VerticalDivider(thickness = 1.dp, color = TextBlue.copy(alpha = 0.2f))
-
-                // Second Column
-                LazyColumn(
-                    state = listState2,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .padding(horizontal = 4.dp)
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    items(verses2) { verse ->
-                        VerseItem(verse, numberFormatter)
+                    // First Column
+                    LazyColumn(
+                        state = listState1,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(horizontal = 4.dp)
+                    ) {
+                        items(verses1) { verse ->
+                            VerseItem(verse, numberFormatter)
+                        }
+                    }
+
+                    // Divider
+                    VerticalDivider(thickness = 1.dp, color = TextBlue.copy(alpha = 0.2f))
+
+                    // Second Column
+                    LazyColumn(
+                        state = listState2,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(horizontal = 4.dp)
+                    ) {
+                        items(verses2) { verse ->
+                            VerseItem(verse, numberFormatter)
+                        }
                     }
                 }
             }
@@ -258,7 +277,7 @@ fun TranslationSelector(
     modifier: Modifier = Modifier,
     placeholder: String = ""
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(value = false) }
     val transName = translations.find { it.code == selectedTranslationCode }?.name ?: placeholder
 
     Box(modifier = modifier) {

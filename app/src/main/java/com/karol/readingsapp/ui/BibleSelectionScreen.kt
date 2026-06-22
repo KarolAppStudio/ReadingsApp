@@ -30,6 +30,8 @@ import com.karol.readingsapp.data.bible.BookEntity
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.CardLavender
+import com.karol.readingsapp.ui.theme.NTGold
+import com.karol.readingsapp.ui.theme.OTGreen
 import com.karol.readingsapp.ui.theme.TextBlue
 
 enum class NavMode { Grid, List }
@@ -94,7 +96,7 @@ fun BibleSelectionScreen(
                         )
                     }
 
-                    Text(
+                    AutoResizingText(
                         text = when {
                             selectedBook == null -> strings.bible
                             selectedChapter == 0 -> strings.bookNames[selectedBook!!.id] ?: selectedBook!!.name
@@ -102,6 +104,7 @@ fun BibleSelectionScreen(
                         },
                         color = TextBlue,
                         fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
                         modifier = Modifier.align(Alignment.Center)
                     )
 
@@ -390,9 +393,14 @@ fun VerseSelection(
 @Composable
 fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) -> Unit) {
     android.util.Log.d("BookCard", "Book ID: ${book.id}, Name: ${book.name}, Localized: ${strings.bookNames[book.id]}")
+    val backgroundColor = when (book.testament) {
+        "OT" -> OTGreen
+        "NT" -> NTGold
+        else -> CardLavender
+    }
     Card(
         onClick = { onClick(book) },
-        colors = CardDefaults.cardColors(containerColor = CardLavender),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
         shape = RoundedCornerShape(8.dp)
     ) {
         Box(

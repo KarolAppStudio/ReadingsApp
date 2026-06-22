@@ -76,7 +76,7 @@ fun AboutScreen(onHomeClick: () -> Unit) {
 
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = androidx.compose.ui.graphics.Color(0xFF2C2C34)
+                    containerColor = androidx.compose.ui.graphics.Color(0xFF2C2C34),
                 ),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth()

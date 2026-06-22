@@ -126,7 +126,7 @@ fun HomeScreen(
                             onDismissRequest = { menuExpanded = false },
                             modifier = Modifier
                                 .background(Color.White)
-                                .border(1.dp, Color.Gray, RoundedCornerShape(2.dp))
+                                .border(1.dp, Color.Gray, RoundedCornerShape(2.dp)),
                         ) {
                             DropdownMenuItem(
                                 text = { 

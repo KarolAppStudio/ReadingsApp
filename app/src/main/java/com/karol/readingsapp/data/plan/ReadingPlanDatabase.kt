@@ -28,7 +28,7 @@ abstract class ReadingPlanDatabase : RoomDatabase() {
 
                 android.util.Log.d("ReadingPlanDatabase", "dbFile path: ${dbFile.absolutePath}, exists: ${dbFile.exists()}, lastVersion: $lastVersion, ASSET_VERSION: $ASSET_VERSION")
 
-                if (!dbFile.exists() || lastVersion < ASSET_VERSION) {
+                if (!dbFile.exists() || (lastVersion < ASSET_VERSION)) {
                     android.util.Log.d("ReadingPlanDatabase", "Copying database from assets...")
                     dbFile.parentFile?.mkdirs()
                     try {
@@ -49,10 +49,11 @@ abstract class ReadingPlanDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     ReadingPlanDatabase::class.java,
-                    "readingplan.db"
+                    "readingplan.db",
                 )
                 .fallbackToDestructiveMigration(dropAllTables = true)
-                .addCallback(object : Callback() {
+                .addCallback(
+                    object : Callback() {
                     override fun onOpen(db: SupportSQLiteDatabase) {
                         super.onOpen(db)
                         validateDatabase(db)

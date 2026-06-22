@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
                     factory = object : ViewModelProvider.Factory {
                         @Suppress("UNCHECKED_CAST")
                         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                            return ReadingViewModel(repository, languageService) as T
+                            return ReadingViewModel(repository, languageService, applicationContext) as T
                         }
                     },
                 )
@@ -113,10 +113,6 @@ class MainActivity : ComponentActivity() {
                         composable("reading_plan") {
                             ReadingPlanScreen(
                                 viewModel = viewModel,
-                                onDateClick = { date ->
-                                    viewModel.loadReading(date)
-                                    navController.popBackStack("home", inclusive = false)
-                                },
                                 onHomeClick = {
                                     navController.popBackStack("home", inclusive = false)
                                 },

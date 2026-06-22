@@ -166,7 +166,8 @@ class ReadingRepository(
                 val verses = bibleDao.getVersesForReading(date, bookId, chapters, type, translationCode, bookName)
                 if (verses.isEmpty()) {
                     // Fallback to ensure something is displayed if the plan has the reference but DB lacks the text
-                    results.add(TargetReadingDetails(
+                    results.add(
+                        TargetReadingDetails(
                         date = date,
                         bookId = bookId,
                         bookName = bookName,
@@ -174,7 +175,7 @@ class ReadingRepository(
                         verseId = 1,
                         text = "Reading content not found.",
                         readingType = type,
-                        translationCode = translationCode
+                        translationCode = translationCode,
                     ))
                 } else {
                     results.addAll(verses)
