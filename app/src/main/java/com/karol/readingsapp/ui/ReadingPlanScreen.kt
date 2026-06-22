@@ -10,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
@@ -26,7 +25,6 @@ import androidx.compose.ui.text.style.TextAlign
 import com.karol.readingsapp.data.plan.SimpleReading
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.theme.*
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -52,7 +50,6 @@ fun ReadingPlanScreen(
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(currentMonth) {
         val monthStr = String.format(Locale.US, "%04d-%02d", currentMonth.year, currentMonth.monthValue)
@@ -68,6 +65,17 @@ fun ReadingPlanScreen(
 
     val todayIndex = remember(datesInMonth, today) {
         datesInMonth.indexOf(today.toString())
+    }
+
+    LaunchedEffect(todayIndex, listState.layoutInfo.viewportSize) {
+        if (todayIndex != -1 && listState.layoutInfo.viewportSize.height > 0) {
+            val viewportHeight = listState.layoutInfo.viewportSize.height
+            // Scroll so the top of the item is roughly at the center of the viewport
+            // Subtracting an estimated half-item height (approx 40dp in pixels) to center it better
+            val density = 3f // Approximate density, though using pixel offset is safer
+            val halfItemHeight = (40 * density).toInt() 
+            listState.scrollToItem(todayIndex, -(viewportHeight / 2 - halfItemHeight))
+        }
     }
 
     Scaffold(
@@ -206,21 +214,6 @@ fun ReadingPlanScreen(
                 )
             }
         },
-        floatingActionButton = {
-            if (todayIndex != -1) {
-                ExtendedFloatingActionButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            listState.animateScrollToItem(todayIndex)
-                        }
-                    },
-                    icon = { Icon(Icons.Default.ArrowDownward, contentDescription = null) },
-                    text = { Text(strings.nextReading) },
-                    containerColor = TextBlue,
-                    contentColor = Color.White,
-                )
-            }
-        },
         containerColor = BackgroundBlue,
     ) { innerPadding ->
         LazyColumn(
@@ -230,11 +223,16 @@ fun ReadingPlanScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(bottom = 80.dp) // Extra padding for FAB
+            contentPadding = PaddingValues(bottom = 16.dp)
         ) {
             itemsIndexed(datesInMonth, key = { _, date -> date }) { _, date ->
                 val readings = monthlyPlan[date] ?: emptyList()
-                ReadingDayItem(date, readings, strings) {
+                ReadingDayItem(
+                    date = date,
+                    readings = readings,
+                    strings = strings,
+                    isToday = date == today.toString()
+                ) {
                     onDateClick(date)
                 }
             }
@@ -247,6 +245,7 @@ fun ReadingDayItem(
     date: String,
     readings: List<SimpleReading>,
     strings: LocalizedStrings,
+    isToday: Boolean,
     onClick: () -> Unit,
 ) {
     val parsedDate = try {
@@ -263,7 +262,9 @@ fun ReadingDayItem(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isToday) CardLavender else Color.White
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
