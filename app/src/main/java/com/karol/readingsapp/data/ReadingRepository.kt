@@ -1,6 +1,7 @@
 package com.karol.readingsapp.data
 
 import com.karol.readingsapp.data.bible.BibleDao
+import com.karol.readingsapp.data.bible.BookEntity
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.data.bible.TranslationEntity
 import com.karol.readingsapp.data.plan.ReadingPlanDao
@@ -65,7 +66,16 @@ class ReadingRepository(
         val localDate = LocalDate.parse(date)
         val dayIndex = getPlanDayIndex(localDate)
 
-        val plan = planDao.getReadingPlanByDay(dayIndex) ?: return@withContext emptyMap()
+        var plan = planDao.getReadingPlanByDay(dayIndex)
+        if (plan == null) {
+            // Try 0-indexed fallback (some databases start at 0)
+            plan = planDao.getReadingPlanByDay(dayIndex - 1)
+        }
+
+        if (plan == null) {
+            android.util.Log.e("ReadingRepository", "No reading plan found for day $dayIndex or ${dayIndex-1}")
+            return@withContext emptyMap()
+        }
 
         val readings = mutableListOf<TargetReadingDetails>()
         
@@ -144,7 +154,22 @@ class ReadingRepository(
             }
 
             if ((chapters.isNotEmpty()) && (bookId != -1)) {
-                results.addAll(bibleDao.getVersesForReading(date, bookId, chapters, type, translationCode, bookName))
+                val verses = bibleDao.getVersesForReading(date, bookId, chapters, type, translationCode, bookName)
+                if (verses.isEmpty()) {
+                    // Fallback to ensure something is displayed if the plan has the reference but DB lacks the text
+                    results.add(TargetReadingDetails(
+                        date = date,
+                        bookId = bookId,
+                        bookName = bookName,
+                        chapter = chapters.first(),
+                        verseId = 1,
+                        text = "Reading content not found.",
+                        readingType = type,
+                        translationCode = translationCode
+                    ))
+                } else {
+                    results.addAll(verses)
+                }
             }
         }
         return results
@@ -161,13 +186,18 @@ class ReadingRepository(
             val dayIndex = getPlanDayIndex(date)
             val fullDate = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
             
-            planDao.getReadingPlanByDay(dayIndex)?.let { plan ->
+            var plan = planDao.getReadingPlanByDay(dayIndex)
+            if (plan == null) {
+                plan = planDao.getReadingPlanByDay(dayIndex - 1)
+            }
+
+            plan?.let { p ->
                 val simpleList = mutableListOf<SimpleReading>()
                 
                 listOf(
-                    plan.track1 to "First Reading",
-                    plan.track2 to "Second Reading",
-                    plan.track3 to "Third Reading",
+                    p.track1 to "First Reading",
+                    p.track2 to "Second Reading",
+                    p.track3 to "Third Reading",
                 ).forEach { (ref, type) ->
                     if (!ref.isNullOrBlank()) {
                         parseReadingInternal(ref)?.let { (bookId, bookName, chaptersStr) ->
@@ -183,5 +213,21 @@ class ReadingRepository(
 
     suspend fun getAvailableTranslations(): List<TranslationEntity> = withContext(Dispatchers.IO) {
         bibleDao.getAvailableTranslations()
+    }
+
+    suspend fun getAllBooks(): List<BookEntity> = withContext(Dispatchers.IO) {
+        bibleDao.getAllBooks()
+    }
+
+    suspend fun getChapterCount(bookId: Int): Int = withContext(Dispatchers.IO) {
+        bibleDao.getChapterCount(bookId)
+    }
+
+    suspend fun getVerseCount(bookId: Int, chapter: Int): Int = withContext(Dispatchers.IO) {
+        bibleDao.getVerseCount(bookId, chapter)
+    }
+
+    suspend fun getChapterVerses(bookId: Int, chapter: Int, translationCode: String): List<TargetReadingDetails> = withContext(Dispatchers.IO) {
+        bibleDao.getChapterVerses(bookId, chapter, translationCode)
     }
 }

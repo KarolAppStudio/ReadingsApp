@@ -138,6 +138,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onSettingsClick = {
                                     navController.navigate("settings")
+                                },
+                                onChapterClick = { bookId, chapter ->
+                                    navController.navigate("reader/$bookId/$chapter")
                                 }
                             )
                         }

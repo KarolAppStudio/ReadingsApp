@@ -30,9 +30,13 @@ fun BibleReaderScreen(
     onHomeClick: () -> Unit,
     onBackClick: () -> Unit,
 ) {
-    val verses = viewModel.getVersesByBookId(bookId, chapter)
+    val verses by viewModel.chapterVerses.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
+
+    androidx.compose.runtime.LaunchedEffect(bookId, chapter, selectedCode) {
+        viewModel.loadChapterVerses(bookId, chapter)
+    }
 
     val selectedLanguage = remember(selectedCode, translations) {
         translations.find { it.code == selectedCode }?.language ?: "English"
