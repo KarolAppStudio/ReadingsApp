@@ -16,26 +16,20 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.bible.BookEntity
 import com.karol.readingsapp.ui.components.AutoResizingText
-import com.karol.readingsapp.ui.theme.BackgroundBlue
-import com.karol.readingsapp.ui.theme.CardLavender
-import com.karol.readingsapp.ui.theme.NTGold
-import com.karol.readingsapp.ui.theme.OTGreen
-import com.karol.readingsapp.ui.theme.TextBlue
 
 enum class NavMode { Grid, List }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BibleSelectionScreen(
     viewModel: ReadingViewModel,
@@ -69,7 +63,7 @@ fun BibleSelectionScreen(
     }
 
     LaunchedEffect(selectedBook, selectedChapter) {
-        if (selectedBook != null && selectedChapter > 0) {
+        if ((selectedBook != null) && (selectedChapter > 0)) {
             verseCount = viewModel.getVerseCount(selectedBook!!.id, selectedChapter)
         }
     }
@@ -81,7 +75,7 @@ fun BibleSelectionScreen(
                     .fillMaxWidth()
                     .statusBarsPadding()
                     .height(48.dp),
-                color = BackgroundBlue,
+                color = MaterialTheme.colorScheme.background,
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     IconButton(
@@ -91,7 +85,7 @@ fun BibleSelectionScreen(
                         Icon(
                             imageVector = Icons.Default.Home,
                             contentDescription = strings.home,
-                            tint = TextBlue,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(32.dp),
                         )
                     }
@@ -102,15 +96,16 @@ fun BibleSelectionScreen(
                             selectedChapter == 0 -> strings.bookNames[selectedBook!!.id] ?: selectedBook!!.name
                             else -> "${strings.bookNames[selectedBook!!.id] ?: selectedBook!!.name} $selectedChapter"
                         },
-                        color = TextBlue,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center),
+                        maxLines = 1,
                     )
 
                     Row(
                         modifier = Modifier.align(Alignment.CenterEnd),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -120,18 +115,18 @@ fun BibleSelectionScreen(
                                     val chapter = if (selectedChapter > 0) selectedChapter else 1
                                     onParallelClick(bookId, chapter)
                                 }
-                                .padding(horizontal = 8.dp)
+                                .padding(horizontal = 8.dp),
                         ) {
                             Icon(
                                 imageVector = Icons.Default.AutoStories,
                                 contentDescription = "Parallel Reading",
-                                tint = TextBlue,
-                                modifier = Modifier.size(24.dp)
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(24.dp),
                             )
                             Text(
                                 text = "Parallel",
-                                color = TextBlue,
-                                fontSize = 10.sp
+                                color = MaterialTheme.colorScheme.primary,
+                                fontSize = 10.sp,
                             )
                         }
 
@@ -148,7 +143,7 @@ fun BibleSelectionScreen(
                                 Icon(
                                     Icons.Default.Close,
                                     contentDescription = "Clear selection",
-                                    tint = TextBlue
+                                    tint = MaterialTheme.colorScheme.primary,
                                 )
                             }
                         }
@@ -158,7 +153,7 @@ fun BibleSelectionScreen(
         },
         bottomBar = {
             NavigationBar(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 8.dp,
             ) {
                 NavigationBarItem(
@@ -168,8 +163,8 @@ fun BibleSelectionScreen(
                     alwaysShowLabel = true,
                     onClick = onHomeClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
                 NavigationBarItem(
@@ -179,8 +174,8 @@ fun BibleSelectionScreen(
                     alwaysShowLabel = true,
                     onClick = onCalendarClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
                 NavigationBarItem(
@@ -190,11 +185,11 @@ fun BibleSelectionScreen(
                     alwaysShowLabel = true,
                     onClick = { },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = TextBlue,
-                        selectedTextColor = TextBlue,
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = CardLavender,
+                        indicatorColor = MaterialTheme.colorScheme.secondary,
                     ),
                 )
                 NavigationBarItem(
@@ -204,35 +199,35 @@ fun BibleSelectionScreen(
                     alwaysShowLabel = true,
                     onClick = onSettingsClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
             }
         },
-        containerColor = BackgroundBlue,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPadding),
         ) {
-            TabRow(
+            SecondaryTabRow(
                 selectedTabIndex = currentMode.ordinal,
-                containerColor = BackgroundBlue,
-                contentColor = TextBlue,
-                indicator = { tabPositions ->
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.primary,
+                indicator = {
                     TabRowDefaults.SecondaryIndicator(
-                        Modifier.tabIndicatorOffset(tabPositions[currentMode.ordinal]),
-                        color = TextBlue
+                        Modifier.tabIndicatorOffset(currentMode.ordinal),
+                        color = MaterialTheme.colorScheme.primary,
                     )
-                }
+                },
             ) {
                 NavMode.entries.forEach { mode ->
                     Tab(
                         selected = currentMode == mode,
                         onClick = { currentMode = mode },
-                        text = { Text(mode.name, fontSize = 12.sp) }
+                        text = { Text(mode.name, fontSize = 12.sp) },
                     )
                 }
             }
@@ -243,24 +238,21 @@ fun BibleSelectionScreen(
                         mode = currentMode,
                         books = allBooks,
                         strings = strings,
-                        onBookClick = { selectedBook = it }
-                    )
+                    ) { selectedBook = it }
                 } else if (selectedChapter == 0) {
                     ChapterSelection(
                         mode = currentMode,
                         chapterCount = chapterCount,
-                        onChapterClick = { chapter ->
-                            selectedChapter = chapter
-                        }
-                    )
+                    ) { chapter ->
+                        selectedChapter = chapter
+                    }
                 } else {
                     VerseSelection(
                         mode = currentMode,
                         verseCount = verseCount,
-                        onVerseClick = { verse ->
-                            onChapterClick(selectedBook!!.id, selectedChapter, verse)
-                        }
-                    )
+                    ) { verse ->
+                        onChapterClick(selectedBook!!.id, selectedChapter, verse)
+                    }
                 }
             }
         }
@@ -272,7 +264,7 @@ fun BookSelection(
     mode: NavMode,
     books: List<BookEntity>,
     strings: LocalizedStrings,
-    onBookClick: (BookEntity) -> Unit
+    onBookClick: (BookEntity) -> Unit,
 ) {
     when (mode) {
         NavMode.Grid -> {
@@ -330,13 +322,13 @@ fun ChapterSelection(
                     Surface(
                         onClick = { onChapterClick(chapter) },
                         modifier = Modifier.fillMaxWidth(),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
                             text = "Chapter $chapter",
                             modifier = Modifier.padding(16.dp),
-                            color = Color.Black
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -375,13 +367,13 @@ fun VerseSelection(
                     Surface(
                         onClick = { onVerseClick(verse) },
                         modifier = Modifier.fillMaxWidth(),
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
                             text = "Verse $verse",
                             modifier = Modifier.padding(16.dp),
-                            color = Color.Black
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -393,10 +385,10 @@ fun VerseSelection(
 @Composable
 fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) -> Unit) {
     android.util.Log.d("BookCard", "Book ID: ${book.id}, Name: ${book.name}, Localized: ${strings.bookNames[book.id]}")
-    val backgroundColor = when (book.testament) {
-        "OT" -> OTGreen
-        "NT" -> NTGold
-        else -> CardLavender
+    val (backgroundColor, textColor) = when (book.testament) {
+        "OT" -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
+        "NT" -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
+        else -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
     }
     Card(
         onClick = { onClick(book) },
@@ -414,7 +406,7 @@ fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) 
                 textAlign = TextAlign.Center,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextBlue,
+                color = textColor,
                 maxLines = 1,
                 softWrap = false,
                 minFontSize = 8.sp
@@ -428,13 +420,13 @@ fun BookListItem(book: BookEntity, strings: LocalizedStrings, onClick: (BookEnti
     Surface(
         onClick = { onClick(book) },
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(8.dp)
     ) {
         Text(
             text = strings.bookNames[book.id] ?: book.name,
             modifier = Modifier.padding(16.dp),
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Medium
         )
     }
@@ -444,7 +436,7 @@ fun BookListItem(book: BookEntity, strings: LocalizedStrings, onClick: (BookEnti
 fun ChapterCard(chapter: Int, onClick: (Int) -> Unit) {
     Card(
         onClick = { onClick(chapter) },
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(8.dp),
         border = CardDefaults.outlinedCardBorder()
     ) {
@@ -455,7 +447,7 @@ fun ChapterCard(chapter: Int, onClick: (Int) -> Unit) {
             Text(
                 text = chapter.toString(),
                 fontWeight = FontWeight.Bold,
-                color = TextBlue
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }

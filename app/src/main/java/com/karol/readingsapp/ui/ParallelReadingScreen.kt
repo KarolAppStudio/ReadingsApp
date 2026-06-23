@@ -27,9 +27,6 @@ import kotlinx.coroutines.launch
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.data.bible.TranslationEntity
 import com.karol.readingsapp.ui.components.AutoResizingText
-import com.karol.readingsapp.ui.theme.BackgroundBlue
-import com.karol.readingsapp.ui.theme.CardLavender
-import com.karol.readingsapp.ui.theme.TextBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +50,7 @@ fun ParallelReadingScreen(
     LaunchedEffect(isSyncEnabled) {
         listState2.scrollToItem(
             listState1.firstVisibleItemIndex,
-            listState1.firstVisibleItemScrollOffset
+            listState1.firstVisibleItemScrollOffset,
         )
     }
 
@@ -82,7 +79,7 @@ fun ParallelReadingScreen(
                 title = {
                     AutoResizingText(
                         text = "$bookName $chapter",
-                        color = TextBlue,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         maxLines = 1,
@@ -93,7 +90,7 @@ fun ParallelReadingScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = strings.back,
-                            tint = TextBlue
+                            tint = MaterialTheme.colorScheme.primary,
                         )
                     }
                 },
@@ -104,13 +101,15 @@ fun ParallelReadingScreen(
                             .clickable { isSyncEnabled = !isSyncEnabled }
                             .padding(horizontal = 8.dp)
                     ) {
+                        val activeColor = MaterialTheme.colorScheme.tertiary
+                        val inactiveColor = MaterialTheme.colorScheme.primary
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp)) {
                             if (isSyncEnabled) {
                                 Canvas(modifier = Modifier.size(32.dp)) {
                                     drawCircle(
                                         brush = Brush.radialGradient(
                                             colors = listOf(
-                                                Color(0xFF00FF00).copy(alpha = 0.4f),
+                                                activeColor.copy(alpha = 0.4f),
                                                 Color.Transparent
                                             ),
                                             center = center,
@@ -122,13 +121,13 @@ fun ParallelReadingScreen(
                             Icon(
                                 imageVector = if (isSyncEnabled) Icons.Default.Lock else Icons.Default.LockOpen,
                                 contentDescription = strings.sync,
-                                tint = if (isSyncEnabled) Color(0xFF00FF00) else TextBlue,
+                                tint = if (isSyncEnabled) activeColor else inactiveColor,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
                         Text(
                             text = "Lock Grids",
-                            color = TextBlue,
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 10.sp
                         )
                     }
@@ -148,22 +147,22 @@ fun ParallelReadingScreen(
                             Icon(
                                 imageVector = Icons.Default.RestartAlt,
                                 contentDescription = strings.reset,
-                                tint = TextBlue,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
                         Text(
                             text = "Reset",
-                            color = TextBlue,
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 10.sp
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundBlue),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 windowInsets = WindowInsets(0, 0, 0, 0)
             )
         },
-        containerColor = BackgroundBlue,
+        containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
         Column(
@@ -212,21 +211,21 @@ fun ParallelReadingScreen(
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .padding(horizontal = 4.dp)
+                                    .padding(horizontal = 4.dp),
                             ) {
-                                if (v1 != null) VerseItem(v1, numberFormatter)
+                                v1?.let { VerseItem(it, numberFormatter) }
                             }
                             VerticalDivider(
                                 modifier = Modifier.fillMaxHeight(),
                                 thickness = 1.dp,
-                                color = TextBlue.copy(alpha = 0.2f)
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                             )
                             Box(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .padding(horizontal = 4.dp)
+                                    .padding(horizontal = 4.dp),
                             ) {
-                                if (v2 != null) VerseItem(v2, numberFormatter)
+                                v2?.let { VerseItem(it, numberFormatter) }
                             }
                         }
                     }
@@ -249,7 +248,7 @@ fun ParallelReadingScreen(
                     }
 
                     // Divider
-                    VerticalDivider(thickness = 1.dp, color = TextBlue.copy(alpha = 0.2f))
+                    VerticalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
 
                     // Second Column
                     LazyColumn(
@@ -283,7 +282,7 @@ fun TranslationSelector(
     Box(modifier = modifier) {
         Surface(
             onClick = { expanded = true },
-            color = CardLavender,
+            color = MaterialTheme.colorScheme.secondaryContainer,
             shape = RoundedCornerShape(4.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -294,7 +293,7 @@ fun TranslationSelector(
             ) {
                 Text(
                     text = transName,
-                    color = TextBlue,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
                     modifier = Modifier.weight(1f)
@@ -302,7 +301,7 @@ fun TranslationSelector(
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = null,
-                    tint = TextBlue,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -330,13 +329,13 @@ fun VerseItem(verse: TargetReadingDetails, numberFormatter: java.text.NumberForm
         Text(
             text = numberFormatter.format(verse.verseId),
             fontSize = 11.sp,
-            color = TextBlue,
+            color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = verse.text,
             fontSize = 14.sp,
-            color = TextBlue,
+            color = MaterialTheme.colorScheme.primary,
             lineHeight = 20.sp
         )
     }

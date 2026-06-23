@@ -1,6 +1,5 @@
 package com.karol.readingsapp.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -22,11 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import com.karol.readingsapp.data.plan.SimpleReading
 import com.karol.readingsapp.ui.components.AutoResizingText
-import com.karol.readingsapp.ui.theme.*
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -71,14 +68,13 @@ fun ReadingPlanScreen(
     LaunchedEffect(todayIndex) {
         if (todayIndex != -1) {
             snapshotFlow { listState.layoutInfo.viewportSize.height }
-                .filter { it > 0 }
-                .first()
+                .first { it > 0 }
                 .let { viewportHeight ->
                     // Scroll so the top of the item is roughly at the center of the viewport
                     // Subtracting an estimated half-item height (approx 40dp in pixels) to center it better
                     val density = 3f // Approximate density, though using pixel offset is safer
                     val halfItemHeight = (40 * density).toInt()
-                    listState.scrollToItem(todayIndex, -(viewportHeight / 2 - halfItemHeight))
+                    listState.scrollToItem(todayIndex, -((viewportHeight / 2) - halfItemHeight))
                 }
         }
     }
@@ -91,7 +87,7 @@ fun ReadingPlanScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(40.dp),
-                    color = BackgroundBlue,
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -103,7 +99,7 @@ fun ReadingPlanScreen(
                             Icon(
                                 imageVector = Icons.Default.Home,
                                 contentDescription = strings.home,
-                                tint = TextBlue,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(32.dp),
                             )
                         }
@@ -111,7 +107,7 @@ fun ReadingPlanScreen(
                         Icon(
                             imageVector = Icons.Default.DateRange,
                             contentDescription = null,
-                            tint = TextBlue,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .size(18.dp)
                                 .align(Alignment.Center),
@@ -124,14 +120,14 @@ fun ReadingPlanScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    color = BackgroundBlue,
+                    color = MaterialTheme.colorScheme.background,
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.Center,
                     ) {
                         IconButton(
                             onClick = { currentMonth = currentMonth.minusMonths(1) },
@@ -140,14 +136,14 @@ fun ReadingPlanScreen(
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = strings.previousMonth,
-                                tint = TextBlue,
-                                modifier = Modifier.size(20.dp)
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp),
                             )
                         }
 
                         AutoResizingText(
                             text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM", strings.locale)),
-                            color = TextBlue,
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.weight(1f),
@@ -161,8 +157,8 @@ fun ReadingPlanScreen(
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowForward,
                                 contentDescription = strings.nextMonth,
-                                tint = TextBlue,
-                                modifier = Modifier.size(20.dp)
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp),
                             )
                         }
                     }
@@ -171,7 +167,7 @@ fun ReadingPlanScreen(
         },
         bottomBar = {
             NavigationBar(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 8.dp,
             ) {
                 NavigationBarItem(
@@ -181,8 +177,8 @@ fun ReadingPlanScreen(
                     alwaysShowLabel = true,
                     onClick = onHomeClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
                 NavigationBarItem(
@@ -192,11 +188,11 @@ fun ReadingPlanScreen(
                     alwaysShowLabel = true,
                     onClick = { },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = TextBlue,
-                        selectedTextColor = TextBlue,
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = CardLavender,
+                        indicatorColor = MaterialTheme.colorScheme.secondary,
                     ),
                 )
                 NavigationBarItem(
@@ -206,8 +202,8 @@ fun ReadingPlanScreen(
                     alwaysShowLabel = true,
                     onClick = onBibleClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
                 NavigationBarItem(
@@ -217,13 +213,13 @@ fun ReadingPlanScreen(
                     alwaysShowLabel = true,
                     onClick = onSettingsClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
             }
         },
-        containerColor = BackgroundBlue,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         LazyColumn(
             state = listState,
@@ -232,7 +228,7 @@ fun ReadingPlanScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(bottom = 16.dp)
+            contentPadding = PaddingValues(bottom = 16.dp),
         ) {
             itemsIndexed(datesInMonth, key = { _, date -> date }) { _, date ->
                 val readings = monthlyPlan[date] ?: emptyList()
@@ -268,30 +264,30 @@ fun ReadingDayItem(
             .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isToday) CardLavender else Color.White
+            containerColor = if (isToday) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surface,
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
             modifier = Modifier
                 .padding(14.dp)
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.width(50.dp)
+                modifier = Modifier.width(50.dp),
             ) {
                 Text(
                     text = dayOfMonth,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextBlue
+                    color = MaterialTheme.colorScheme.primary,
                 )
                 Text(
                     text = dayOfWeek.take(3),
                     fontSize = 12.sp,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
 
@@ -300,14 +296,14 @@ fun ReadingDayItem(
             Column(
                 modifier = Modifier
                     .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 if (readings.isEmpty()) {
                     Text(
                         text = strings.noReadingsShort,
                         fontSize = 13.sp,
-                        color = Color.Gray,
-                        style = MaterialTheme.typography.bodySmall.copy(fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall.copy(fontStyle = androidx.compose.ui.text.font.FontStyle.Italic),
                     )
                 } else {
                     readings.forEach { reading ->
@@ -316,7 +312,7 @@ fun ReadingDayItem(
                             text = "$bookName ${reading.chaptersStr}",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
-                            color = Color.Black
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }

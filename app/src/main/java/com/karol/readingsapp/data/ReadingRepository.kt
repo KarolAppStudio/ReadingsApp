@@ -176,7 +176,8 @@ class ReadingRepository(
                         text = "Reading content not found.",
                         readingType = type,
                         translationCode = translationCode,
-                    ))
+                        ),
+                    )
                 } else {
                     results.addAll(verses)
                 }

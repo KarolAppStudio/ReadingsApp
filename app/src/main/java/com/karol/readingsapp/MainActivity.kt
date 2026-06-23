@@ -11,6 +11,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -32,7 +34,6 @@ import com.karol.readingsapp.ui.ParallelReadingScreen
 import com.karol.readingsapp.ui.ReadingPlanScreen
 import com.karol.readingsapp.ui.ReadingViewModel
 import com.karol.readingsapp.ui.SettingsScreen
-import com.karol.readingsapp.ui.theme.BackgroundBlue
 import com.karol.readingsapp.ui.theme.ReadingsAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -47,28 +48,30 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ReadingsAppTheme {
-                val bibleDatabase = BibleDatabase.getDatabase(applicationContext)
-                val planDatabase = ReadingPlanDatabase.getDatabase(applicationContext)
-                val repository = ReadingRepository(
-                    bibleDatabase.bibleDao(),
-                    planDatabase.readingPlanDao()
-                )
-                val languageService = LanguageService()
-                val viewModel: ReadingViewModel = viewModel(
-                    factory = object : ViewModelProvider.Factory {
-                        @Suppress("UNCHECKED_CAST")
-                        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                            return ReadingViewModel(repository, languageService, applicationContext) as T
-                        }
-                    },
-                )
+            val bibleDatabase = BibleDatabase.getDatabase(applicationContext)
+            val planDatabase = ReadingPlanDatabase.getDatabase(applicationContext)
+            val repository = ReadingRepository(
+                bibleDatabase.bibleDao(),
+                planDatabase.readingPlanDao()
+            )
+            val languageService = LanguageService()
+            val viewModel: ReadingViewModel = viewModel(
+                factory = object : ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return ReadingViewModel(repository, languageService, applicationContext) as T
+                    }
+                },
+            )
 
+            val currentTheme by viewModel.appTheme.collectAsState()
+
+            ReadingsAppTheme(appTheme = currentTheme) {
                 val navController = rememberNavController()
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = BackgroundBlue,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.background,
                 ) {
                     NavHost(navController = navController, startDestination = "home") {
                         composable("home") {

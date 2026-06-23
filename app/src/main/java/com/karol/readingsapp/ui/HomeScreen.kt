@@ -31,6 +31,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -55,10 +56,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.ui.components.AutoResizingText
-import com.karol.readingsapp.ui.theme.BackgroundBlue
-import com.karol.readingsapp.ui.theme.CardLavender
-import com.karol.readingsapp.ui.theme.DateGrey
-import com.karol.readingsapp.ui.theme.TextBlue
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -111,7 +108,7 @@ fun HomeScreen(
                 title = {
                     AutoResizingText(
                         strings.appTitle,
-                        color = TextBlue,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                     )
@@ -119,22 +116,22 @@ fun HomeScreen(
                 navigationIcon = {
                     Box {
                         IconButton(onClick = { menuExpanded = true }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = TextBlue)
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = MaterialTheme.colorScheme.primary)
                         }
                         DropdownMenu(
                             expanded = menuExpanded,
                             onDismissRequest = { menuExpanded = false },
                             modifier = Modifier
-                                .background(Color.White)
-                                .border(1.dp, Color.Gray, RoundedCornerShape(2.dp)),
+                                .background(MaterialTheme.colorScheme.surface)
+                                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
                         ) {
                             DropdownMenuItem(
                                 text = { 
                                     Text(
                                         strings.settings, 
-                                        color = Color.Black, 
+                                        color = MaterialTheme.colorScheme.onSurface, 
                                         fontSize = 14.sp,
-                                        fontWeight = FontWeight.Normal
+                                        fontWeight = FontWeight.Normal,
                                     ) 
                                 },
                                 onClick = {
@@ -145,8 +142,8 @@ fun HomeScreen(
                                     Icon(
                                         Icons.Default.Settings,
                                         contentDescription = null,
-                                        tint = Color.DarkGray,
-                                        modifier = Modifier.size(18.dp)
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(18.dp),
                                     )
                                 },
                             )
@@ -154,9 +151,9 @@ fun HomeScreen(
                                 text = { 
                                     Text(
                                         strings.about, 
-                                        color = Color.Black, 
+                                        color = MaterialTheme.colorScheme.onSurface, 
                                         fontSize = 14.sp,
-                                        fontWeight = FontWeight.Normal
+                                        fontWeight = FontWeight.Normal,
                                     ) 
                                 },
                                 onClick = {
@@ -167,7 +164,7 @@ fun HomeScreen(
                                     Icon(
                                         Icons.Default.Info,
                                         contentDescription = null,
-                                        tint = Color.DarkGray,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(18.dp)
                                     )
                                 },
@@ -176,13 +173,13 @@ fun HomeScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BackgroundBlue,
+                    containerColor = MaterialTheme.colorScheme.background,
                 ),
             )
         },
         bottomBar = {
             NavigationBar(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 8.dp,
             ) {
                 NavigationBarItem(
@@ -192,11 +189,11 @@ fun HomeScreen(
                     alwaysShowLabel = true,
                     onClick = { },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = TextBlue,
-                        selectedTextColor = TextBlue,
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = CardLavender,
+                        indicatorColor = MaterialTheme.colorScheme.secondary,
                     ),
                 )
                 NavigationBarItem(
@@ -206,8 +203,8 @@ fun HomeScreen(
                     alwaysShowLabel = true,
                     onClick = onCalendarClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
                 NavigationBarItem(
@@ -217,8 +214,8 @@ fun HomeScreen(
                     alwaysShowLabel = true,
                     onClick = onBibleClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
                 NavigationBarItem(
@@ -228,13 +225,13 @@ fun HomeScreen(
                     alwaysShowLabel = true,
                     onClick = onSettingsClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
             }
         },
-        containerColor = BackgroundBlue,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -256,7 +253,7 @@ fun HomeScreen(
                     Icon(
                         Icons.Default.Home,
                         contentDescription = null,
-                        tint = TextBlue,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(30.dp),
                     )
 
@@ -268,7 +265,7 @@ fun HomeScreen(
                         Box(modifier = Modifier.align(Alignment.CenterEnd)) {
                             Surface(
                                 onClick = { expanded = true },
-                                color = CardLavender,
+                                color = MaterialTheme.colorScheme.secondaryContainer,
                                 shape = RoundedCornerShape(8.dp),
                             ) {
                                 Row(
@@ -279,20 +276,20 @@ fun HomeScreen(
                                         CircularProgressIndicator(
                                             modifier = Modifier.size(16.dp),
                                             strokeWidth = 2.dp,
-                                            color = TextBlue,
+                                            color = MaterialTheme.colorScheme.primary,
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                     }
                                     Text(
                                         text = selectedName,
-                                        color = TextBlue,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 14.sp,
                                     )
                                     Icon(
                                         Icons.Default.ArrowDropDown,
                                         contentDescription = null,
-                                        tint = TextBlue,
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                     )
                                 }
                             }
@@ -300,15 +297,15 @@ fun HomeScreen(
                                 expanded = expanded,
                                 onDismissRequest = { expanded = false },
                                 modifier = Modifier
-                                    .background(Color.White)
-                                    .border(1.dp, Color.Gray, RoundedCornerShape(2.dp)),
+                                    .background(MaterialTheme.colorScheme.surface)
+                                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
                             ) {
                                 translations.forEach { translation ->
                                     DropdownMenuItem(
                                         text = {
                                             Text(
                                                 translation.name,
-                                                color = Color.Black,
+                                                color = MaterialTheme.colorScheme.onSurface,
                                                 fontSize = 14.sp,
                                                 fontWeight = FontWeight.Normal,
                                             )
@@ -329,13 +326,13 @@ fun HomeScreen(
                 Column(modifier = Modifier.fillMaxWidth()) {
                     AutoResizingText(
                         text = if ((selectedDate == todayString) || (selectedDate.isEmpty())) strings.todaysReadings else strings.selectedReadings,
-                        color = TextBlue,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
                     )
                     AutoResizingText(
                         text = displayDate,
-                        color = DateGrey,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp,
                     )
                 }
@@ -387,7 +384,7 @@ fun ReadingSection(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = CardLavender),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         shape = RoundedCornerShape(12.dp),
     ) {
         Column(
@@ -395,7 +392,7 @@ fun ReadingSection(
         ) {
             Text(
                 title,
-                color = TextBlue.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
                 fontWeight = FontWeight.Bold,
                 fontSize = titleSize,
             )
@@ -404,7 +401,7 @@ fun ReadingSection(
             if (items.isEmpty()) {
                 Text(
                     noReadingsText,
-                    color = TextBlue.copy(alpha = 0.5f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                     fontSize = 13.sp,
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
@@ -439,14 +436,14 @@ fun ReadingItemRow(
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(8.dp),
     ) {
         AutoResizingText(
             text = text,
             modifier = Modifier.padding(horizontal = horizontalPadding, vertical = verticalPadding),
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = fontSize,
             maxLines = 1
         )

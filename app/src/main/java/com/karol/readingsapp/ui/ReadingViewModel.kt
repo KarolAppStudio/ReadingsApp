@@ -1,6 +1,7 @@
 package com.karol.readingsapp.ui
 
 import android.content.Context
+import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.karol.readingsapp.data.LanguageService
@@ -9,6 +10,7 @@ import com.karol.readingsapp.data.bible.BookEntity
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.data.bible.TranslationEntity
 import com.karol.readingsapp.data.plan.SimpleReading
+import com.karol.readingsapp.ui.theme.AppTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,6 +46,11 @@ class ReadingViewModel(
 
     private val _secondTranslationCode = MutableStateFlow("ENG")
     val secondTranslationCode = _secondTranslationCode.asStateFlow()
+
+    private val _appTheme = MutableStateFlow(
+        AppTheme.valueOf(prefs.getString("app_theme", AppTheme.BLUE.name) ?: AppTheme.BLUE.name),
+    )
+    val appTheme = _appTheme.asStateFlow()
 
     val downloadStatus = languageService.downloadStatus
 
@@ -85,12 +92,17 @@ class ReadingViewModel(
             viewModelScope.launch {
                 languageService.downloadLanguageScript(it.language)
                 _selectedTranslationCode.value = translationCode
-                prefs.edit().putString("default_bible", translationCode).apply()
+                prefs.edit { putString("default_bible", translationCode) }
                 if (_currentDate.value.isNotEmpty()) {
                     loadReading(_currentDate.value)
                 }
             }
         }
+    }
+
+    fun setTheme(theme: AppTheme) {
+        _appTheme.value = theme
+        prefs.edit { putString("app_theme", theme.name) }
     }
 
     fun loadReading(date: String) {

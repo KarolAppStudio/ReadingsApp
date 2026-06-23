@@ -22,9 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.components.AutoResizingText
-import com.karol.readingsapp.ui.theme.BackgroundBlue
-import com.karol.readingsapp.ui.theme.CardLavender
-import com.karol.readingsapp.ui.theme.TextBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +40,7 @@ fun BibleReaderScreen(
 
     val listState = rememberLazyListState()
     val highlightColor = remember { Animatable(Color.Transparent) }
+    val secondaryColor = MaterialTheme.colorScheme.secondary
 
     LaunchedEffect(bookId, chapter, selectedCode) {
         viewModel.loadChapterVerses(bookId, chapter)
@@ -56,7 +54,7 @@ fun BibleReaderScreen(
                 
                 // Blink 3 times in 1.5 seconds (each cycle 500ms: 250ms on, 250ms off)
                 repeat(3) {
-                    highlightColor.animateTo(CardLavender.copy(alpha = 0.7f), animationSpec = tween(250))
+                    highlightColor.animateTo(secondaryColor.copy(alpha = 0.7f), animationSpec = tween(250))
                     highlightColor.animateTo(Color.Transparent, animationSpec = tween(250))
                 }
             }
@@ -81,13 +79,13 @@ fun BibleReaderScreen(
                         Icon(
                             Icons.AutoMirrored.Filled.MenuBook,
                             contentDescription = null,
-                            tint = TextBlue,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp),
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         AutoResizingText(
                             text = "$bookName ${numberFormatter.format(chapter)}",
-                            color = TextBlue,
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
@@ -103,7 +101,7 @@ fun BibleReaderScreen(
                             Icon(
                                 imageVector = Icons.Default.Home,
                                 contentDescription = strings.home,
-                                tint = TextBlue,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(35.dp),
                             )
                         }
@@ -111,7 +109,7 @@ fun BibleReaderScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = strings.back,
-                                tint = TextBlue,
+                                tint = MaterialTheme.colorScheme.primary,
                             )
                         }
                     }
@@ -126,22 +124,22 @@ fun BibleReaderScreen(
                         Icon(
                             imageVector = Icons.Default.AutoStories,
                             contentDescription = strings.parallelReading,
-                            tint = TextBlue,
-                            modifier = Modifier.size(24.dp)
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp),
                         )
                         Text(
                             text = "Parallel",
-                            color = TextBlue,
-                            fontSize = 10.sp
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 10.sp,
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = BackgroundBlue,
+                    containerColor = MaterialTheme.colorScheme.background,
                 ),
             )
         },
-        containerColor = BackgroundBlue,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         LazyColumn(
             state = listState,
@@ -154,7 +152,7 @@ fun BibleReaderScreen(
                 item {
                     Text(
                         text = strings.loadingReading,
-                        color = TextBlue.copy(alpha = 0.5f),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                         fontSize = 16.sp,
                     )
                 }
@@ -165,19 +163,19 @@ fun BibleReaderScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(if (isSelected) highlightColor.value else Color.Transparent)
-                            .padding(vertical = 4.dp, horizontal = 8.dp)
+                            .padding(vertical = 4.dp, horizontal = 8.dp),
                     ) {
                         Text(
                             text = numberFormatter.format(verse.verseId),
                             fontSize = 12.sp,
-                            color = TextBlue.copy(alpha = 0.6f),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 2.dp, end = 8.dp),
                         )
                         Text(
                             text = verse.text,
                             fontSize = 16.sp,
-                            color = TextBlue,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
                             lineHeight = 24.sp,
                             modifier = Modifier.weight(1f),
                         )

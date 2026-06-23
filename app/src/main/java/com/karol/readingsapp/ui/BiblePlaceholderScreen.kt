@@ -15,11 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.karol.readingsapp.ui.theme.BackgroundBlue
-import com.karol.readingsapp.ui.theme.CardLavender
-import com.karol.readingsapp.ui.theme.TextBlue
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BiblePlaceholderScreen(
     onHomeClick: () -> Unit,
@@ -32,7 +28,7 @@ fun BiblePlaceholderScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(40.dp),
-                color = BackgroundBlue,
+                color = MaterialTheme.colorScheme.background,
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -44,7 +40,7 @@ fun BiblePlaceholderScreen(
                         Icon(
                             imageVector = Icons.Default.Home,
                             contentDescription = "Home",
-                            tint = TextBlue,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(32.dp),
                         )
                     }
@@ -52,17 +48,17 @@ fun BiblePlaceholderScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.MenuBook,
                         contentDescription = null,
-                        tint = TextBlue,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .size(18.dp)
-                            .align(Alignment.Center)
+                            .align(Alignment.Center),
                     )
                 }
             }
         },
         bottomBar = {
             NavigationBar(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 8.dp,
             ) {
                 NavigationBarItem(
@@ -72,8 +68,8 @@ fun BiblePlaceholderScreen(
                     alwaysShowLabel = true,
                     onClick = onHomeClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
                 NavigationBarItem(
@@ -83,8 +79,8 @@ fun BiblePlaceholderScreen(
                     alwaysShowLabel = true,
                     onClick = onCalendarClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
                 NavigationBarItem(
@@ -94,11 +90,11 @@ fun BiblePlaceholderScreen(
                     alwaysShowLabel = true,
                     onClick = { },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = TextBlue,
-                        selectedTextColor = TextBlue,
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = CardLavender,
+                        indicatorColor = MaterialTheme.colorScheme.secondary,
                     ),
                 )
                 NavigationBarItem(
@@ -108,13 +104,13 @@ fun BiblePlaceholderScreen(
                     alwaysShowLabel = true,
                     onClick = onSettingsClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
             }
         },
-        containerColor = BackgroundBlue,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -127,14 +123,14 @@ fun BiblePlaceholderScreen(
                     Icons.AutoMirrored.Filled.MenuBook,
                     contentDescription = null,
                     modifier = Modifier.size(64.dp),
-                    tint = TextBlue.copy(alpha = 0.5f)
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     "Bible Reader Coming Soon",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextBlue
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

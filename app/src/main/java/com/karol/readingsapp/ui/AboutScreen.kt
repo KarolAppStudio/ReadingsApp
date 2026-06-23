@@ -15,8 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.karol.readingsapp.R
-import com.karol.readingsapp.ui.theme.BackgroundBlue
-import com.karol.readingsapp.ui.theme.TextBlue
 
 @Composable
 fun AboutScreen(onHomeClick: () -> Unit) {
@@ -27,7 +25,7 @@ fun AboutScreen(onHomeClick: () -> Unit) {
                     .fillMaxWidth()
                     .statusBarsPadding()
                     .height(40.dp),
-                color = BackgroundBlue,
+                color = MaterialTheme.colorScheme.background,
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -39,7 +37,7 @@ fun AboutScreen(onHomeClick: () -> Unit) {
                         Icon(
                             imageVector = Icons.Default.Home,
                             contentDescription = "Home",
-                            tint = TextBlue,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(32.dp),
                         )
                     }
@@ -47,7 +45,7 @@ fun AboutScreen(onHomeClick: () -> Unit) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = null,
-                        tint = TextBlue,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .size(18.dp)
                             .align(Alignment.Center),
@@ -55,7 +53,7 @@ fun AboutScreen(onHomeClick: () -> Unit) {
                 }
             }
         },
-        containerColor = BackgroundBlue,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -69,32 +67,32 @@ fun AboutScreen(onHomeClick: () -> Unit) {
                 text = "A simple app to help you follow your daily Bible reading plan with multiple translations support.",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,
-                color = TextBlue,
+                color = MaterialTheme.colorScheme.primary,
                 lineHeight = 24.sp,
             )
             Spacer(modifier = Modifier.height(32.dp))
 
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = androidx.compose.ui.graphics.Color(0xFF2C2C34),
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 ),
                 shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(16.dp),
                 ) {
                     Text(
                         text = "Developer Note",
                         style = MaterialTheme.typography.titleMedium,
-                        color = androidx.compose.ui.graphics.Color.White,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Bold,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "This app is currently under development. Please report any bugs/issues that you encounter by sharing a screenshot of the incident on the whatsapp group created for the app testing as well as a short note explaining the issue you are facing.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.9f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
                         lineHeight = 20.sp,
                     )
                 }
@@ -103,18 +101,18 @@ fun AboutScreen(onHomeClick: () -> Unit) {
             Spacer(modifier = Modifier.height(48.dp))
 
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = stringResource(R.string.companion_app_name),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextBlue.copy(alpha = 0.7f),
-                    fontWeight = FontWeight.SemiBold
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                    fontWeight = FontWeight.SemiBold,
                 )
                 Text(
                     text = "Developed by Karol",
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextBlue.copy(alpha = 0.5f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                 )
             }
         }

@@ -17,10 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.karol.readingsapp.ui.theme.BackgroundBlue
-import com.karol.readingsapp.ui.theme.CardLavender
-import com.karol.readingsapp.ui.theme.DateGrey
-import com.karol.readingsapp.ui.theme.TextBlue
+import com.karol.readingsapp.ui.theme.AppTheme
 
 @Composable
 fun SettingsScreen(
@@ -31,6 +28,9 @@ fun SettingsScreen(
 ) {
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
+    val currentTheme by viewModel.appTheme.collectAsState()
+
+    var themeExpanded by remember { mutableStateOf(value = false) }
 
     val selectedLanguage = remember(selectedCode, translations) {
         translations.find { it.code == selectedCode }?.language ?: "English"
@@ -44,7 +44,7 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .statusBarsPadding()
                     .height(40.dp),
-                color = BackgroundBlue,
+                color = MaterialTheme.colorScheme.background,
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -56,7 +56,7 @@ fun SettingsScreen(
                         Icon(
                             imageVector = Icons.Default.Home,
                             contentDescription = strings.home,
-                            tint = TextBlue,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(32.dp),
                         )
                     }
@@ -64,7 +64,7 @@ fun SettingsScreen(
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = null,
-                        tint = TextBlue,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .size(18.dp)
                             .align(Alignment.Center),
@@ -74,7 +74,7 @@ fun SettingsScreen(
         },
         bottomBar = {
             NavigationBar(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 8.dp,
             ) {
                 NavigationBarItem(
@@ -84,8 +84,8 @@ fun SettingsScreen(
                     alwaysShowLabel = true,
                     onClick = onHomeClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
                 NavigationBarItem(
@@ -95,8 +95,8 @@ fun SettingsScreen(
                     alwaysShowLabel = true,
                     onClick = onCalendarClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
                 NavigationBarItem(
@@ -106,8 +106,8 @@ fun SettingsScreen(
                     alwaysShowLabel = true,
                     onClick = onBibleClick,
                     colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextBlue,
-                        unselectedTextColor = TextBlue,
+                        unselectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = MaterialTheme.colorScheme.primary,
                     ),
                 )
                 NavigationBarItem(
@@ -117,16 +117,16 @@ fun SettingsScreen(
                     alwaysShowLabel = true,
                     onClick = { },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = TextBlue,
-                        selectedTextColor = TextBlue,
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = CardLavender,
+                        indicatorColor = MaterialTheme.colorScheme.secondary,
                     ),
                 )
             }
         },
-        containerColor = BackgroundBlue,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -137,33 +137,91 @@ fun SettingsScreen(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFF2E2E3A),
-                        contentColor = Color.White,
+                        containerColor = MaterialTheme.colorScheme.surface,
                     ),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
                 ) {
                     Column(
-                        modifier = Modifier.padding(20.dp)
+                        modifier = Modifier.padding(20.dp),
+                    ) {
+                        Text(
+                            text = "Theme",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            ),
+                            modifier = Modifier.padding(bottom = 12.dp),
+                        )
+
+                        Box {
+                            OutlinedButton(
+                                onClick = { themeExpanded = true },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.primary,
+                                ),
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(text = currentTheme.displayName)
+                                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                                }
+                            }
+
+                            DropdownMenu(
+                                expanded = themeExpanded,
+                                onDismissRequest = { themeExpanded = false },
+                                modifier = Modifier.fillMaxWidth(0.8f),
+                            ) {
+                                AppTheme.entries.forEach { theme ->
+                                    DropdownMenuItem(
+                                        text = { Text(theme.displayName) },
+                                        onClick = {
+                                            viewModel.setTheme(theme)
+                                            themeExpanded = false
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
                     ) {
                         Text(
                             text = "Developer Note",
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = Color.White
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             ),
-                            modifier = Modifier.padding(bottom = 12.dp)
+                            modifier = Modifier.padding(bottom = 12.dp),
                         )
                         Text(
                             text = "This app is currently under development. Please report any bugs/issues that you encounter by sharing a screenshot of the incident on the whatsapp group created for the app testing as well as a short note explaining the issue you are facing.",
                             style = MaterialTheme.typography.bodyLarge.copy(
-                                color = Color.White.copy(alpha = 0.9f),
-                                lineHeight = 22.sp
-                            )
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+                                lineHeight = 22.sp,
+                            ),
                         )
                     }
                 }
@@ -172,10 +230,10 @@ fun SettingsScreen(
 
                 Text(
                     text = "Daily Reading Companion",
-                    color = DateGrey,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
             }
         }

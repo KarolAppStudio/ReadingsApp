@@ -58,7 +58,8 @@ abstract class ReadingPlanDatabase : RoomDatabase() {
                         super.onOpen(db)
                         validateDatabase(db)
                     }
-                })
+                },
+                )
                 .build()
                 INSTANCE = instance
                 instance
