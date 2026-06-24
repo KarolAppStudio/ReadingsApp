@@ -94,6 +94,27 @@ private val SepiaColorScheme = lightColorScheme(
     onSurfaceVariant = Color(0xFF7A6652),
 )
 
+private val GreenColorScheme = lightColorScheme(
+    primary = BrandGreen,
+    onPrimary = Color.White,
+    primaryContainer = HighlightGreen,
+    onPrimaryContainer = BrandGreen,
+    secondary = SecondaryGreen,
+    onSecondary = Color.White,
+    secondaryContainer = SurfaceGray,
+    onSecondaryContainer = DarkTextGreen,
+    tertiary = TertiaryGreen,
+    onTertiary = Color.White,
+    tertiaryContainer = OTGray,
+    onTertiaryContainer = DarkTextGreen,
+    background = Color.White,
+    surface = Color.White,
+    onBackground = DarkTextGreen,
+    onSurface = DarkTextGreen,
+    surfaceVariant = SurfaceGray,
+    onSurfaceVariant = SecondaryGreen,
+)
+
 @Composable
 fun ReadingsAppTheme(
     appTheme: AppTheme = AppTheme.BLUE,
@@ -114,6 +135,7 @@ fun ReadingsAppTheme(
         AppTheme.DARK -> DarkColorScheme
         AppTheme.BLUE -> BlueColorScheme
         AppTheme.SEPIA -> SepiaColorScheme
+        AppTheme.GREEN -> GreenColorScheme
     }
 
     MaterialTheme(

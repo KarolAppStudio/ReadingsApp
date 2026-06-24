@@ -264,7 +264,7 @@ fun ReadingDayItem(
             .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isToday) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surface,
+            containerColor = if (isToday) MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
