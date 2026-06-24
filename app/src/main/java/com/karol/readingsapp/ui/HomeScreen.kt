@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -184,9 +185,6 @@ fun HomeScreen(
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = if (isPleasant) 0.dp else 8.dp,
-                modifier = if (isPleasant) {
-                    Modifier.border(0.5.dp, GlassBorder)
-                } else Modifier,
             ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
@@ -199,7 +197,7 @@ fun HomeScreen(
                         selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = if (isPleasant) MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.secondary,
+                        indicatorColor = MaterialTheme.colorScheme.secondary,
                     ),
                 )
                 NavigationBarItem(
@@ -390,35 +388,31 @@ fun ReadingSection(
     val innerSpacer = 4.dp
     val itemSpacing = 4.dp
 
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
-
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (isPleasant && !isToday) Modifier.border(
-                    0.5.dp,
-                    MaterialTheme.colorScheme.outline,
-                    RoundedCornerShape(12.dp),
-                ) else Modifier
-            ),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         shape = RoundedCornerShape(12.dp),
-        elevation = if (isToday) {
-            CardDefaults.cardElevation(defaultElevation = 1.dp)
-        } else {
-            CardDefaults.cardElevation(defaultElevation = 0.dp)
-        },
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
             modifier = Modifier.padding(sectionPadding),
         ) {
-            Text(
-                title,
-                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
-                fontWeight = FontWeight.Bold,
-                fontSize = titleSize,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    title,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = titleSize,
+                )
+                if (isToday) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .background(Color(0xFF00FF00), shape = CircleShape)
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(innerSpacer))
             
             if (items.isEmpty()) {
@@ -460,15 +454,7 @@ fun ReadingItemRow(
 
     Surface(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (isPleasant) Modifier.border(
-                    0.5.dp,
-                    MaterialTheme.colorScheme.outline,
-                    RoundedCornerShape(8.dp),
-                ) else Modifier
-            ),
+        modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(8.dp),
         shadowElevation = if (isPleasant) 0.dp else 1.dp,

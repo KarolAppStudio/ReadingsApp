@@ -17,6 +17,6 @@ val ModernDeepGreen = Color(0xFF2E7D32)
 
 // Glass Theme Extras
 val GlassBackground = Color(0xFFE3F2FD) // Classic MD1 Blue 50 background
-val GlassWhite = Color(0xFFFFFFFF).copy(alpha = 0.65f)
-val GlassBorder = Color(0xFFFFFFFF).copy(alpha = 0.5f)
+val GlassWhite = Color(0xFFFFFFFF)
+val GlassBorder = Color.Transparent
 val GlassContentBlack = Color(0xFF212121) // MD1 Dark Grey

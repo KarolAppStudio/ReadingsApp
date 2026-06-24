@@ -1,10 +1,11 @@
 package com.karol.readingsapp.ui
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -124,7 +125,7 @@ fun ReadingPlanScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    color = if (isPleasant) MaterialTheme.colorScheme.surface.copy(alpha = 0.4f) else MaterialTheme.colorScheme.background,
+                    color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
                 ) {
                     Row(
                         modifier = Modifier
@@ -173,9 +174,6 @@ fun ReadingPlanScreen(
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = if (isPleasant) 0.dp else 8.dp,
-                modifier = if (isPleasant) {
-                    Modifier.border(0.5.dp, GlassBorder)
-                } else Modifier,
             ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
@@ -199,7 +197,7 @@ fun ReadingPlanScreen(
                         selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = if (isPleasant) MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.secondary,
+                        indicatorColor = MaterialTheme.colorScheme.secondary,
                     ),
                 )
                 NavigationBarItem(
@@ -266,31 +264,13 @@ fun ReadingDayItem(
     val dayOfWeek = parsedDate?.dayOfWeek?.getDisplayName(java.time.format.TextStyle.FULL, strings.locale) ?: "---"
     val dayOfMonth = parsedDate?.dayOfMonth?.toString() ?: "--"
 
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
-
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (isPleasant && !isToday) Modifier.border(
-                    0.5.dp,
-                    MaterialTheme.colorScheme.outline,
-                    RoundedCornerShape(12.dp),
-                ) else Modifier
-            ),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isToday) {
-                MaterialTheme.colorScheme.secondary.copy(alpha = if (isPleasant) 0.4f else 0.2f)
-            } else {
-                MaterialTheme.colorScheme.surface
-            },
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
-        elevation = if (isToday) {
-            CardDefaults.cardElevation(defaultElevation = 1.dp)
-        } else {
-            CardDefaults.cardElevation(defaultElevation = 0.dp)
-        },
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
             modifier = Modifier
@@ -302,6 +282,14 @@ fun ReadingDayItem(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.width(50.dp),
             ) {
+                if (isToday) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(Color(0xFF00FF00), shape = CircleShape)
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
                 Text(
                     text = dayOfMonth,
                     fontSize = 20.sp,

@@ -293,7 +293,7 @@ fun TranslationSelector(
             onClick = { expanded = true },
             color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.secondaryContainer,
             shape = if (isPleasant) RoundedCornerShape(12.dp) else RoundedCornerShape(4.dp),
-            modifier = if (isPleasant) Modifier.fillMaxWidth().border(0.5.dp, GlassBorder, RoundedCornerShape(12.dp)) else Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier.padding(8.dp),

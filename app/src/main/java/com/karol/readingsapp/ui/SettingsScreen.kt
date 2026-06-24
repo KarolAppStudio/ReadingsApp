@@ -79,9 +79,6 @@ fun SettingsScreen(
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = if (isPleasant) 0.dp else 8.dp,
-                modifier = if (isPleasant) {
-                    Modifier.border(0.5.dp, GlassBorder)
-                } else Modifier,
             ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
@@ -127,7 +124,7 @@ fun SettingsScreen(
                         selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = if (isPleasant) MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.secondary,
+                        indicatorColor = MaterialTheme.colorScheme.secondary,
                     ),
                 )
             }
@@ -146,15 +143,7 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .then(
-                            if (isPleasant) Modifier.border(
-                                0.5.dp,
-                                MaterialTheme.colorScheme.outline,
-                                RoundedCornerShape(16.dp),
-                            ) else Modifier
-                        ),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface,
                     ),
@@ -214,15 +203,7 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .then(
-                            if (isPleasant) Modifier.border(
-                                0.5.dp,
-                                MaterialTheme.colorScheme.outline,
-                                RoundedCornerShape(16.dp),
-                            ) else Modifier
-                        ),
+                    modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     ),

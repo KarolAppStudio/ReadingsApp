@@ -159,9 +159,6 @@ fun BibleSelectionScreen(
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = if (isPleasant) 0.dp else 8.dp,
-                modifier = if (isPleasant) {
-                    Modifier.border(0.5.dp, GlassBorder)
-                } else Modifier,
             ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
@@ -196,7 +193,7 @@ fun BibleSelectionScreen(
                         selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = if (isPleasant) MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.secondary,
+                        indicatorColor = MaterialTheme.colorScheme.secondary,
                     ),
                 )
                 NavigationBarItem(
@@ -401,11 +398,6 @@ fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) 
     }
     Card(
         onClick = { onClick(book) },
-        modifier = if (isPleasant) Modifier.border(
-            0.5.dp,
-            MaterialTheme.colorScheme.outline,
-            RoundedCornerShape(8.dp),
-        ) else Modifier,
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         shape = RoundedCornerShape(8.dp),
         elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
@@ -453,11 +445,6 @@ fun ChapterCard(chapter: Int, onClick: (Int) -> Unit) {
 
     Card(
         onClick = { onClick(chapter) },
-        modifier = if (isPleasant) Modifier.border(
-            0.5.dp,
-            MaterialTheme.colorScheme.outline,
-            RoundedCornerShape(8.dp),
-        ) else Modifier,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(8.dp),
         border = if (isPleasant) null else CardDefaults.outlinedCardBorder(),

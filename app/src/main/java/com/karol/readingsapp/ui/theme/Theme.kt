@@ -98,7 +98,7 @@ private val SepiaColorScheme = lightColorScheme(
 private val PleasantColorScheme = lightColorScheme(
     primary = ModernBluePrimary,
     onPrimary = Color.White,
-    primaryContainer = ModernGoldNT.copy(alpha = 0.5f),
+    primaryContainer = ModernGoldNT,
     onPrimaryContainer = GlassContentBlack,
     secondary = ModernIndigoSecondary,
     onSecondary = Color.White,
@@ -106,14 +106,14 @@ private val PleasantColorScheme = lightColorScheme(
     onSecondaryContainer = ModernIndigoSecondary,
     tertiary = ModernDeepGreen,
     onTertiary = Color.White,
-    tertiaryContainer = ModernGreenOT.copy(alpha = 0.5f),
+    tertiaryContainer = ModernGreenOT,
     onTertiaryContainer = GlassContentBlack,
     background = GlassBackground,
     surface = GlassWhite,
     onBackground = GlassContentBlack,
     onSurface = GlassContentBlack,
     outline = GlassBorder,
-    surfaceVariant = Color.White.copy(alpha = 0.3f),
+    surfaceVariant = Color.White,
     onSurfaceVariant = GlassContentBlack,
 )
 
