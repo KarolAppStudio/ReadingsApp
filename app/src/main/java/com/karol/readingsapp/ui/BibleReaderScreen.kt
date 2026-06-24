@@ -4,6 +4,7 @@ import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,10 +19,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.components.AutoResizingText
+import kotlinx.coroutines.launch
+
+import com.karol.readingsapp.ui.theme.GlassBorder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,6 +38,7 @@ fun BibleReaderScreen(
     onHomeClick: () -> Unit,
     onBackClick: () -> Unit,
     onParallelClick: (Int, Int) -> Unit,
+    onChapterChange: (Int, Int) -> Unit,
 ) {
     val verses by viewModel.chapterVerses.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
@@ -41,6 +47,8 @@ fun BibleReaderScreen(
     val listState = rememberLazyListState()
     val highlightColor = remember { Animatable(Color.Transparent) }
     val secondaryColor = MaterialTheme.colorScheme.secondary
+    val scope = rememberCoroutineScope()
+    var offsetX by remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(bookId, chapter, selectedCode) {
         viewModel.loadChapterVerses(bookId, chapter)
@@ -65,6 +73,7 @@ fun BibleReaderScreen(
         translations.find { it.code == selectedCode }?.language ?: "English"
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
+    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
     val bookName = strings.bookNames[bookId] ?: "Book $bookId"
 
     val numberFormatter = remember(strings.locale) {
@@ -135,7 +144,7 @@ fun BibleReaderScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
                 ),
             )
         },
@@ -146,7 +155,30 @@ fun BibleReaderScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp),
+                .padding(16.dp)
+                .pointerInput(bookId, chapter) {
+                    // pointerInput uses bookId and chapter as keys to ensure the gesture 
+                    // handler is re-initialized with the correct state when the page changes.
+                    detectHorizontalDragGestures(
+                        onDragStart = { offsetX = 0f },
+                        onHorizontalDrag = { _, dragAmount -> offsetX += dragAmount },
+                        onDragEnd = {
+                            if (offsetX < -60) { // Swipe Right-to-Left (finger moving <-) -> Next
+                                scope.launch {
+                                    viewModel.getNextChapter(bookId, chapter)?.let { (bId, chap) ->
+                                        onChapterChange(bId, chap)
+                                    }
+                                }
+                            } else if (offsetX > 60) { // Swipe Left-to-Right (finger moving ->) -> Previous
+                                scope.launch {
+                                    viewModel.getPreviousChapter(bookId, chapter)?.let { (bId, chap) ->
+                                        onChapterChange(bId, chap)
+                                    }
+                                }
+                            }
+                        }
+                    )
+                },
         ) {
             if (verses.isEmpty()) {
                 item {

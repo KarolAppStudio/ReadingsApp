@@ -189,6 +189,11 @@ class MainActivity : ComponentActivity() {
                                 onParallelClick = { bId, chap ->
                                     viewModel.loadSecondChapterVerses(bId, chap, "ENG")
                                     navController.navigate("parallel_reader/$bId/$chap")
+                                },
+                                onChapterChange = { bId, chap ->
+                                    navController.navigate("reader/$bId/$chap/1") {
+                                        popUpTo("reader/{bookId}/{chapter}/{verseId}") { inclusive = true }
+                                    }
                                 }
                             )
                         }

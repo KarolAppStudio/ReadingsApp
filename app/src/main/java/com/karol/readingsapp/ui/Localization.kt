@@ -371,13 +371,14 @@ object Localization {
 
     fun getStrings(language: String): LocalizedStrings {
         android.util.Log.d("Localization", "Requested language: '$language'")
-        val baseStrings = when (language.lowercase().trim()) {
-            "bangla", "bengali", "bn", "ben" -> Bangla
-            "hindi", "hi", "hin" -> Hindi
-            "kannada", "kn", "kan" -> Kannada
-            "malayalam", "ml", "mal" -> Malayalam
-            "tamil", "ta", "tam" -> Tamil
-            "telugu", "te", "tel" -> Telugu
+        val lang = language.lowercase()
+        val baseStrings = when {
+            lang.contains("bangla") || lang.contains("bengali") || lang == "bn" || lang == "ben" -> Bangla
+            lang.contains("hindi") || lang == "hi" || lang == "hin" -> Hindi
+            lang.contains("kannada") || lang == "kn" || lang == "kan" -> Kannada
+            lang.contains("malayalam") || lang == "ml" || lang == "mal" -> Malayalam
+            lang.contains("tamil") || lang == "ta" || lang == "tam" -> Tamil
+            lang.contains("telugu") || lang == "te" || lang == "tel" -> Telugu
             else -> English
         }
         

@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.ui.components.AutoResizingText
+import com.karol.readingsapp.ui.theme.GlassBorder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -78,13 +79,15 @@ fun HomeScreen(
         translations.find { it.code == selectedCode }?.language ?: "English"
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
+    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
     
     val downloadStatus by viewModel.downloadStatus.collectAsState()
     val isDownloading = downloadStatus[selectedLanguage] == com.karol.readingsapp.data.LanguageStatus.DOWNLOADING
     
     val today = remember { LocalDate.now() }
     val todayString = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-    
+    val isToday = (selectedDate == todayString) || (selectedDate.isEmpty())
+
     val displayDate = remember(selectedDate, strings) {
         try {
             val dateToParse = selectedDate.ifEmpty { todayString }
@@ -165,7 +168,7 @@ fun HomeScreen(
                                         Icons.Default.Info,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(18.dp)
+                                        modifier = Modifier.size(18.dp),
                                     )
                                 },
                             )
@@ -173,14 +176,17 @@ fun HomeScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
                 ),
             )
         },
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 8.dp,
+                tonalElevation = if (isPleasant) 0.dp else 8.dp,
+                modifier = if (isPleasant) {
+                    Modifier.border(0.5.dp, GlassBorder)
+                } else Modifier,
             ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
@@ -193,7 +199,7 @@ fun HomeScreen(
                         selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = MaterialTheme.colorScheme.secondary,
+                        indicatorColor = if (isPleasant) MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.secondary,
                     ),
                 )
                 NavigationBarItem(
@@ -241,7 +247,7 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item {
-                val selectedName = translations.find { it.code == selectedCode }?.name ?: "Select Bible"
+                val selectedName = translations.find { it.code == selectedCode }?.name ?: strings.selectBible
                 var expanded by remember { mutableStateOf(value = false) }
 
                 Column(
@@ -260,7 +266,7 @@ fun HomeScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 4.dp)
+                            .padding(top = 4.dp),
                     ) {
                         Box(modifier = Modifier.align(Alignment.CenterEnd)) {
                             Surface(
@@ -358,6 +364,7 @@ fun HomeScreen(
                     items = readingsGrouped[type] ?: emptyList(),
                     strings = strings,
                     noReadingsText = strings.noReadings,
+                    isToday = isToday,
                     onItemClick = onReadingClick,
                 )
                 Spacer(modifier = Modifier.height(6.dp))
@@ -372,6 +379,7 @@ fun ReadingSection(
     items: List<TargetReadingDetails>,
     strings: LocalizedStrings,
     noReadingsText: String,
+    isToday: Boolean,
     onItemClick: (TargetReadingDetails) -> Unit,
 ) {
     val distinctReadings = remember(items) { items.distinctBy { "${it.bookId} ${it.chapter}" } }
@@ -382,10 +390,25 @@ fun ReadingSection(
     val innerSpacer = 4.dp
     val itemSpacing = 4.dp
 
+    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (isPleasant && !isToday) Modifier.border(
+                    0.5.dp,
+                    MaterialTheme.colorScheme.outline,
+                    RoundedCornerShape(12.dp),
+                ) else Modifier
+            ),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         shape = RoundedCornerShape(12.dp),
+        elevation = if (isToday) {
+            CardDefaults.cardElevation(defaultElevation = 1.dp)
+        } else {
+            CardDefaults.cardElevation(defaultElevation = 0.dp)
+        },
     ) {
         Column(
             modifier = Modifier.padding(sectionPadding),
@@ -433,11 +456,22 @@ fun ReadingItemRow(
     val verticalPadding = 6.dp
     val horizontalPadding = 12.dp
 
+    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
+
     Surface(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (isPleasant) Modifier.border(
+                    0.5.dp,
+                    MaterialTheme.colorScheme.outline,
+                    RoundedCornerShape(8.dp),
+                ) else Modifier
+            ),
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(8.dp),
+        shadowElevation = if (isPleasant) 0.dp else 1.dp,
     ) {
         AutoResizingText(
             text = text,
@@ -445,7 +479,7 @@ fun ReadingItemRow(
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             fontSize = fontSize,
-            maxLines = 1
+            maxLines = 1,
         )
     }
 }

@@ -28,6 +28,9 @@ import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.data.bible.TranslationEntity
 import com.karol.readingsapp.ui.components.AutoResizingText
 
+import androidx.compose.foundation.border
+import com.karol.readingsapp.ui.theme.GlassBorder
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParallelReadingScreen(
@@ -58,6 +61,7 @@ fun ParallelReadingScreen(
         translations.find { it.code == selectedCode1 }?.language ?: "English"
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
+    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
     val bookName = strings.bookNames[bookId] ?: "Book $bookId"
 
     val numberFormatter = remember(strings.locale) {
@@ -99,7 +103,7 @@ fun ParallelReadingScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .clickable { isSyncEnabled = !isSyncEnabled }
-                            .padding(horizontal = 8.dp)
+                            .padding(horizontal = 8.dp),
                     ) {
                         val activeColor = MaterialTheme.colorScheme.tertiary
                         val inactiveColor = MaterialTheme.colorScheme.primary
@@ -158,7 +162,9 @@ fun ParallelReadingScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background
+                ),
                 windowInsets = WindowInsets(0, 0, 0, 0)
             )
         },
@@ -182,14 +188,16 @@ fun ParallelReadingScreen(
                     translations = translations,
                     onTranslationSelected = { viewModel.setTranslation(it) },
                     modifier = Modifier.weight(1f),
-                    placeholder = strings.selectBible
+                    placeholder = strings.selectBible,
+                    isPleasant = isPleasant
                 )
                 TranslationSelector(
                     selectedTranslationCode = selectedCode2,
                     translations = translations,
                     onTranslationSelected = { viewModel.loadSecondChapterVerses(bookId, chapter, it) },
                     modifier = Modifier.weight(1f),
-                    placeholder = strings.selectBible
+                    placeholder = strings.selectBible,
+                    isPleasant = isPleasant
                 )
             }
 
@@ -274,7 +282,8 @@ fun TranslationSelector(
     translations: List<TranslationEntity>,
     onTranslationSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeholder: String = ""
+    placeholder: String = "",
+    isPleasant: Boolean = false
 ) {
     var expanded by remember { mutableStateOf(value = false) }
     val transName = translations.find { it.code == selectedTranslationCode }?.name ?: placeholder
@@ -282,9 +291,9 @@ fun TranslationSelector(
     Box(modifier = modifier) {
         Surface(
             onClick = { expanded = true },
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            shape = RoundedCornerShape(4.dp),
-            modifier = Modifier.fillMaxWidth()
+            color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.secondaryContainer,
+            shape = if (isPleasant) RoundedCornerShape(12.dp) else RoundedCornerShape(4.dp),
+            modifier = if (isPleasant) Modifier.fillMaxWidth().border(0.5.dp, GlassBorder, RoundedCornerShape(12.dp)) else Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier.padding(8.dp),

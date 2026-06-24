@@ -141,7 +141,7 @@ abstract class BibleDatabase : RoomDatabase() {
                     val testament = if (i < 39) "OT" else "NT"
                     db.execSQL(
                         "INSERT INTO books (id, osis_code, name, testament, sort_order) VALUES (?, ?, ?, ?, ?)",
-                        arrayOf<Any>(i, osis[i], books[i], testament, i)
+                        arrayOf<Any>(i, osis[i], books[i], testament, i),
                     )
                 }
                 db.setTransactionSuccessful()

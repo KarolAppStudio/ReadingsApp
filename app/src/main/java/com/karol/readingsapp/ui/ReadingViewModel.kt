@@ -48,7 +48,11 @@ class ReadingViewModel(
     val secondTranslationCode = _secondTranslationCode.asStateFlow()
 
     private val _appTheme = MutableStateFlow(
-        AppTheme.valueOf(prefs.getString("app_theme", AppTheme.BLUE.name) ?: AppTheme.BLUE.name),
+        try {
+            AppTheme.valueOf(prefs.getString("app_theme", AppTheme.BLUE.name) ?: AppTheme.BLUE.name)
+        } catch (_: Exception) {
+            AppTheme.BLUE
+        }
     )
     val appTheme = _appTheme.asStateFlow()
 
@@ -78,7 +82,19 @@ class ReadingViewModel(
 
     private fun loadTranslations() {
         viewModelScope.launch {
-            val translations = repository.getAvailableTranslations()
+            val translations = repository.getAvailableTranslations().map {
+                val lang = it.language.lowercase()
+                val nativeName = when {
+                    (lang.contains("hindi") || (lang == "hi") || (lang == "hin")) -> "हिन्दी"
+                    (lang.contains("bangla") || lang.contains("bengali") || (lang == "bn") || (lang == "ben")) -> "বাংলা"
+                    (lang.contains("kannada") || (lang == "kn") || (lang == "kan")) -> "ಕನ್ನಡ"
+                    (lang.contains("malayalam") || (lang == "ml") || (lang == "mal")) -> "മലയാളം"
+                    (lang.contains("tamil") || (lang == "ta") || (lang == "tam")) -> "தமிழ்"
+                    (lang.contains("telugu") || (lang == "te") || (lang == "tel")) -> "తెలుగు"
+                    else -> it.name.removeSuffix(" Bible")
+                }
+                it.copy(name = nativeName)
+            }
             _availableTranslations.value = translations
             translations.find { it.code == _selectedTranslationCode.value }?.let {
                 languageService.downloadLanguageScript(it.language)
@@ -142,4 +158,31 @@ class ReadingViewModel(
         }
     }
 
+    suspend fun getNextChapter(bookId: Int, chapter: Int): Pair<Int, Int>? {
+        val currentChapterCount = getChapterCount(bookId)
+        if (chapter < currentChapterCount) {
+            return bookId to (chapter + 1)
+        }
+        val books = _allBooks.value
+        val currentIndex = books.indexOfFirst { it.id == bookId }
+        if (currentIndex != -1 && currentIndex < books.size - 1) {
+            val nextBook = books[currentIndex + 1]
+            return nextBook.id to 1
+        }
+        return null
+    }
+
+    suspend fun getPreviousChapter(bookId: Int, chapter: Int): Pair<Int, Int>? {
+        if (chapter > 1) {
+            return bookId to (chapter - 1)
+        }
+        val books = _allBooks.value
+        val currentIndex = books.indexOfFirst { it.id == bookId }
+        if (currentIndex > 0) {
+            val prevBook = books[currentIndex - 1]
+            val prevBookChapterCount = getChapterCount(prevBook.id)
+            return prevBook.id to prevBookChapterCount
+        }
+        return null
+    }
 }

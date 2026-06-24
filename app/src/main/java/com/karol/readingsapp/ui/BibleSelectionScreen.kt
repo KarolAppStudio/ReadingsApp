@@ -1,5 +1,6 @@
 package com.karol.readingsapp.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.bible.BookEntity
 import com.karol.readingsapp.ui.components.AutoResizingText
+import com.karol.readingsapp.ui.theme.GlassBorder
 
 enum class NavMode { Grid, List }
 
@@ -68,6 +70,8 @@ fun BibleSelectionScreen(
         }
     }
 
+    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
+
     Scaffold(
         topBar = {
             Surface(
@@ -75,7 +79,7 @@ fun BibleSelectionScreen(
                     .fillMaxWidth()
                     .statusBarsPadding()
                     .height(48.dp),
-                color = MaterialTheme.colorScheme.background,
+                color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     IconButton(
@@ -154,7 +158,10 @@ fun BibleSelectionScreen(
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 8.dp,
+                tonalElevation = if (isPleasant) 0.dp else 8.dp,
+                modifier = if (isPleasant) {
+                    Modifier.border(0.5.dp, GlassBorder)
+                } else Modifier,
             ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
@@ -189,7 +196,7 @@ fun BibleSelectionScreen(
                         selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = MaterialTheme.colorScheme.secondary,
+                        indicatorColor = if (isPleasant) MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.secondary,
                     ),
                 )
                 NavigationBarItem(
@@ -214,7 +221,7 @@ fun BibleSelectionScreen(
         ) {
             SecondaryTabRow(
                 selectedTabIndex = currentMode.ordinal,
-                containerColor = MaterialTheme.colorScheme.background,
+                containerColor = if (isPleasant) Color.Transparent else MaterialTheme.colorScheme.background,
                 contentColor = MaterialTheme.colorScheme.primary,
                 indicator = {
                     TabRowDefaults.SecondaryIndicator(
@@ -272,7 +279,7 @@ fun BookSelection(
                 columns = GridCells.Adaptive(100.dp),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(books) { book ->
                     BookCard(book, strings, onBookClick)
@@ -282,7 +289,7 @@ fun BookSelection(
         NavMode.List -> {
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 items(books) { book ->
                     BookListItem(book, strings, onBookClick)
@@ -296,7 +303,7 @@ fun BookSelection(
 fun ChapterSelection(
     mode: NavMode,
     chapterCount: Int,
-    onChapterClick: (Int) -> Unit
+    onChapterClick: (Int) -> Unit,
 ) {
     val chapters = (1..chapterCount).toList()
 
@@ -306,7 +313,7 @@ fun ChapterSelection(
                 columns = GridCells.Fixed(5),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(chapters) { chapter ->
                     ChapterCard(chapter, onChapterClick)
@@ -316,19 +323,19 @@ fun ChapterSelection(
         else -> {
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 items(chapters) { chapter ->
                     Surface(
                         onClick = { onChapterClick(chapter) },
                         modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
                     ) {
                         Text(
                             text = "Chapter $chapter",
                             modifier = Modifier.padding(16.dp),
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
@@ -341,7 +348,7 @@ fun ChapterSelection(
 fun VerseSelection(
     mode: NavMode,
     verseCount: Int,
-    onVerseClick: (Int) -> Unit
+    onVerseClick: (Int) -> Unit,
 ) {
     val verses = (1..verseCount).toList()
 
@@ -351,7 +358,7 @@ fun VerseSelection(
                 columns = GridCells.Fixed(5),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(verses) { verse ->
                     ChapterCard(verse, onVerseClick) // Reusing ChapterCard style
@@ -361,19 +368,19 @@ fun VerseSelection(
         else -> {
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 items(verses) { verse ->
                     Surface(
                         onClick = { onVerseClick(verse) },
                         modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
                     ) {
                         Text(
                             text = "Verse $verse",
                             modifier = Modifier.padding(16.dp),
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
@@ -385,6 +392,8 @@ fun VerseSelection(
 @Composable
 fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) -> Unit) {
     android.util.Log.d("BookCard", "Book ID: ${book.id}, Name: ${book.name}, Localized: ${strings.bookNames[book.id]}")
+    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
+    
     val (backgroundColor, textColor) = when (book.testament) {
         "OT" -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
         "NT" -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
@@ -392,14 +401,20 @@ fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) 
     }
     Card(
         onClick = { onClick(book) },
+        modifier = if (isPleasant) Modifier.border(
+            0.5.dp,
+            MaterialTheme.colorScheme.outline,
+            RoundedCornerShape(8.dp),
+        ) else Modifier,
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(8.dp),
+        elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
     ) {
         Box(
             modifier = Modifier
                 .padding(12.dp)
                 .fillMaxSize(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             AutoResizingText(
                 text = strings.bookNames[book.id] ?: book.name,
@@ -409,7 +424,7 @@ fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) 
                 color = textColor,
                 maxLines = 1,
                 softWrap = false,
-                minFontSize = 8.sp
+                minFontSize = 8.sp,
             )
         }
     }
@@ -421,33 +436,41 @@ fun BookListItem(book: BookEntity, strings: LocalizedStrings, onClick: (BookEnti
         onClick = { onClick(book) },
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(8.dp),
     ) {
         Text(
             text = strings.bookNames[book.id] ?: book.name,
             modifier = Modifier.padding(16.dp),
             color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
         )
     }
 }
 
 @Composable
 fun ChapterCard(chapter: Int, onClick: (Int) -> Unit) {
+    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
+
     Card(
         onClick = { onClick(chapter) },
+        modifier = if (isPleasant) Modifier.border(
+            0.5.dp,
+            MaterialTheme.colorScheme.outline,
+            RoundedCornerShape(8.dp),
+        ) else Modifier,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(8.dp),
-        border = CardDefaults.outlinedCardBorder()
+        border = if (isPleasant) null else CardDefaults.outlinedCardBorder(),
+        elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(1.dp),
     ) {
         Box(
             modifier = Modifier.aspectRatio(1f),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = chapter.toString(),
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         }
     }

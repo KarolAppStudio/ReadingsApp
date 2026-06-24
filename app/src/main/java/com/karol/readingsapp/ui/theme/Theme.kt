@@ -94,25 +94,27 @@ private val SepiaColorScheme = lightColorScheme(
     onSurfaceVariant = Color(0xFF7A6652),
 )
 
-private val GreenColorScheme = lightColorScheme(
-    primary = BrandGreen,
+
+private val PleasantColorScheme = lightColorScheme(
+    primary = ModernBluePrimary,
     onPrimary = Color.White,
-    primaryContainer = HighlightGreen,
-    onPrimaryContainer = BrandGreen,
-    secondary = SecondaryGreen,
+    primaryContainer = ModernGoldNT.copy(alpha = 0.5f),
+    onPrimaryContainer = GlassContentBlack,
+    secondary = ModernIndigoSecondary,
     onSecondary = Color.White,
-    secondaryContainer = SurfaceGray,
-    onSecondaryContainer = DarkTextGreen,
-    tertiary = TertiaryGreen,
+    secondaryContainer = ModernIndigoSecondary.copy(alpha = 0.1f),
+    onSecondaryContainer = ModernIndigoSecondary,
+    tertiary = ModernDeepGreen,
     onTertiary = Color.White,
-    tertiaryContainer = OTGray,
-    onTertiaryContainer = DarkTextGreen,
-    background = Color.White,
-    surface = Color.White,
-    onBackground = DarkTextGreen,
-    onSurface = DarkTextGreen,
-    surfaceVariant = SurfaceGray,
-    onSurfaceVariant = SecondaryGreen,
+    tertiaryContainer = ModernGreenOT.copy(alpha = 0.5f),
+    onTertiaryContainer = GlassContentBlack,
+    background = GlassBackground,
+    surface = GlassWhite,
+    onBackground = GlassContentBlack,
+    onSurface = GlassContentBlack,
+    outline = GlassBorder,
+    surfaceVariant = Color.White.copy(alpha = 0.3f),
+    onSurfaceVariant = GlassContentBlack,
 )
 
 @Composable
@@ -135,7 +137,7 @@ fun ReadingsAppTheme(
         AppTheme.DARK -> DarkColorScheme
         AppTheme.BLUE -> BlueColorScheme
         AppTheme.SEPIA -> SepiaColorScheme
-        AppTheme.GREEN -> GreenColorScheme
+        AppTheme.PLEASANT -> PleasantColorScheme
     }
 
     MaterialTheme(

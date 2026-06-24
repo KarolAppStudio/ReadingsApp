@@ -1,5 +1,6 @@
 package com.karol.readingsapp.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import kotlinx.coroutines.flow.first
 import com.karol.readingsapp.data.plan.SimpleReading
 import com.karol.readingsapp.ui.components.AutoResizingText
+import com.karol.readingsapp.ui.theme.GlassBorder
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -79,6 +81,8 @@ fun ReadingPlanScreen(
         }
     }
 
+    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
+
     Scaffold(
         topBar = {
             Column(modifier = Modifier.statusBarsPadding()) {
@@ -87,7 +91,7 @@ fun ReadingPlanScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(40.dp),
-                    color = MaterialTheme.colorScheme.background,
+                    color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
                 ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -120,7 +124,7 @@ fun ReadingPlanScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    color = MaterialTheme.colorScheme.background,
+                    color = if (isPleasant) MaterialTheme.colorScheme.surface.copy(alpha = 0.4f) else MaterialTheme.colorScheme.background,
                 ) {
                     Row(
                         modifier = Modifier
@@ -168,7 +172,10 @@ fun ReadingPlanScreen(
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 8.dp,
+                tonalElevation = if (isPleasant) 0.dp else 8.dp,
+                modifier = if (isPleasant) {
+                    Modifier.border(0.5.dp, GlassBorder)
+                } else Modifier,
             ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
@@ -192,7 +199,7 @@ fun ReadingPlanScreen(
                         selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = MaterialTheme.colorScheme.secondary,
+                        indicatorColor = if (isPleasant) MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.secondary,
                     ),
                 )
                 NavigationBarItem(
@@ -259,14 +266,31 @@ fun ReadingDayItem(
     val dayOfWeek = parsedDate?.dayOfWeek?.getDisplayName(java.time.format.TextStyle.FULL, strings.locale) ?: "---"
     val dayOfMonth = parsedDate?.dayOfMonth?.toString() ?: "--"
 
+    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
+
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .then(
+                if (isPleasant && !isToday) Modifier.border(
+                    0.5.dp,
+                    MaterialTheme.colorScheme.outline,
+                    RoundedCornerShape(12.dp),
+                ) else Modifier
+            ),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isToday) MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface,
+            containerColor = if (isToday) {
+                MaterialTheme.colorScheme.secondary.copy(alpha = if (isPleasant) 0.4f else 0.2f)
+            } else {
+                MaterialTheme.colorScheme.surface
+            },
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = if (isToday) {
+            CardDefaults.cardElevation(defaultElevation = 1.dp)
+        } else {
+            CardDefaults.cardElevation(defaultElevation = 0.dp)
+        },
     ) {
         Row(
             modifier = Modifier

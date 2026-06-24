@@ -1,5 +1,6 @@
 package com.karol.readingsapp.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.theme.AppTheme
+import com.karol.readingsapp.ui.theme.GlassBorder
 
 @Composable
 fun SettingsScreen(
@@ -36,6 +38,7 @@ fun SettingsScreen(
         translations.find { it.code == selectedCode }?.language ?: "English"
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
+    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
 
     Scaffold(
         topBar = {
@@ -44,7 +47,7 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .statusBarsPadding()
                     .height(40.dp),
-                color = MaterialTheme.colorScheme.background,
+                color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
             ) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -75,7 +78,10 @@ fun SettingsScreen(
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 8.dp,
+                tonalElevation = if (isPleasant) 0.dp else 8.dp,
+                modifier = if (isPleasant) {
+                    Modifier.border(0.5.dp, GlassBorder)
+                } else Modifier,
             ) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
@@ -121,7 +127,7 @@ fun SettingsScreen(
                         selectedTextColor = MaterialTheme.colorScheme.primary,
                         unselectedIconColor = Color.Gray,
                         unselectedTextColor = Color.Gray,
-                        indicatorColor = MaterialTheme.colorScheme.secondary,
+                        indicatorColor = if (isPleasant) MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.secondary,
                     ),
                 )
             }
@@ -140,11 +146,20 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (isPleasant) Modifier.border(
+                                0.5.dp,
+                                MaterialTheme.colorScheme.outline,
+                                RoundedCornerShape(16.dp),
+                            ) else Modifier
+                        ),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface,
                     ),
                     shape = RoundedCornerShape(16.dp),
+                    elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
                 ) {
                     Column(
                         modifier = Modifier.padding(20.dp),
@@ -199,11 +214,20 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (isPleasant) Modifier.border(
+                                0.5.dp,
+                                MaterialTheme.colorScheme.outline,
+                                RoundedCornerShape(16.dp),
+                            ) else Modifier
+                        ),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     ),
                     shape = RoundedCornerShape(16.dp),
+                    elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
                 ) {
                     Column(
                         modifier = Modifier.padding(20.dp),
