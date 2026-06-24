@@ -1,6 +1,6 @@
 package com.karol.readingsapp.ui
 
-import androidx.compose.foundation.border
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -283,6 +283,7 @@ fun BookSelection(
                 }
             }
         }
+
         NavMode.List -> {
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
@@ -317,6 +318,7 @@ fun ChapterSelection(
                 }
             }
         }
+
         else -> {
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
@@ -362,6 +364,7 @@ fun VerseSelection(
                 }
             }
         }
+
         else -> {
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
@@ -388,9 +391,9 @@ fun VerseSelection(
 
 @Composable
 fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) -> Unit) {
-    android.util.Log.d("BookCard", "Book ID: ${book.id}, Name: ${book.name}, Localized: ${strings.bookNames[book.id]}")
+    Log.d("BookCard", "Book ID: ${book.id}, Name: ${book.name}, Localized: ${strings.bookNames[book.id]}")
     val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
-    
+
     val (backgroundColor, textColor) = when (book.testament) {
         "OT" -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
         "NT" -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer

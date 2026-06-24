@@ -94,7 +94,6 @@ private val SepiaColorScheme = lightColorScheme(
     onSurfaceVariant = Color(0xFF7A6652),
 )
 
-
 private val PleasantColorScheme = lightColorScheme(
     primary = ModernBluePrimary,
     onPrimary = Color.White,
@@ -133,10 +132,15 @@ fun ReadingsAppTheme(
                 if (darkTheme) DarkColorScheme else LightColorScheme
             }
         }
+
         AppTheme.LIGHT -> LightColorScheme
+
         AppTheme.DARK -> DarkColorScheme
+
         AppTheme.BLUE -> BlueColorScheme
+
         AppTheme.SEPIA -> SepiaColorScheme
+
         AppTheme.PLEASANT -> PleasantColorScheme
     }
 

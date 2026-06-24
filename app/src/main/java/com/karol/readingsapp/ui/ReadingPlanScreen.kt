@@ -20,13 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.style.TextAlign
-import kotlinx.coroutines.flow.first
 import com.karol.readingsapp.data.plan.SimpleReading
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.theme.GlassBorder
+import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -119,7 +119,7 @@ fun ReadingPlanScreen(
                         )
                     }
                 }
-                
+
                 // Month Selector Bar
                 Surface(
                     modifier = Modifier
@@ -260,7 +260,7 @@ fun ReadingDayItem(
     } catch (_: Exception) {
         null
     }
-    
+
     val dayOfWeek = parsedDate?.dayOfWeek?.getDisplayName(java.time.format.TextStyle.FULL, strings.locale) ?: "---"
     val dayOfMonth = parsedDate?.dayOfMonth?.toString() ?: "--"
 
@@ -286,7 +286,7 @@ fun ReadingDayItem(
                     Box(
                         modifier = Modifier
                             .size(8.dp)
-                            .background(Color(0xFF00FF00), shape = CircleShape)
+                            .background(Color(0xFF00FF00), shape = CircleShape),
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                 }
@@ -332,4 +332,3 @@ fun ReadingDayItem(
         }
     }
 }
-

@@ -116,21 +116,21 @@ fun BiblePlaceholderScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(
                     Icons.AutoMirrored.Filled.MenuBook,
                     contentDescription = null,
                     modifier = Modifier.size(64.dp),
-                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     "Bible Reader Coming Soon",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
         }

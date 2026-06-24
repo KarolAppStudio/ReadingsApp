@@ -20,50 +20,48 @@ abstract class ReadingPlanDatabase : RoomDatabase() {
         private var INSTANCE: ReadingPlanDatabase? = null
         private const val ASSET_VERSION = 3
 
-        fun getDatabase(context: Context): ReadingPlanDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val dbFile = context.getDatabasePath("readingplan.db")
-                val prefs = context.getSharedPreferences("reading_plan_prefs", Context.MODE_PRIVATE)
-                val lastVersion = prefs.getInt("version", 0)
+        fun getDatabase(context: Context): ReadingPlanDatabase = INSTANCE ?: synchronized(this) {
+            val dbFile = context.getDatabasePath("readingplan.db")
+            val prefs = context.getSharedPreferences("reading_plan_prefs", Context.MODE_PRIVATE)
+            val lastVersion = prefs.getInt("version", 0)
 
-                android.util.Log.d("ReadingPlanDatabase", "dbFile path: ${dbFile.absolutePath}, exists: ${dbFile.exists()}, lastVersion: $lastVersion, ASSET_VERSION: $ASSET_VERSION")
+            android.util.Log.d("ReadingPlanDatabase", "dbFile path: ${dbFile.absolutePath}, exists: ${dbFile.exists()}, lastVersion: $lastVersion, ASSET_VERSION: $ASSET_VERSION")
 
-                if (!dbFile.exists() || (lastVersion < ASSET_VERSION)) {
-                    android.util.Log.d("ReadingPlanDatabase", "Copying database from assets...")
-                    dbFile.parentFile?.mkdirs()
-                    try {
-                        context.assets.open("readingplan.db").use { input ->
-                            val size = input.available()
-                            android.util.Log.d("ReadingPlanDatabase", "Asset size: $size bytes")
-                            dbFile.outputStream().use { output ->
-                                input.copyTo(output)
-                            }
+            if (!dbFile.exists() || (lastVersion < ASSET_VERSION)) {
+                android.util.Log.d("ReadingPlanDatabase", "Copying database from assets...")
+                dbFile.parentFile?.mkdirs()
+                try {
+                    context.assets.open("readingplan.db").use { input ->
+                        val size = input.available()
+                        android.util.Log.d("ReadingPlanDatabase", "Asset size: $size bytes")
+                        dbFile.outputStream().use { output ->
+                            input.copyTo(output)
                         }
-                        prefs.edit { putInt("version", ASSET_VERSION) }
-                        android.util.Log.d("ReadingPlanDatabase", "Copy successful")
-                    } catch (e: Exception) {
-                        android.util.Log.e("ReadingPlanDatabase", "Error copying readingplan.db", e)
                     }
+                    prefs.edit { putInt("version", ASSET_VERSION) }
+                    android.util.Log.d("ReadingPlanDatabase", "Copy successful")
+                } catch (e: Exception) {
+                    android.util.Log.e("ReadingPlanDatabase", "Error copying readingplan.db", e)
                 }
+            }
 
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    ReadingPlanDatabase::class.java,
-                    "readingplan.db",
-                )
+            val instance = Room.databaseBuilder(
+                context.applicationContext,
+                ReadingPlanDatabase::class.java,
+                "readingplan.db",
+            )
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .addCallback(
                     object : Callback() {
-                    override fun onOpen(db: SupportSQLiteDatabase) {
-                        super.onOpen(db)
-                        validateDatabase(db)
-                    }
-                },
+                        override fun onOpen(db: SupportSQLiteDatabase) {
+                            super.onOpen(db)
+                            validateDatabase(db)
+                        }
+                    },
                 )
                 .build()
-                INSTANCE = instance
-                instance
-            }
+            INSTANCE = instance
+            instance
         }
 
         private fun validateDatabase(db: SupportSQLiteDatabase) {
@@ -74,7 +72,7 @@ abstract class ReadingPlanDatabase : RoomDatabase() {
             }
             cursor.close()
             android.util.Log.d("ReadingPlanDatabase", "Reading plan count: $count")
-            
+
             if (count == 0) {
                 // If the table is empty despite copying the asset, something is wrong.
                 // We might need to force a re-copy next time or handle it.

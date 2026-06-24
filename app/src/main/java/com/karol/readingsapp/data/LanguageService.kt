@@ -1,12 +1,13 @@
 package com.karol.readingsapp.data
 
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlin.time.Duration.Companion.seconds
 
 enum class LanguageStatus {
-    DOWNLOADING, DOWNLOADED
+    DOWNLOADING,
+    DOWNLOADED,
 }
 
 class LanguageService {
@@ -22,10 +23,10 @@ class LanguageService {
         if (_downloadStatus.value[language] == LanguageStatus.DOWNLOADED) return
 
         _downloadStatus.value += (language to LanguageStatus.DOWNLOADING)
-        
+
         // Simulate network delay for downloading language script (JSON/Font/Mapping)
         delay(2.seconds)
-        
+
         // In a real app, this would fetch from a URL and store in local DB or file
         _downloadStatus.value += (language to LanguageStatus.DOWNLOADED)
     }

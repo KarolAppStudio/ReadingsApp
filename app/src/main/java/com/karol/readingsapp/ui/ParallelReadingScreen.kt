@@ -19,17 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.data.bible.TranslationEntity
 import com.karol.readingsapp.ui.components.AutoResizingText
-
-import androidx.compose.foundation.border
 import com.karol.readingsapp.ui.theme.GlassBorder
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,11 +111,11 @@ fun ParallelReadingScreen(
                                         brush = Brush.radialGradient(
                                             colors = listOf(
                                                 activeColor.copy(alpha = 0.4f),
-                                                Color.Transparent
+                                                Color.Transparent,
                                             ),
                                             center = center,
-                                            radius = size.width / 2
-                                        )
+                                            radius = size.width / 2,
+                                        ),
                                     )
                                 }
                             }
@@ -126,13 +123,13 @@ fun ParallelReadingScreen(
                                 imageVector = if (isSyncEnabled) Icons.Default.Lock else Icons.Default.LockOpen,
                                 contentDescription = strings.sync,
                                 tint = if (isSyncEnabled) activeColor else inactiveColor,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(24.dp),
                             )
                         }
                         Text(
                             text = "Lock Grids",
                             color = MaterialTheme.colorScheme.primary,
-                            fontSize = 10.sp
+                            fontSize = 10.sp,
                         )
                     }
                     Column(
@@ -145,43 +142,43 @@ fun ParallelReadingScreen(
                                     listState2.animateScrollToItem(0)
                                 }
                             }
-                            .padding(horizontal = 8.dp)
+                            .padding(horizontal = 8.dp),
                     ) {
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp)) {
                             Icon(
                                 imageVector = Icons.Default.RestartAlt,
                                 contentDescription = strings.reset,
                                 tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(24.dp),
                             )
                         }
                         Text(
                             text = "Reset",
                             color = MaterialTheme.colorScheme.primary,
-                            fontSize = 10.sp
+                            fontSize = 10.sp,
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background
+                    containerColor = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
                 ),
-                windowInsets = WindowInsets(0, 0, 0, 0)
+                windowInsets = WindowInsets(0, 0, 0, 0),
             )
         },
         containerColor = MaterialTheme.colorScheme.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPadding),
         ) {
             // Selectors Row
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 TranslationSelector(
                     selectedTranslationCode = selectedCode1,
@@ -189,7 +186,7 @@ fun ParallelReadingScreen(
                     onTranslationSelected = { viewModel.setTranslation(it) },
                     modifier = Modifier.weight(1f),
                     placeholder = strings.selectBible,
-                    isPleasant = isPleasant
+                    isPleasant = isPleasant,
                 )
                 TranslationSelector(
                     selectedTranslationCode = selectedCode2,
@@ -197,7 +194,7 @@ fun ParallelReadingScreen(
                     onTranslationSelected = { viewModel.loadSecondChapterVerses(bookId, chapter, it) },
                     modifier = Modifier.weight(1f),
                     placeholder = strings.selectBible,
-                    isPleasant = isPleasant
+                    isPleasant = isPleasant,
                 )
             }
 
@@ -206,7 +203,7 @@ fun ParallelReadingScreen(
                 val maxVerses = maxOf(verses1.size, verses2.size)
                 LazyColumn(
                     state = listState1,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 ) {
                     items(maxVerses) { index ->
                         val v1 = verses1.getOrNull(index)
@@ -214,7 +211,7 @@ fun ParallelReadingScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(IntrinsicSize.Max)
+                                .height(IntrinsicSize.Max),
                         ) {
                             Box(
                                 modifier = Modifier
@@ -240,7 +237,7 @@ fun ParallelReadingScreen(
                 }
             } else {
                 Row(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 ) {
                     // First Column
                     LazyColumn(
@@ -248,7 +245,7 @@ fun ParallelReadingScreen(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .padding(horizontal = 4.dp)
+                            .padding(horizontal = 4.dp),
                     ) {
                         items(verses1) { verse ->
                             VerseItem(verse, numberFormatter)
@@ -264,7 +261,7 @@ fun ParallelReadingScreen(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
-                            .padding(horizontal = 4.dp)
+                            .padding(horizontal = 4.dp),
                     ) {
                         items(verses2) { verse ->
                             VerseItem(verse, numberFormatter)
@@ -283,7 +280,7 @@ fun TranslationSelector(
     onTranslationSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "",
-    isPleasant: Boolean = false
+    isPleasant: Boolean = false,
 ) {
     var expanded by remember { mutableStateOf(value = false) }
     val transName = translations.find { it.code == selectedTranslationCode }?.name ?: placeholder
@@ -293,31 +290,31 @@ fun TranslationSelector(
             onClick = { expanded = true },
             color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.secondaryContainer,
             shape = if (isPleasant) RoundedCornerShape(12.dp) else RoundedCornerShape(4.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Row(
                 modifier = Modifier.padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     text = transName,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 Icon(
                     imageVector = Icons.Default.ArrowDropDown,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(16.dp),
                 )
             }
         }
         DropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
         ) {
             translations.forEach { translation ->
                 DropdownMenuItem(
@@ -325,7 +322,7 @@ fun TranslationSelector(
                     onClick = {
                         onTranslationSelected(translation.code)
                         expanded = false
-                    }
+                    },
                 )
             }
         }
@@ -339,13 +336,13 @@ fun VerseItem(verse: TargetReadingDetails, numberFormatter: java.text.NumberForm
             text = numberFormatter.format(verse.verseId),
             fontSize = 11.sp,
             color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
         Text(
             text = verse.text,
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.primary,
-            lineHeight = 20.sp
+            lineHeight = 20.sp,
         )
     }
 }

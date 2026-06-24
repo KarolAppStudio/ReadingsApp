@@ -24,9 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.components.AutoResizingText
-import kotlinx.coroutines.launch
-
 import com.karol.readingsapp.ui.theme.GlassBorder
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +58,7 @@ fun BibleReaderScreen(
             val index = verses.indexOfFirst { it.verseId == initialVerse }
             if (index != -1) {
                 listState.scrollToItem(index)
-                
+
                 // Blink 3 times in 1.5 seconds (each cycle 500ms: 250ms on, 250ms off)
                 repeat(3) {
                     highlightColor.animateTo(secondaryColor.copy(alpha = 0.7f), animationSpec = tween(250))
@@ -157,7 +156,7 @@ fun BibleReaderScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
                 .pointerInput(bookId, chapter) {
-                    // pointerInput uses bookId and chapter as keys to ensure the gesture 
+                    // pointerInput uses bookId and chapter as keys to ensure the gesture
                     // handler is re-initialized with the correct state when the page changes.
                     detectHorizontalDragGestures(
                         onDragStart = { offsetX = 0f },
@@ -176,7 +175,7 @@ fun BibleReaderScreen(
                                     }
                                 }
                             }
-                        }
+                        },
                     )
                 },
         ) {

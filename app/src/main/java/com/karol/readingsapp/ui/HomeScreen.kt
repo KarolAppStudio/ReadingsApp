@@ -81,10 +81,10 @@ fun HomeScreen(
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
     val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
-    
+
     val downloadStatus by viewModel.downloadStatus.collectAsState()
     val isDownloading = downloadStatus[selectedLanguage] == com.karol.readingsapp.data.LanguageStatus.DOWNLOADING
-    
+
     val today = remember { LocalDate.now() }
     val todayString = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
     val isToday = (selectedDate == todayString) || (selectedDate.isEmpty())
@@ -130,13 +130,13 @@ fun HomeScreen(
                                 .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
                         ) {
                             DropdownMenuItem(
-                                text = { 
+                                text = {
                                     Text(
-                                        strings.settings, 
-                                        color = MaterialTheme.colorScheme.onSurface, 
+                                        strings.settings,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Normal,
-                                    ) 
+                                    )
                                 },
                                 onClick = {
                                     menuExpanded = false
@@ -152,13 +152,13 @@ fun HomeScreen(
                                 },
                             )
                             DropdownMenuItem(
-                                text = { 
+                                text = {
                                     Text(
-                                        strings.about, 
-                                        color = MaterialTheme.colorScheme.onSurface, 
+                                        strings.about,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Normal,
-                                    ) 
+                                    )
                                 },
                                 onClick = {
                                     menuExpanded = false
@@ -351,7 +351,7 @@ fun HomeScreen(
             }
 
             items(sectionsToShow, key = { it }) { type ->
-                val localizedTitle = when(type) {
+                val localizedTitle = when (type) {
                     "First Reading" -> strings.firstReading
                     "Second Reading" -> strings.secondReading
                     "Third Reading" -> strings.thirdReading
@@ -381,7 +381,7 @@ fun ReadingSection(
     onItemClick: (TargetReadingDetails) -> Unit,
 ) {
     val distinctReadings = remember(items) { items.distinctBy { "${it.bookId} ${it.chapter}" } }
-    
+
     // Dynamic dimensions for maximum compactness
     val sectionPadding = 8.dp
     val titleSize = 12.sp
@@ -409,12 +409,12 @@ fun ReadingSection(
                     Box(
                         modifier = Modifier
                             .size(6.dp)
-                            .background(Color(0xFF00FF00), shape = CircleShape)
+                            .background(Color(0xFF00FF00), shape = CircleShape),
                     )
                 }
             }
             Spacer(modifier = Modifier.height(innerSpacer))
-            
+
             if (items.isEmpty()) {
                 Text(
                     noReadingsText,
@@ -425,7 +425,7 @@ fun ReadingSection(
             } else {
                 distinctReadings.forEachIndexed { index, item ->
                     ReadingItemRow(
-                        item = item, 
+                        item = item,
                         strings = strings,
                     ) { onItemClick(item) }
                     if (index < (distinctReadings.size - 1)) {
@@ -439,13 +439,13 @@ fun ReadingSection(
 
 @Composable
 fun ReadingItemRow(
-    item: TargetReadingDetails, 
+    item: TargetReadingDetails,
     strings: LocalizedStrings,
     onClick: () -> Unit,
 ) {
     val bookName = strings.bookNames[item.bookId] ?: item.bookName
     val text = "$bookName ${item.chapter}"
-    
+
     val fontSize = 14.sp
     val verticalPadding = 6.dp
     val horizontalPadding = 12.dp

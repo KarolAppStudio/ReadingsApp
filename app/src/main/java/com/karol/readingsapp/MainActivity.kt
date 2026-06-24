@@ -4,18 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
-import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -35,6 +32,9 @@ import com.karol.readingsapp.ui.ReadingPlanScreen
 import com.karol.readingsapp.ui.ReadingViewModel
 import com.karol.readingsapp.ui.SettingsScreen
 import com.karol.readingsapp.ui.theme.ReadingsAppTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,19 +50,20 @@ class MainActivity : ComponentActivity() {
         setContent {
             val bibleDatabase = BibleDatabase.getDatabase(applicationContext)
             val planDatabase = ReadingPlanDatabase.getDatabase(applicationContext)
-            val repository = ReadingRepository(
-                bibleDatabase.bibleDao(),
-                planDatabase.readingPlanDao()
-            )
+            val repository =
+                ReadingRepository(
+                    bibleDatabase.bibleDao(),
+                    planDatabase.readingPlanDao(),
+                )
             val languageService = LanguageService()
-            val viewModel: ReadingViewModel = viewModel(
-                factory = object : ViewModelProvider.Factory {
-                    @Suppress("UNCHECKED_CAST")
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        return ReadingViewModel(repository, languageService, applicationContext) as T
-                    }
-                },
-            )
+            val viewModel: ReadingViewModel =
+                viewModel(
+                    factory =
+                    object : ViewModelProvider.Factory {
+                        @Suppress("UNCHECKED_CAST")
+                        override fun <T : ViewModel> create(modelClass: Class<T>): T = ReadingViewModel(repository, languageService, applicationContext) as T
+                    },
+                )
 
             val currentTheme by viewModel.appTheme.collectAsState()
 
@@ -89,10 +90,9 @@ class MainActivity : ComponentActivity() {
                                 onSettingsClick = {
                                     navController.navigate("settings")
                                 },
-                                onAboutClick = {
-                                    navController.navigate("about")
-                                }
-                            )
+                            ) {
+                                navController.navigate("about")
+                            }
                         }
                         composable("about") {
                             AboutScreen {
@@ -110,7 +110,7 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onBibleClick = {
                                     navController.navigate("bible")
-                                }
+                                },
                             )
                         }
                         composable("reading_plan") {
@@ -124,7 +124,7 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onSettingsClick = {
                                     navController.navigate("settings")
-                                }
+                                },
                             )
                         }
                         composable("bible") {
@@ -144,12 +144,13 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onParallelClick = { bookId, chapter ->
                                     navController.navigate("parallel_reader/$bookId/$chapter")
-                                }
+                                },
                             )
                         }
                         composable(
                             route = "parallel_reader/{bookId}/{chapter}",
-                            arguments = listOf(
+                            arguments =
+                            listOf(
                                 navArgument("bookId") { type = NavType.IntType },
                                 navArgument("chapter") { type = NavType.IntType },
                             ),
@@ -166,7 +167,8 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(
                             route = "reader/{bookId}/{chapter}/{verseId}",
-                            arguments = listOf(
+                            arguments =
+                            listOf(
                                 navArgument("bookId") { type = NavType.IntType },
                                 navArgument("chapter") { type = NavType.IntType },
                                 navArgument("verseId") { type = NavType.IntType },
@@ -194,7 +196,7 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate("reader/$bId/$chap/1") {
                                         popUpTo("reader/{bookId}/{chapter}/{verseId}") { inclusive = true }
                                     }
-                                }
+                                },
                             )
                         }
                     }

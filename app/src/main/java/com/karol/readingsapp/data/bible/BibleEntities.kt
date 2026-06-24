@@ -32,23 +32,23 @@ data class TranslationEntity(
             parentColumns = ["id"],
             childColumns = ["book_id"],
             onDelete = ForeignKey.CASCADE,
-            onUpdate = ForeignKey.NO_ACTION
+            onUpdate = ForeignKey.NO_ACTION,
         ),
         ForeignKey(
             entity = TranslationEntity::class, // Linked to 'translations' table
             parentColumns = ["code"],
             childColumns = ["translation_code"],
             onDelete = ForeignKey.CASCADE,
-            onUpdate = ForeignKey.NO_ACTION
-        )
-    ]
+            onUpdate = ForeignKey.NO_ACTION,
+        ),
+    ],
 )
 data class Verse(
     @ColumnInfo(name = "book_id") val bookId: Int,
     @ColumnInfo(name = "chapter") val chapter: Int,
     @ColumnInfo(name = "text") val text: String,
     @ColumnInfo(name = "translation_code") val translationCode: String,
-    @ColumnInfo(name = "verse") val verse: Int
+    @ColumnInfo(name = "verse") val verse: Int,
 )
 
 data class TargetReadingDetails(

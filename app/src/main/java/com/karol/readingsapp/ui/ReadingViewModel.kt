@@ -47,13 +47,14 @@ class ReadingViewModel(
     private val _secondTranslationCode = MutableStateFlow("ENG")
     val secondTranslationCode = _secondTranslationCode.asStateFlow()
 
-    private val _appTheme = MutableStateFlow(
-        try {
-            AppTheme.valueOf(prefs.getString("app_theme", AppTheme.BLUE.name) ?: AppTheme.BLUE.name)
-        } catch (_: Exception) {
-            AppTheme.BLUE
-        }
-    )
+    private val _appTheme =
+        MutableStateFlow(
+            try {
+                AppTheme.valueOf(prefs.getString("app_theme", AppTheme.BLUE.name) ?: AppTheme.BLUE.name)
+            } catch (_: Exception) {
+                AppTheme.BLUE
+            },
+        )
     val appTheme = _appTheme.asStateFlow()
 
     val downloadStatus = languageService.downloadStatus
@@ -72,29 +73,30 @@ class ReadingViewModel(
         }
     }
 
-    suspend fun getChapterCount(bookId: Int): Int {
-        return repository.getChapterCount(bookId)
-    }
+    suspend fun getChapterCount(bookId: Int): Int = repository.getChapterCount(bookId)
 
-    suspend fun getVerseCount(bookId: Int, chapter: Int): Int {
-        return repository.getVerseCount(bookId, chapter)
-    }
+    suspend fun getVerseCount(
+        bookId: Int,
+        chapter: Int,
+    ): Int = repository.getVerseCount(bookId, chapter)
 
     private fun loadTranslations() {
         viewModelScope.launch {
-            val translations = repository.getAvailableTranslations().map {
-                val lang = it.language.lowercase()
-                val nativeName = when {
-                    (lang.contains("hindi") || (lang == "hi") || (lang == "hin")) -> "हिन्दी"
-                    (lang.contains("bangla") || lang.contains("bengali") || (lang == "bn") || (lang == "ben")) -> "বাংলা"
-                    (lang.contains("kannada") || (lang == "kn") || (lang == "kan")) -> "ಕನ್ನಡ"
-                    (lang.contains("malayalam") || (lang == "ml") || (lang == "mal")) -> "മലയാളം"
-                    (lang.contains("tamil") || (lang == "ta") || (lang == "tam")) -> "தமிழ்"
-                    (lang.contains("telugu") || (lang == "te") || (lang == "tel")) -> "తెలుగు"
-                    else -> it.name.removeSuffix(" Bible")
+            val translations =
+                repository.getAvailableTranslations().map {
+                    val lang = it.language.lowercase()
+                    val nativeName =
+                        when {
+                            (lang.contains("hindi") || (lang == "hi") || (lang == "hin")) -> "हिन्दी"
+                            (lang.contains("bangla") || lang.contains("bengali") || (lang == "bn") || (lang == "ben")) -> "বাংলা"
+                            (lang.contains("kannada") || (lang == "kn") || (lang == "kan")) -> "ಕನ್ನಡ"
+                            (lang.contains("malayalam") || (lang == "ml") || (lang == "mal")) -> "മലയാളം"
+                            (lang.contains("tamil") || (lang == "ta") || (lang == "tam")) -> "தமிழ்"
+                            (lang.contains("telugu") || (lang == "te") || (lang == "tel")) -> "తెలుగు"
+                            else -> it.name.removeSuffix(" Bible")
+                        }
+                    it.copy(name = nativeName)
                 }
-                it.copy(name = nativeName)
-            }
             _availableTranslations.value = translations
             translations.find { it.code == _selectedTranslationCode.value }?.let {
                 languageService.downloadLanguageScript(it.language)
@@ -129,13 +131,20 @@ class ReadingViewModel(
         }
     }
 
-    fun loadChapterVerses(bookId: Int, chapter: Int) {
+    fun loadChapterVerses(
+        bookId: Int,
+        chapter: Int,
+    ) {
         viewModelScope.launch {
             _chapterVerses.value = repository.getChapterVerses(bookId, chapter, _selectedTranslationCode.value)
         }
     }
 
-    fun loadSecondChapterVerses(bookId: Int, chapter: Int, translationCode: String) {
+    fun loadSecondChapterVerses(
+        bookId: Int,
+        chapter: Int,
+        translationCode: String,
+    ) {
         viewModelScope.launch {
             _secondTranslationCode.value = translationCode
             _secondChapterVerses.value = repository.getChapterVerses(bookId, chapter, translationCode)
@@ -148,7 +157,10 @@ class ReadingViewModel(
         }
     }
 
-    fun resetParallelReading(bookId: Int, chapter: Int) {
+    fun resetParallelReading(
+        bookId: Int,
+        chapter: Int,
+    ) {
         viewModelScope.launch {
             // First grid remains the default language Bible (_selectedTranslationCode)
             // Second grid is strictly set to English
@@ -158,21 +170,27 @@ class ReadingViewModel(
         }
     }
 
-    suspend fun getNextChapter(bookId: Int, chapter: Int): Pair<Int, Int>? {
+    suspend fun getNextChapter(
+        bookId: Int,
+        chapter: Int,
+    ): Pair<Int, Int>? {
         val currentChapterCount = getChapterCount(bookId)
         if (chapter < currentChapterCount) {
             return bookId to (chapter + 1)
         }
         val books = _allBooks.value
         val currentIndex = books.indexOfFirst { it.id == bookId }
-        if (currentIndex != -1 && currentIndex < books.size - 1) {
+        if ((currentIndex != -1) && (currentIndex < books.size - 1)) {
             val nextBook = books[currentIndex + 1]
             return nextBook.id to 1
         }
         return null
     }
 
-    suspend fun getPreviousChapter(bookId: Int, chapter: Int): Pair<Int, Int>? {
+    suspend fun getPreviousChapter(
+        bookId: Int,
+        chapter: Int,
+    ): Pair<Int, Int>? {
         if (chapter > 1) {
             return bookId to (chapter - 1)
         }

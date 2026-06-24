@@ -20,28 +20,27 @@ abstract class BibleDatabase : RoomDatabase() {
         private var INSTANCE: BibleDatabase? = null
         private const val ASSET_VERSION = 4
 
-        fun getDatabase(context: Context): BibleDatabase {
-            return INSTANCE ?: synchronized(this) {
+        fun getDatabase(context: Context): BibleDatabase = INSTANCE ?: synchronized(this) {
 // ... (omitting middle part for brevity, will use full block in tool)
-                val dbFile = context.getDatabasePath("bibles.db")
-                val prefs = context.getSharedPreferences("bible_db_prefs", Context.MODE_PRIVATE)
-                val lastVersion = prefs.getInt("version", 0)
+            val dbFile = context.getDatabasePath("bibles.db")
+            val prefs = context.getSharedPreferences("bible_db_prefs", Context.MODE_PRIVATE)
+            val lastVersion = prefs.getInt("version", 0)
 
-                if (!dbFile.exists() || (lastVersion < ASSET_VERSION)) {
-                    dbFile.parentFile?.mkdirs()
-                    context.assets.open("bibles.db").use { input ->
-                        dbFile.outputStream().use { output ->
-                            input.copyTo(output)
-                        }
+            if (!dbFile.exists() || (lastVersion < ASSET_VERSION)) {
+                dbFile.parentFile?.mkdirs()
+                context.assets.open("bibles.db").use { input ->
+                    dbFile.outputStream().use { output ->
+                        input.copyTo(output)
                     }
-                    prefs.edit { putInt("version", ASSET_VERSION) }
                 }
+                prefs.edit { putInt("version", ASSET_VERSION) }
+            }
 
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    BibleDatabase::class.java,
-                    "bibles.db",
-                )
+            val instance = Room.databaseBuilder(
+                context.applicationContext,
+                BibleDatabase::class.java,
+                "bibles.db",
+            )
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .addCallback(
                     object : Callback() {
@@ -51,9 +50,8 @@ abstract class BibleDatabase : RoomDatabase() {
                         }
                     },
                 ).build()
-                INSTANCE = instance
-                instance
-            }
+            INSTANCE = instance
+            instance
         }
 
         private fun validateDatabase(db: SupportSQLiteDatabase) {

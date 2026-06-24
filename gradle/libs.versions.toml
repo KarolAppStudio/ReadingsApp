@@ -12,6 +12,7 @@ kotlin = "2.4.0"
 composeBom = "2026.06.00"
 navigationCompose = "2.9.8"
 splashscreen = "1.0.1"
+spotless = "8.7.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,4 +41,5 @@ androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscree
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 

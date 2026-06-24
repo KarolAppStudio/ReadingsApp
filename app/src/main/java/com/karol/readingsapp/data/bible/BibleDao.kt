@@ -15,7 +15,10 @@ interface BibleDao {
     suspend fun getChapterCount(bookId: Int): Int
 
     @Query("SELECT MAX(verse) FROM verses WHERE book_id = :bookId AND chapter = :chapter")
-    suspend fun getVerseCount(bookId: Int, chapter: Int): Int
+    suspend fun getVerseCount(
+        bookId: Int,
+        chapter: Int,
+    ): Int
 
     @Query(
         """
