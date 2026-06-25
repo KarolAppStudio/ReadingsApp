@@ -108,10 +108,9 @@ class MainActivity : ComponentActivity() {
                                 onCalendarClick = {
                                     navController.navigate("reading_plan")
                                 },
-                                onBibleClick = {
-                                    navController.navigate("bible")
-                                },
-                            )
+                            ) {
+                                navController.navigate("bible")
+                            }
                         }
                         composable("reading_plan") {
                             ReadingPlanScreen(
@@ -142,10 +141,9 @@ class MainActivity : ComponentActivity() {
                                 onChapterClick = { bookId, chapter, verseId ->
                                     navController.navigate("reader/$bookId/$chapter/$verseId")
                                 },
-                                onParallelClick = { bookId, chapter ->
-                                    navController.navigate("parallel_reader/$bookId/$chapter")
-                                },
-                            )
+                            ) { bookId, chapter ->
+                                navController.navigate("parallel_reader/$bookId/$chapter")
+                            }
                         }
                         composable(
                             route = "parallel_reader/{bookId}/{chapter}",
@@ -192,12 +190,11 @@ class MainActivity : ComponentActivity() {
                                     viewModel.loadSecondChapterVerses(bId, chap, "ENG")
                                     navController.navigate("parallel_reader/$bId/$chap")
                                 },
-                                onChapterChange = { bId, chap ->
-                                    navController.navigate("reader/$bId/$chap/1") {
-                                        popUpTo("reader/{bookId}/{chapter}/{verseId}") { inclusive = true }
-                                    }
-                                },
-                            )
+                            ) { bId, chap ->
+                                navController.navigate("reader/$bId/$chap/1") {
+                                    popUpTo("reader/{bookId}/{chapter}/{verseId}") { inclusive = true }
+                                }
+                            }
                         }
                     }
                 }

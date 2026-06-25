@@ -182,7 +182,7 @@ class ReadingViewModel(
         }
         val books = _allBooks.value
         val currentIndex = books.indexOfFirst { it.id == bookId }
-        if ((currentIndex != -1) && (currentIndex < books.size - 1)) {
+        if ((currentIndex != -1) && (currentIndex < (books.size - 1))) {
             val nextBook = books[currentIndex + 1]
             return nextBook.id to 1
         }

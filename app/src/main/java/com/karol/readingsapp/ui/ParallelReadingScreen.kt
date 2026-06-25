@@ -6,10 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.RestartAlt
@@ -20,12 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.bible.TargetReadingDetails
-import com.karol.readingsapp.data.bible.TranslationEntity
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.SelectionButton
 import com.karol.readingsapp.ui.components.TranslationSelector
@@ -104,7 +99,7 @@ fun ParallelReadingScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    val displayTitle = if (bookId1 == bookId2 && chapter1 == chapter2) {
+                    val displayTitle = if ((bookId1 == bookId2) && (chapter1 == chapter2)) {
                         "$bookName1 $chapter1"
                     } else {
                         "$bookName1 $chapter1 | $bookName2 $chapter2"

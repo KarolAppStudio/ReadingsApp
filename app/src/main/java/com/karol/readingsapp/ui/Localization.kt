@@ -745,12 +745,12 @@ object Localization {
         val lang = language.lowercase()
         val baseStrings =
             when {
-                (lang.contains("bangla") || lang.contains("bengali") || lang == "bn" || lang == "ben") -> Bangla
-                lang.contains("hindi") || lang == "hi" || lang == "hin" -> Hindi
-                lang.contains("kannada") || lang == "kn" || lang == "kan" -> Kannada
-                lang.contains("malayalam") || lang == "ml" || lang == "mal" -> Malayalam
-                lang.contains("tamil") || lang == "ta" || lang == "tam" -> Tamil
-                lang.contains("telugu") || lang == "te" || lang == "tel" -> Telugu
+                (lang.contains("bangla") || lang.contains("bengali") || (lang == "bn") || (lang == "ben")) -> Bangla
+                (lang.contains("hindi") || (lang == "hi") || (lang == "hin")) -> Hindi
+                (lang.contains("kannada") || (lang == "kn") || (lang == "kan")) -> Kannada
+                (lang.contains("malayalam") || (lang == "ml") || (lang == "mal")) -> Malayalam
+                (lang.contains("tamil") || (lang == "ta") || (lang == "tam")) -> Tamil
+                (lang.contains("telugu") || (lang == "te") || (lang == "tel")) -> Telugu
                 else -> English
             }
 
