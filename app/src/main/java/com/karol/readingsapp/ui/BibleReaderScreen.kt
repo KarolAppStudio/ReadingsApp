@@ -21,9 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.components.AutoResizingText
+import com.karol.readingsapp.ui.components.SelectionButton
 import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.launch
 
@@ -42,6 +44,12 @@ fun BibleReaderScreen(
     val verses by viewModel.chapterVerses.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
+    val allBooks by viewModel.allBooks.collectAsState()
+
+    var chapterCount by remember { mutableIntStateOf(0) }
+    LaunchedEffect(bookId) {
+        chapterCount = viewModel.getChapterCount(bookId)
+    }
 
     val listState = rememberLazyListState()
     val highlightColor = remember { Animatable(Color.Transparent) }
@@ -75,77 +83,122 @@ fun BibleReaderScreen(
     val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
     val bookName = strings.bookNames[bookId] ?: "Book $bookId"
 
+    val bookOptions = remember(allBooks, strings) {
+        allBooks.map { strings.bookNames[it.id] ?: it.name }
+    }
+
     val numberFormatter = remember(strings.locale) {
         java.text.NumberFormat.getIntegerInstance(strings.locale)
     }
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.MenuBook,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp),
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        AutoResizingText(
-                            text = "$bookName ${numberFormatter.format(chapter)}",
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                        )
-                    }
-                },
-                navigationIcon = {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding(),
+                color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+                tonalElevation = 4.dp,
+            ) {
+                Column(
+                    modifier = Modifier.padding(bottom = 8.dp),
+                ) {
+                    CenterAlignedTopAppBar(
+                        title = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.MenuBook,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                AutoResizingText(
+                                    text = "$bookName ${numberFormatter.format(chapter)}",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                )
+                            }
+                        },
+                        navigationIcon = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(start = 8.dp),
+                            ) {
+                                IconButton(onClick = onHomeClick) {
+                                    Icon(
+                                        imageVector = Icons.Default.Home,
+                                        contentDescription = strings.home,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(35.dp),
+                                    )
+                                }
+                                IconButton(onClick = onBackClick) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = strings.back,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+                            }
+                        },
+                        actions = {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .clickable { onParallelClick(bookId, chapter) }
+                                    .padding(horizontal = 8.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AutoStories,
+                                    contentDescription = strings.parallelReading,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                                Text(
+                                    text = "Parallel",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 10.sp,
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color.Transparent,
+                        ),
+                    )
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(start = 8.dp),
-                    ) {
-                        IconButton(onClick = onHomeClick) {
-                            Icon(
-                                imageVector = Icons.Default.Home,
-                                contentDescription = strings.home,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(35.dp),
-                            )
-                        }
-                        IconButton(onClick = onBackClick) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = strings.back,
-                                tint = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                    }
-                },
-                actions = {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
-                            .clickable { onParallelClick(bookId, chapter) }
-                            .padding(horizontal = 8.dp),
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.AutoStories,
-                            contentDescription = strings.parallelReading,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp),
+                        SelectionButton(
+                            text = bookName,
+                            options = bookOptions,
+                            onOptionSelected = { index ->
+                                onChapterChange(allBooks[index].id, 1)
+                            },
+                            modifier = Modifier.weight(1f),
+                            isPleasant = isPleasant,
+                            height = 32.dp,
+                            fontSize = 14.sp,
                         )
-                        Text(
-                            text = "Parallel",
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = 10.sp,
+                        SelectionButton(
+                            text = chapter.toString(),
+                            options = (1..chapterCount).map { it.toString() },
+                            onOptionSelected = { index ->
+                                onChapterChange(bookId, index + 1)
+                            },
+                            modifier = Modifier.weight(0.4f),
+                            isPleasant = isPleasant,
+                            height = 32.dp,
+                            fontSize = 14.sp,
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
-                ),
-            )
+                }
+            }
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->

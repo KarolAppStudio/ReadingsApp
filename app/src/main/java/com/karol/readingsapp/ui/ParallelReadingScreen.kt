@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.data.bible.TranslationEntity
 import com.karol.readingsapp.ui.components.AutoResizingText
+import com.karol.readingsapp.ui.components.SelectionButton
+import com.karol.readingsapp.ui.components.TranslationSelector
 import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.launch
 
@@ -381,133 +383,6 @@ fun ParallelReadingScreen(
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun TranslationSelector(
-    selectedTranslationCode: String,
-    translations: List<TranslationEntity>,
-    onTranslationSelected: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    placeholder: String = "",
-    isPleasant: Boolean = false,
-) {
-    var expanded by remember { mutableStateOf(value = false) }
-    val transName = translations.find { it.code == selectedTranslationCode }?.name ?: placeholder
-
-    Box(modifier = modifier) {
-        Surface(
-            onClick = { expanded = true },
-            color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.secondaryContainer,
-            shape = if (isPleasant) RoundedCornerShape(12.dp) else RoundedCornerShape(4.dp),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Row(
-                modifier = Modifier.padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
-                    text = transName,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
-                    modifier = Modifier.weight(1f),
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.size(16.dp),
-                )
-            }
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            offset = DpOffset(0.dp, 36.dp),
-            modifier = Modifier
-                .heightIn(max = 500.dp)
-                .widthIn(min = 1.dp)
-                .width(IntrinsicSize.Min),
-        ) {
-            translations.forEach { translation ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = translation.name,
-                            fontSize = 12.sp,
-                            softWrap = false,
-                        )
-                    },
-                    onClick = {
-                        onTranslationSelected(translation.code)
-                        expanded = false
-                    },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun SelectionButton(
-    text: String,
-    options: List<String>,
-    onOptionSelected: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-    isPleasant: Boolean = false,
-) {
-    var expanded by remember { mutableStateOf(value = false) }
-
-    Box(modifier = modifier) {
-        Button(
-            onClick = { expanded = true },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(20.dp),
-            contentPadding = PaddingValues(horizontal = 4.dp),
-            shape = if (isPleasant) RoundedCornerShape(6.dp) else RoundedCornerShape(2.dp),
-        ) {
-            AutoResizingText(
-                text = text,
-                fontSize = 10.sp,
-                maxLines = 1,
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            offset = DpOffset(0.dp, 20.dp),
-            modifier = Modifier
-                .heightIn(max = 500.dp)
-                .widthIn(min = 1.dp)
-                .width(IntrinsicSize.Min),
-        ) {
-            options.forEachIndexed { index, option ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = option,
-                            fontSize = 12.sp,
-                            textAlign = TextAlign.Start,
-                            modifier = Modifier.fillMaxWidth(),
-                            softWrap = false,
-                        )
-                    },
-                    contentPadding = PaddingValues(horizontal = 8.dp),
-                    modifier = Modifier.heightIn(min = 32.dp),
-                    onClick = {
-                        onOptionSelected(index)
-                        expanded = false
-                    },
-                )
             }
         }
     }
