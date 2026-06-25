@@ -1,5 +1,6 @@
 package com.karol.readingsapp.ui
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -45,6 +46,17 @@ fun ParallelReadingScreen(
     val listState2 = rememberLazyListState()
     val scope = rememberCoroutineScope()
     var isSyncEnabled by remember { mutableStateOf(value = false) }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "ledTransition")
+    val ledAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.2f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "ledAlpha",
+    )
 
     LaunchedEffect(isSyncEnabled) {
         listState2.scrollToItem(
@@ -131,26 +143,26 @@ fun ParallelReadingScreen(
                         val activeColor = MaterialTheme.colorScheme.tertiary
                         val inactiveColor = MaterialTheme.colorScheme.primary
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp)) {
-                            if (isSyncEnabled) {
-                                Canvas(modifier = Modifier.size(32.dp)) {
-                                    drawCircle(
-                                        brush = Brush.radialGradient(
-                                            colors = listOf(
-                                                activeColor.copy(alpha = 0.4f),
-                                                Color.Transparent,
-                                            ),
-                                            center = center,
-                                            radius = size.width / 2,
-                                        ),
-                                    )
-                                }
-                            }
                             Icon(
                                 imageVector = if (isSyncEnabled) Icons.Default.Lock else Icons.Default.LockOpen,
                                 contentDescription = strings.sync,
                                 tint = if (isSyncEnabled) activeColor else inactiveColor,
                                 modifier = Modifier.size(24.dp),
                             )
+                            if (isSyncEnabled) {
+                                Canvas(modifier = Modifier.size(6.dp)) {
+                                    // Outer glow
+                                    drawCircle(
+                                        color = Color.Green.copy(alpha = ledAlpha * 0.4f),
+                                        radius = size.width * 1.5f,
+                                    )
+                                    // Main LED dot
+                                    drawCircle(
+                                        color = Color.Green.copy(alpha = ledAlpha),
+                                        radius = size.width / 2,
+                                    )
+                                }
+                            }
                         }
                         Text(
                             text = "Lock Grids",
@@ -216,7 +228,6 @@ fun ParallelReadingScreen(
                         translations = translations,
                         onTranslationSelected = {
                             viewModel.setTranslation(it)
-                            if (isSyncEnabled) viewModel.loadSecondChapterVerses(bookId2, chapter2, it)
                         },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = strings.selectBible,
@@ -264,7 +275,6 @@ fun ParallelReadingScreen(
                         translations = translations,
                         onTranslationSelected = {
                             viewModel.loadSecondChapterVerses(bookId2, chapter2, it)
-                            if (isSyncEnabled) viewModel.setTranslation(it)
                         },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = strings.selectBible,
