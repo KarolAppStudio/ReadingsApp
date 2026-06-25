@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.bible.TargetReadingDetails
@@ -59,18 +61,40 @@ fun ParallelReadingScreen(
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
     val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
-    val bookName = strings.bookNames[bookId] ?: "Book $bookId"
+
+    var bookId1 by remember { mutableIntStateOf(bookId) }
+    var chapter1 by remember { mutableIntStateOf(chapter) }
+    var bookId2 by remember { mutableIntStateOf(bookId) }
+    var chapter2 by remember { mutableIntStateOf(chapter) }
+
+    var chapterCount1 by remember { mutableIntStateOf(0) }
+    var chapterCount2 by remember { mutableIntStateOf(0) }
+
+    val allBooks by viewModel.allBooks.collectAsState()
+    val bookOptions = remember(allBooks, strings) {
+        allBooks.map { strings.bookNames[it.id] ?: it.name }
+    }
+
+    LaunchedEffect(bookId1) {
+        chapterCount1 = viewModel.getChapterCount(bookId1)
+    }
+    LaunchedEffect(bookId2) {
+        chapterCount2 = viewModel.getChapterCount(bookId2)
+    }
+
+    val bookName1 = strings.bookNames[bookId1] ?: "Book $bookId1"
+    val bookName2 = strings.bookNames[bookId2] ?: "Book $bookId2"
 
     val numberFormatter = remember(strings.locale) {
         java.text.NumberFormat.getIntegerInstance(strings.locale)
     }
 
-    LaunchedEffect(bookId, chapter, selectedCode1) {
-        viewModel.loadChapterVerses(bookId, chapter)
+    LaunchedEffect(bookId1, chapter1, selectedCode1) {
+        viewModel.loadChapterVerses(bookId1, chapter1)
     }
 
-    LaunchedEffect(bookId, chapter, selectedCode2) {
-        viewModel.loadSecondChapterVerses(bookId, chapter, selectedCode2)
+    LaunchedEffect(bookId2, chapter2, selectedCode2) {
+        viewModel.loadSecondChapterVerses(bookId2, chapter2, selectedCode2)
     }
 
     Scaffold(
@@ -78,8 +102,13 @@ fun ParallelReadingScreen(
         topBar = {
             TopAppBar(
                 title = {
+                    val displayTitle = if (bookId1 == bookId2 && chapter1 == chapter2) {
+                        "$bookName1 $chapter1"
+                    } else {
+                        "$bookName1 $chapter1 | $bookName2 $chapter2"
+                    }
                     AutoResizingText(
-                        text = "$bookName $chapter",
+                        text = displayTitle,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
@@ -136,6 +165,10 @@ fun ParallelReadingScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .clickable {
+                                bookId1 = bookId
+                                chapter1 = chapter
+                                bookId2 = bookId
+                                chapter2 = chapter
                                 viewModel.resetParallelReading(bookId, chapter)
                                 scope.launch {
                                     listState1.animateScrollToItem(0)
@@ -180,22 +213,102 @@ fun ParallelReadingScreen(
                     .padding(horizontal = 4.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                TranslationSelector(
-                    selectedTranslationCode = selectedCode1,
-                    translations = translations,
-                    onTranslationSelected = { viewModel.setTranslation(it) },
-                    modifier = Modifier.weight(1f),
-                    placeholder = strings.selectBible,
-                    isPleasant = isPleasant,
-                )
-                TranslationSelector(
-                    selectedTranslationCode = selectedCode2,
-                    translations = translations,
-                    onTranslationSelected = { viewModel.loadSecondChapterVerses(bookId, chapter, it) },
-                    modifier = Modifier.weight(1f),
-                    placeholder = strings.selectBible,
-                    isPleasant = isPleasant,
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    TranslationSelector(
+                        selectedTranslationCode = selectedCode1,
+                        translations = translations,
+                        onTranslationSelected = {
+                            viewModel.setTranslation(it)
+                            if (isSyncEnabled) viewModel.loadSecondChapterVerses(bookId2, chapter2, it)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = strings.selectBible,
+                        isPleasant = isPleasant,
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        SelectionButton(
+                            text = bookName1,
+                            options = bookOptions,
+                            onOptionSelected = { index ->
+                                val newBookId = allBooks[index].id
+                                bookId1 = newBookId
+                                chapter1 = 1
+                                if (isSyncEnabled) {
+                                    bookId2 = newBookId
+                                    chapter2 = 1
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            isPleasant = isPleasant,
+                        )
+                        SelectionButton(
+                            text = chapter1.toString(),
+                            options = (1..chapterCount1).map { it.toString() },
+                            onOptionSelected = {
+                                val newChapter = it + 1
+                                chapter1 = newChapter
+                                if (isSyncEnabled) {
+                                    chapter2 = newChapter
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            isPleasant = isPleasant,
+                        )
+                    }
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    TranslationSelector(
+                        selectedTranslationCode = selectedCode2,
+                        translations = translations,
+                        onTranslationSelected = {
+                            viewModel.loadSecondChapterVerses(bookId2, chapter2, it)
+                            if (isSyncEnabled) viewModel.setTranslation(it)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = strings.selectBible,
+                        isPleasant = isPleasant,
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        SelectionButton(
+                            text = bookName2,
+                            options = bookOptions,
+                            onOptionSelected = { index ->
+                                val newBookId = allBooks[index].id
+                                bookId2 = newBookId
+                                chapter2 = 1
+                                if (isSyncEnabled) {
+                                    bookId1 = newBookId
+                                    chapter1 = 1
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            isPleasant = isPleasant,
+                        )
+                        SelectionButton(
+                            text = chapter2.toString(),
+                            options = (1..chapterCount2).map { it.toString() },
+                            onOptionSelected = {
+                                val newChapter = it + 1
+                                chapter2 = newChapter
+                                if (isSyncEnabled) {
+                                    chapter1 = newChapter
+                                }
+                            },
+                            modifier = Modifier.weight(1f),
+                            isPleasant = isPleasant,
+                        )
+                    }
+                }
             }
 
             // Content Row
@@ -315,12 +428,83 @@ fun TranslationSelector(
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
+            offset = DpOffset(0.dp, 36.dp),
+            modifier = Modifier
+                .heightIn(max = 500.dp)
+                .widthIn(min = 1.dp)
+                .width(IntrinsicSize.Min),
         ) {
             translations.forEach { translation ->
                 DropdownMenuItem(
-                    text = { Text(translation.name) },
+                    text = {
+                        Text(
+                            text = translation.name,
+                            fontSize = 12.sp,
+                            softWrap = false,
+                        )
+                    },
                     onClick = {
                         onTranslationSelected(translation.code)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SelectionButton(
+    text: String,
+    options: List<String>,
+    onOptionSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    isPleasant: Boolean = false,
+) {
+    var expanded by remember { mutableStateOf(value = false) }
+
+    Box(modifier = modifier) {
+        Button(
+            onClick = { expanded = true },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(20.dp),
+            contentPadding = PaddingValues(horizontal = 4.dp),
+            shape = if (isPleasant) RoundedCornerShape(6.dp) else RoundedCornerShape(2.dp),
+        ) {
+            AutoResizingText(
+                text = text,
+                fontSize = 10.sp,
+                maxLines = 1,
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            offset = DpOffset(0.dp, 20.dp),
+            modifier = Modifier
+                .heightIn(max = 500.dp)
+                .widthIn(min = 1.dp)
+                .width(IntrinsicSize.Min),
+        ) {
+            options.forEachIndexed { index, option ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = option,
+                            fontSize = 12.sp,
+                            textAlign = TextAlign.Start,
+                            modifier = Modifier.fillMaxWidth(),
+                            softWrap = false,
+                        )
+                    },
+                    contentPadding = PaddingValues(horizontal = 8.dp),
+                    modifier = Modifier.heightIn(min = 32.dp),
+                    onClick = {
+                        onOptionSelected(index)
                         expanded = false
                     },
                 )
