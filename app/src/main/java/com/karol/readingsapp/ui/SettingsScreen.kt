@@ -153,9 +153,10 @@ fun SettingsScreen(
                         modifier = Modifier.padding(20.dp),
                     ) {
                         Text(
-                            text = "Theme",
+                            text = "Appearance",
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
                                 color = MaterialTheme.colorScheme.onSurface,
                             ),
                             modifier = Modifier.padding(bottom = 12.dp),
@@ -216,6 +217,7 @@ fun SettingsScreen(
                             text = "Developer Note",
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             ),
                             modifier = Modifier.padding(bottom = 12.dp),

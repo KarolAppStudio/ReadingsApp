@@ -4,8 +4,7 @@ enum class AppTheme(
     val displayName: String,
 ) {
     BLUE("Sky Blue"),
-    SYSTEM("System Default"),
-    LIGHT("Light"),
+    PURPLE("Purple"),
     DARK("Dark"),
     SEPIA("Sepia"),
     PLEASANT("Modern Glass"),

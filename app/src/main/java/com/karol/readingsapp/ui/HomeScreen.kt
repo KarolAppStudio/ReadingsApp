@@ -329,7 +329,7 @@ fun HomeScreen(
 
                 Column(modifier = Modifier.fillMaxWidth()) {
                     AutoResizingText(
-                        text = if ((selectedDate == todayString) || (selectedDate.isEmpty())) strings.todaysReadings else strings.selectedReadings,
+                        text = if (isToday) strings.todaysReadings else strings.selectedReadings,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
@@ -362,7 +362,6 @@ fun HomeScreen(
                     items = readingsGrouped[type] ?: emptyList(),
                     strings = strings,
                     noReadingsText = strings.noReadings,
-                    isToday = isToday,
                     onItemClick = onReadingClick,
                 )
                 Spacer(modifier = Modifier.height(6.dp))
@@ -377,7 +376,6 @@ fun ReadingSection(
     items: List<TargetReadingDetails>,
     strings: LocalizedStrings,
     noReadingsText: String,
-    isToday: Boolean,
     onItemClick: (TargetReadingDetails) -> Unit,
 ) {
     val distinctReadings = remember(items) { items.distinctBy { "${it.bookId} ${it.chapter}" } }
@@ -404,14 +402,6 @@ fun ReadingSection(
                     fontWeight = FontWeight.Bold,
                     fontSize = titleSize,
                 )
-                if (isToday) {
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .background(Color(0xFF00FF00), shape = CircleShape),
-                    )
-                }
             }
             Spacer(modifier = Modifier.height(innerSpacer))
 

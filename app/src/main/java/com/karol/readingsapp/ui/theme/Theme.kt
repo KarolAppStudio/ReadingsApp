@@ -124,7 +124,7 @@ fun ReadingsAppTheme(
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when (appTheme) {
-        AppTheme.SYSTEM -> {
+        AppTheme.PURPLE -> {
             if (dynamicColor) {
                 val context = LocalContext.current
                 if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
@@ -132,8 +132,6 @@ fun ReadingsAppTheme(
                 if (darkTheme) DarkColorScheme else LightColorScheme
             }
         }
-
-        AppTheme.LIGHT -> LightColorScheme
 
         AppTheme.DARK -> DarkColorScheme
 
