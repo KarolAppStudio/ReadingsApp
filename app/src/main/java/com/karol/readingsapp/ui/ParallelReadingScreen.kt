@@ -216,7 +216,6 @@ fun ParallelReadingScreen(
                         translations = translations,
                         onTranslationSelected = {
                             viewModel.setTranslation(it)
-                            if (isSyncEnabled) viewModel.loadSecondChapterVerses(bookId2, chapter2, it)
                         },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = strings.selectBible,
@@ -264,7 +263,6 @@ fun ParallelReadingScreen(
                         translations = translations,
                         onTranslationSelected = {
                             viewModel.loadSecondChapterVerses(bookId2, chapter2, it)
-                            if (isSyncEnabled) viewModel.setTranslation(it)
                         },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = strings.selectBible,
