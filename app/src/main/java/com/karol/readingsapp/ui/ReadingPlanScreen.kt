@@ -10,10 +10,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,7 +22,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.plan.SimpleReading
+import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
+import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
@@ -171,58 +171,14 @@ fun ReadingPlanScreen(
             }
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = if (isPleasant) 0.dp else 8.dp,
-            ) {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = strings.home) },
-                    label = { Text(strings.home, textAlign = TextAlign.Center) },
-                    selected = false,
-                    alwaysShowLabel = true,
-                    onClick = onHomeClick,
-                    colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = MaterialTheme.colorScheme.primary,
-                        unselectedTextColor = MaterialTheme.colorScheme.primary,
-                    ),
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.DateRange, contentDescription = strings.calendar) },
-                    label = { Text(strings.calendar, textAlign = TextAlign.Center) },
-                    selected = true,
-                    alwaysShowLabel = true,
-                    onClick = { },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = Color.Gray,
-                        unselectedTextColor = Color.Gray,
-                        indicatorColor = MaterialTheme.colorScheme.secondary,
-                    ),
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = strings.bible) },
-                    label = { Text(strings.bible, textAlign = TextAlign.Center) },
-                    selected = false,
-                    alwaysShowLabel = true,
-                    onClick = onBibleClick,
-                    colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = MaterialTheme.colorScheme.primary,
-                        unselectedTextColor = MaterialTheme.colorScheme.primary,
-                    ),
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Settings, contentDescription = strings.settings) },
-                    label = { Text(strings.settings, textAlign = TextAlign.Center) },
-                    selected = false,
-                    alwaysShowLabel = true,
-                    onClick = onSettingsClick,
-                    colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = MaterialTheme.colorScheme.primary,
-                        unselectedTextColor = MaterialTheme.colorScheme.primary,
-                    ),
-                )
-            }
+            AppBottomNavBar(
+                selectedItem = NavItem.Calendar,
+                strings = strings,
+                onHomeClick = onHomeClick,
+                onCalendarClick = { },
+                onBibleClick = onBibleClick,
+                onSettingsClick = onSettingsClick,
+            )
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
@@ -296,10 +252,13 @@ fun ReadingDayItem(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
                 )
-                Text(
-                    text = dayOfWeek.take(3),
+                AutoResizingText(
+                    text = dayOfWeek,
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                    minFontSize = 7.sp,
                 )
             }
 
