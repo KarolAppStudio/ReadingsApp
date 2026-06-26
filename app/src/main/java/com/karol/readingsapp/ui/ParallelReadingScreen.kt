@@ -1,9 +1,26 @@
 package com.karol.readingsapp.ui
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -12,11 +29,26 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.RestartAlt
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -65,11 +97,17 @@ fun ParallelReadingScreen(
         )
     }
 
-    val selectedLanguage = remember(selectedCode1, translations) {
+    val selectedLanguage1 = remember(selectedCode1, translations) {
         translations.find { it.code == selectedCode1 }?.language ?: "English"
     }
-    val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
+    val strings1 = remember(selectedLanguage1) { Localization.getStrings(selectedLanguage1) }
+
+    val selectedLanguage2 = remember(selectedCode2, translations) {
+        translations.find { it.code == selectedCode2 }?.language ?: "English"
+    }
+    val strings2 = remember(selectedLanguage2) { Localization.getStrings(selectedLanguage2) }
+
+    val isPleasant = (MaterialTheme.colorScheme.outline == GlassBorder)
 
     var bookId1 by remember { mutableIntStateOf(bookId) }
     var chapter1 by remember { mutableIntStateOf(chapter) }
@@ -80,8 +118,11 @@ fun ParallelReadingScreen(
     var chapterCount2 by remember { mutableIntStateOf(0) }
 
     val allBooks by viewModel.allBooks.collectAsState()
-    val bookOptions = remember(allBooks, strings) {
-        allBooks.map { strings.bookNames[it.id] ?: it.name }
+    val bookOptions1 = remember(allBooks, strings1) {
+        allBooks.map { strings1.bookNames[it.id] ?: it.name }
+    }
+    val bookOptions2 = remember(allBooks, strings2) {
+        allBooks.map { strings2.bookNames[it.id] ?: it.name }
     }
 
     LaunchedEffect(bookId1) {
@@ -91,11 +132,14 @@ fun ParallelReadingScreen(
         chapterCount2 = viewModel.getChapterCount(bookId2)
     }
 
-    val bookName1 = strings.bookNames[bookId1] ?: "Book $bookId1"
-    val bookName2 = strings.bookNames[bookId2] ?: "Book $bookId2"
+    val bookName1 = strings1.bookNames[bookId1] ?: "Book $bookId1"
+    val bookName2 = strings2.bookNames[bookId2] ?: "Book $bookId2"
 
-    val numberFormatter = remember(strings.locale) {
-        java.text.NumberFormat.getIntegerInstance(strings.locale)
+    val numberFormatter1 = remember(strings1.locale) {
+        java.text.NumberFormat.getIntegerInstance(strings1.locale)
+    }
+    val numberFormatter2 = remember(strings2.locale) {
+        java.text.NumberFormat.getIntegerInstance(strings2.locale)
     }
 
     LaunchedEffect(bookId1, chapter1, selectedCode1) {
@@ -128,7 +172,7 @@ fun ParallelReadingScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = strings.back,
+                            contentDescription = strings1.back,
                             tint = MaterialTheme.colorScheme.primary,
                         )
                     }
@@ -145,7 +189,7 @@ fun ParallelReadingScreen(
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp)) {
                             Icon(
                                 imageVector = if (isSyncEnabled) Icons.Default.Lock else Icons.Default.LockOpen,
-                                contentDescription = strings.sync,
+                                contentDescription = strings1.sync,
                                 tint = if (isSyncEnabled) activeColor else inactiveColor,
                                 modifier = Modifier.size(24.dp),
                             )
@@ -189,7 +233,7 @@ fun ParallelReadingScreen(
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp)) {
                             Icon(
                                 imageVector = Icons.Default.RestartAlt,
-                                contentDescription = strings.reset,
+                                contentDescription = strings1.reset,
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp),
                             )
@@ -230,7 +274,7 @@ fun ParallelReadingScreen(
                             viewModel.setTranslation(it)
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = strings.selectBible,
+                        placeholder = strings1.selectBible,
                         isPleasant = isPleasant,
                     )
                     Row(
@@ -241,7 +285,7 @@ fun ParallelReadingScreen(
                     ) {
                         SelectionButton(
                             text = bookName1,
-                            options = bookOptions,
+                            options = bookOptions1,
                             onOptionSelected = { index ->
                                 val newBookId = allBooks[index].id
                                 bookId1 = newBookId
@@ -277,7 +321,7 @@ fun ParallelReadingScreen(
                             viewModel.loadSecondChapterVerses(bookId2, chapter2, it)
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = strings.selectBible,
+                        placeholder = strings2.selectBible,
                         isPleasant = isPleasant,
                     )
                     Row(
@@ -288,7 +332,7 @@ fun ParallelReadingScreen(
                     ) {
                         SelectionButton(
                             text = bookName2,
-                            options = bookOptions,
+                            options = bookOptions2,
                             onOptionSelected = { index ->
                                 val newBookId = allBooks[index].id
                                 bookId2 = newBookId
@@ -338,7 +382,7 @@ fun ParallelReadingScreen(
                                     .weight(1f)
                                     .padding(horizontal = 4.dp),
                             ) {
-                                v1?.let { VerseItem(it, numberFormatter) }
+                                v1?.let { VerseItem(it, numberFormatter1) }
                             }
                             VerticalDivider(
                                 modifier = Modifier.fillMaxHeight(),
@@ -350,7 +394,7 @@ fun ParallelReadingScreen(
                                     .weight(1f)
                                     .padding(horizontal = 4.dp),
                             ) {
-                                v2?.let { VerseItem(it, numberFormatter) }
+                                v2?.let { VerseItem(it, numberFormatter2) }
                             }
                         }
                     }
@@ -368,7 +412,7 @@ fun ParallelReadingScreen(
                             .padding(horizontal = 4.dp),
                     ) {
                         items(verses1) { verse ->
-                            VerseItem(verse, numberFormatter)
+                            VerseItem(verse, numberFormatter1)
                         }
                     }
 
@@ -384,7 +428,7 @@ fun ParallelReadingScreen(
                             .padding(horizontal = 4.dp),
                     ) {
                         items(verses2) { verse ->
-                            VerseItem(verse, numberFormatter)
+                            VerseItem(verse, numberFormatter2)
                         }
                     }
                 }
