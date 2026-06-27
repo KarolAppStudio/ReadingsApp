@@ -3,6 +3,7 @@ package com.karol.readingsapp.data.bible
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "books")
@@ -41,6 +42,9 @@ data class TranslationEntity(
             onDelete = ForeignKey.CASCADE,
             onUpdate = ForeignKey.NO_ACTION,
         ),
+    ],
+    indices = [
+        Index(value = ["book_id"]),
     ],
 )
 data class Verse(

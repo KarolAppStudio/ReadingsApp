@@ -11,7 +11,7 @@ ksp = "2.3.9"
 kotlin = "2.4.0"
 composeBom = "2026.06.00"
 navigationCompose = "2.9.8"
-splashscreen = "1.0.1"
+splashscreen = "1.2.0"
 spotless = "8.7.0"
 
 [libraries]

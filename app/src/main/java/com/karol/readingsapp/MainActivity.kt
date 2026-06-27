@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModel
@@ -27,6 +28,7 @@ import com.karol.readingsapp.ui.AboutScreen
 import com.karol.readingsapp.ui.BibleReaderScreen
 import com.karol.readingsapp.ui.BibleSelectionScreen
 import com.karol.readingsapp.ui.HomeScreen
+import com.karol.readingsapp.ui.Localization
 import com.karol.readingsapp.ui.ParallelReadingScreen
 import com.karol.readingsapp.ui.ReadingPlanScreen
 import com.karol.readingsapp.ui.ReadingViewModel
@@ -66,6 +68,13 @@ class MainActivity : ComponentActivity() {
                 )
 
             val currentTheme by viewModel.appTheme.collectAsState()
+            val translations by viewModel.availableTranslations.collectAsState()
+            val selectedCode by viewModel.selectedTranslationCode.collectAsState()
+
+            val selectedLanguage = remember(selectedCode, translations) {
+                translations.find { it.code == selectedCode }?.language ?: "English"
+            }
+            val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
             ReadingsAppTheme(appTheme = currentTheme) {
                 val navController = rememberNavController()
@@ -95,7 +104,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable("about") {
-                            AboutScreen {
+                            AboutScreen(strings = strings) {
                                 navController.popBackStack("home", inclusive = false)
                             }
                         }
@@ -108,9 +117,13 @@ class MainActivity : ComponentActivity() {
                                 onCalendarClick = {
                                     navController.navigate("reading_plan")
                                 },
-                            ) {
-                                navController.navigate("bible")
-                            }
+                                onBibleClick = {
+                                    navController.navigate("bible")
+                                },
+                                onAboutClick = {
+                                    navController.navigate("about")
+                                },
+                            )
                         }
                         composable("reading_plan") {
                             ReadingPlanScreen(

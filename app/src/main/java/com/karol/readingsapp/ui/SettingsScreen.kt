@@ -5,6 +5,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,15 +26,20 @@ fun SettingsScreen(
     onHomeClick: () -> Unit,
     onCalendarClick: () -> Unit,
     onBibleClick: () -> Unit,
+    onAboutClick: () -> Unit,
 ) {
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
     val currentTheme by viewModel.appTheme.collectAsState()
 
     var themeExpanded by remember { mutableStateOf(value = false) }
+    var languageExpanded by remember { mutableStateOf(value = false) }
 
     val selectedLanguage = remember(selectedCode, translations) {
         translations.find { it.code == selectedCode }?.language ?: "English"
+    }
+    val selectedTranslationName = remember(selectedCode, translations) {
+        translations.find { it.code == selectedCode }?.name ?: "English"
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
     val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
@@ -107,7 +113,68 @@ fun SettingsScreen(
                         modifier = Modifier.padding(20.dp),
                     ) {
                         Text(
-                            text = "Appearance",
+                            text = strings.bibleTranslation,
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            ),
+                            modifier = Modifier.padding(bottom = 12.dp),
+                        )
+
+                        Box {
+                            OutlinedButton(
+                                onClick = { languageExpanded = true },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.primary,
+                                ),
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(text = selectedTranslationName)
+                                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                                }
+                            }
+
+                            DropdownMenu(
+                                expanded = languageExpanded,
+                                onDismissRequest = { languageExpanded = false },
+                                modifier = Modifier.fillMaxWidth(0.8f),
+                            ) {
+                                translations.forEach { translation ->
+                                    DropdownMenuItem(
+                                        text = { Text(translation.name) },
+                                        onClick = {
+                                            viewModel.setTranslation(translation.code)
+                                            languageExpanded = false
+                                        },
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                    ) {
+                        Text(
+                            text = strings.appearance,
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
@@ -130,7 +197,7 @@ fun SettingsScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Text(text = currentTheme.displayName)
+                                    Text(text = currentTheme.getDisplayName(strings))
                                     Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                                 }
                             }
@@ -142,7 +209,7 @@ fun SettingsScreen(
                             ) {
                                 AppTheme.entries.forEach { theme ->
                                     DropdownMenuItem(
-                                        text = { Text(theme.displayName) },
+                                        text = { Text(theme.getDisplayName(strings)) },
                                         onClick = {
                                             viewModel.setTheme(theme)
                                             themeExpanded = false
@@ -151,6 +218,40 @@ fun SettingsScreen(
                                 }
                             }
                         }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onAboutClick,
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = strings.about,
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            ),
+                        )
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
                     }
                 }
 
@@ -168,7 +269,7 @@ fun SettingsScreen(
                         modifier = Modifier.padding(20.dp),
                     ) {
                         Text(
-                            text = "Developer Note",
+                            text = strings.developerNoteTitle,
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 16.sp,
@@ -177,7 +278,7 @@ fun SettingsScreen(
                             modifier = Modifier.padding(bottom = 12.dp),
                         )
                         Text(
-                            text = "This app is currently under development. Please report any bugs/issues that you encounter by sharing a screenshot of the incident on the whatsapp group created for the app testing as well as a short note explaining the issue you are facing.",
+                            text = strings.developerNoteContent,
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
                                 lineHeight = 22.sp,
@@ -189,7 +290,7 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "Daily Reading Companion",
+                    text = strings.appTitle,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,

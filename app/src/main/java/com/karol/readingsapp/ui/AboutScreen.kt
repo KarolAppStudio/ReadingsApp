@@ -9,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -17,7 +16,7 @@ import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.R
 
 @Composable
-fun AboutScreen(onHomeClick: () -> Unit) {
+fun AboutScreen(strings: LocalizedStrings, onHomeClick: () -> Unit) {
     Scaffold(
         topBar = {
             Surface(
@@ -36,7 +35,7 @@ fun AboutScreen(onHomeClick: () -> Unit) {
                     ) {
                         Icon(
                             imageVector = Icons.Default.Home,
-                            contentDescription = "Home",
+                            contentDescription = strings.home,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(32.dp),
                         )
@@ -64,7 +63,7 @@ fun AboutScreen(onHomeClick: () -> Unit) {
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = "A simple app to help you follow your daily Bible reading plan with multiple translations support.",
+                text = strings.appDescription,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.primary,
@@ -83,14 +82,14 @@ fun AboutScreen(onHomeClick: () -> Unit) {
                     modifier = Modifier.padding(16.dp),
                 ) {
                     Text(
-                        text = "Developer Note",
+                        text = strings.developerNoteTitle,
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Bold,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "This app is currently under development. Please report any bugs/issues that you encounter by sharing a screenshot of the incident on the whatsapp group created for the app testing as well as a short note explaining the issue you are facing.",
+                        text = strings.developerNoteContent,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
                         lineHeight = 20.sp,
@@ -104,13 +103,13 @@ fun AboutScreen(onHomeClick: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = stringResource(R.string.companion_app_name),
+                    text = strings.appTitle,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = "Developed by Karol",
+                    text = strings.developedBy,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                 )

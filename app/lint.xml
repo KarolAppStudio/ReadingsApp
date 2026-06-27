@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- Suppress icon shape warning as the current app_icon.png is the desired design -->
+    <issue id="IconLauncherShape" severity="ignore" />
+</lint>
