@@ -299,13 +299,13 @@ fun ReadingDayItem(
     }
 }
 
-fun localizeDigits(text: String, locale: java.util.Locale): String {
+fun localizeDigits(text: String, locale: Locale): String {
     val nf = java.text.NumberFormat.getIntegerInstance(locale)
     val zero = nf.format(0)
     if (zero == "0") return text
     val zeroChar = zero[0]
     val offset = zeroChar - '0'
     return text.map { char ->
-        if (char in '0'..'9') (char + offset) else char
+        if (char in ('0'..'9')) (char + offset) else char
     }.joinToString("")
 }

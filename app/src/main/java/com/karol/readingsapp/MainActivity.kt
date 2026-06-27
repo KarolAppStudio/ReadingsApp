@@ -120,10 +120,9 @@ class MainActivity : ComponentActivity() {
                                 onBibleClick = {
                                     navController.navigate("bible")
                                 },
-                                onAboutClick = {
-                                    navController.navigate("about")
-                                },
-                            )
+                            ) {
+                                navController.navigate("about")
+                            }
                         }
                         composable("reading_plan") {
                             ReadingPlanScreen(
