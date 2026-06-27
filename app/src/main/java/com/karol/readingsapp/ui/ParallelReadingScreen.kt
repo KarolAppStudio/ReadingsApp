@@ -59,6 +59,7 @@ import com.karol.readingsapp.ui.components.SelectionButton
 import com.karol.readingsapp.ui.components.TranslationSelector
 import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -136,10 +137,10 @@ fun ParallelReadingScreen(
     val bookName2 = strings2.bookNames[bookId2] ?: "Book $bookId2"
 
     val numberFormatter1 = remember(strings1.locale) {
-        java.text.NumberFormat.getIntegerInstance(strings1.locale)
+        NumberFormat.getIntegerInstance(strings1.locale)
     }
     val numberFormatter2 = remember(strings2.locale) {
-        java.text.NumberFormat.getIntegerInstance(strings2.locale)
+        NumberFormat.getIntegerInstance(strings2.locale)
     }
 
     LaunchedEffect(bookId1, chapter1, selectedCode1) {
@@ -438,7 +439,7 @@ fun ParallelReadingScreen(
 }
 
 @Composable
-fun VerseItem(verse: TargetReadingDetails, numberFormatter: java.text.NumberFormat) {
+fun VerseItem(verse: TargetReadingDetails, numberFormatter: NumberFormat) {
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
         Text(
             text = numberFormatter.format(verse.verseId),

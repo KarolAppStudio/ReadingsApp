@@ -27,6 +27,7 @@ import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.flow.first
+import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -51,7 +52,7 @@ fun ReadingPlanScreen(
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
     val numberFormatter = remember(strings.locale) {
-        java.text.NumberFormat.getIntegerInstance(strings.locale)
+        NumberFormat.getIntegerInstance(strings.locale)
     }
 
     val listState = rememberLazyListState()
@@ -214,7 +215,7 @@ fun ReadingDayItem(
     date: String,
     readings: List<SimpleReading>,
     strings: LocalizedStrings,
-    numberFormatter: java.text.NumberFormat,
+    numberFormatter: NumberFormat,
     isToday: Boolean,
 ) {
     val parsedDate = try {
@@ -300,7 +301,7 @@ fun ReadingDayItem(
 }
 
 fun localizeDigits(text: String, locale: Locale): String {
-    val nf = java.text.NumberFormat.getIntegerInstance(locale)
+    val nf = NumberFormat.getIntegerInstance(locale)
     val zero = nf.format(0)
     if (zero == "0") return text
     val zeroChar = zero[0]

@@ -27,6 +27,7 @@ import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.GlassBorder
+import java.text.NumberFormat
 
 enum class NavMode { Grid, List }
 
@@ -50,7 +51,7 @@ fun BibleSelectionScreen(
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
     val numberFormatter = remember(strings.locale) {
-        java.text.NumberFormat.getIntegerInstance(strings.locale)
+        NumberFormat.getIntegerInstance(strings.locale)
     }
 
     var currentMode by remember { mutableStateOf(NavMode.Grid) }
@@ -266,7 +267,7 @@ fun ChapterSelection(
     mode: NavMode,
     chapterCount: Int,
     strings: LocalizedStrings,
-    numberFormatter: java.text.NumberFormat,
+    numberFormatter: NumberFormat,
     onChapterClick: (Int) -> Unit,
 ) {
     val chapters = (1..chapterCount).toList()
@@ -314,7 +315,7 @@ fun VerseSelection(
     mode: NavMode,
     verseCount: Int,
     strings: LocalizedStrings,
-    numberFormatter: java.text.NumberFormat,
+    numberFormatter: NumberFormat,
     onVerseClick: (Int) -> Unit,
 ) {
     val verses = (1..verseCount).toList()
@@ -411,7 +412,7 @@ fun BookListItem(book: BookEntity, strings: LocalizedStrings, onClick: (BookEnti
 }
 
 @Composable
-fun ChapterCard(chapter: Int, numberFormatter: java.text.NumberFormat, onClick: (Int) -> Unit) {
+fun ChapterCard(chapter: Int, numberFormatter: NumberFormat, onClick: (Int) -> Unit) {
     val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
 
     Card(

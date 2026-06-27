@@ -27,6 +27,7 @@ import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.SelectionButton
 import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,7 +88,7 @@ fun BibleReaderScreen(
     }
 
     val numberFormatter = remember(strings.locale) {
-        java.text.NumberFormat.getIntegerInstance(strings.locale)
+        NumberFormat.getIntegerInstance(strings.locale)
     }
 
     Scaffold(

@@ -30,6 +30,7 @@ android {
     defaultConfig {
         applicationId = "com.karol.readingsapp"
         minSdk = 31
+        //noinspection OldTargetApi
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"

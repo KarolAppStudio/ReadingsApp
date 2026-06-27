@@ -52,6 +52,7 @@ import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.GlassBorder
+import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -94,7 +95,7 @@ fun HomeScreen(
 
     var menuExpanded by remember { mutableStateOf(value = false) }
     val numberFormatter = remember(strings.locale) {
-        java.text.NumberFormat.getIntegerInstance(strings.locale)
+        NumberFormat.getIntegerInstance(strings.locale)
     }
 
     LaunchedEffect(Unit) {
@@ -329,7 +330,7 @@ fun ReadingSection(
     title: String,
     items: List<TargetReadingDetails>,
     strings: LocalizedStrings,
-    numberFormatter: java.text.NumberFormat,
+    numberFormatter: NumberFormat,
     noReadingsText: String,
     onItemClick: (TargetReadingDetails) -> Unit,
 ) {
@@ -387,7 +388,7 @@ fun ReadingSection(
 fun ReadingItemRow(
     item: TargetReadingDetails,
     strings: LocalizedStrings,
-    numberFormatter: java.text.NumberFormat,
+    numberFormatter: NumberFormat,
     onClick: () -> Unit,
 ) {
     val bookName = strings.bookNames[item.bookId] ?: item.bookName
