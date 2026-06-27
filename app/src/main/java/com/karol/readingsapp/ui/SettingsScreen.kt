@@ -33,13 +33,9 @@ fun SettingsScreen(
     val currentTheme by viewModel.appTheme.collectAsState()
 
     var themeExpanded by remember { mutableStateOf(value = false) }
-    var languageExpanded by remember { mutableStateOf(value = false) }
 
     val selectedLanguage = remember(selectedCode, translations) {
         translations.find { it.code == selectedCode }?.language ?: "English"
-    }
-    val selectedTranslationName = remember(selectedCode, translations) {
-        translations.find { it.code == selectedCode }?.name ?: "English"
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
     val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
@@ -101,67 +97,6 @@ fun SettingsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                    ),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
-                ) {
-                    Column(
-                        modifier = Modifier.padding(20.dp),
-                    ) {
-                        Text(
-                            text = strings.bibleTranslation,
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            ),
-                            modifier = Modifier.padding(bottom = 12.dp),
-                        )
-
-                        Box {
-                            OutlinedButton(
-                                onClick = { languageExpanded = true },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(8.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.primary,
-                                ),
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Text(text = selectedTranslationName)
-                                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-                                }
-                            }
-
-                            DropdownMenu(
-                                expanded = languageExpanded,
-                                onDismissRequest = { languageExpanded = false },
-                                modifier = Modifier.fillMaxWidth(0.8f),
-                            ) {
-                                translations.forEach { translation ->
-                                    DropdownMenuItem(
-                                        text = { Text(translation.name) },
-                                        onClick = {
-                                            viewModel.setTranslation(translation.code)
-                                            languageExpanded = false
-                                        },
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
