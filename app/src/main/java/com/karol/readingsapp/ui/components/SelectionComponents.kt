@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,6 +30,7 @@ fun AnimatedDropdownMenu(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
+    backgroundColor: Color = Color.White,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val expandedState = remember { MutableTransitionState(false) }
@@ -51,7 +53,8 @@ fun AnimatedDropdownMenu(
             ) {
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.surface,
+                    color = backgroundColor,
+                    contentColor = if (backgroundColor == Color.White) Color.Black else contentColorFor(backgroundColor),
                     tonalElevation = 3.dp,
                     shadowElevation = 8.dp,
                     modifier = modifier,
@@ -112,6 +115,7 @@ fun TranslationSelector(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             offset = DpOffset(0.dp, 36.dp),
+            backgroundColor = if (isPleasant) MaterialTheme.colorScheme.surface else Color.White,
             modifier = Modifier
                 .heightIn(max = 500.dp)
                 .widthIn(min = 1.dp)
