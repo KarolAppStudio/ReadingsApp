@@ -298,6 +298,7 @@ fun ParallelReadingScreen(
                             },
                             modifier = Modifier.weight(1f),
                             isPleasant = isPleasant,
+                            cornerRadius = 26.dp,
                         )
                         SelectionButton(
                             text = strings1.chapter,
@@ -311,6 +312,7 @@ fun ParallelReadingScreen(
                             },
                             modifier = Modifier.weight(1f),
                             isPleasant = isPleasant,
+                            cornerRadius = 26.dp,
                         )
                     }
                 }
@@ -345,6 +347,7 @@ fun ParallelReadingScreen(
                             },
                             modifier = Modifier.weight(1f),
                             isPleasant = isPleasant,
+                            cornerRadius = 26.dp,
                         )
                         SelectionButton(
                             text = strings2.chapter,
@@ -358,6 +361,7 @@ fun ParallelReadingScreen(
                             },
                             modifier = Modifier.weight(1f),
                             isPleasant = isPleasant,
+                            cornerRadius = 26.dp,
                         )
                     }
                 }

@@ -1,19 +1,72 @@
 package com.karol.readingsapp.ui.components
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import com.karol.readingsapp.data.bible.TranslationEntity
+
+@Composable
+fun AnimatedDropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val expandedState = remember { MutableTransitionState(false) }
+    expandedState.targetState = expanded
+
+    if (expandedState.currentState || expandedState.targetState) {
+        val density = LocalDensity.current
+        Popup(
+            onDismissRequest = onDismissRequest,
+            offset = IntOffset(
+                with(density) { offset.x.roundToPx() },
+                with(density) { offset.y.roundToPx() },
+            ),
+            properties = PopupProperties(focusable = true),
+        ) {
+            AnimatedVisibility(
+                visibleState = expandedState,
+                enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 3.dp,
+                    shadowElevation = 8.dp,
+                    modifier = modifier,
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                            .verticalScroll(rememberScrollState()),
+                        content = content,
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun TranslationSelector(
@@ -55,7 +108,7 @@ fun TranslationSelector(
                 )
             }
         }
-        DropdownMenu(
+        AnimatedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             offset = DpOffset(0.dp, 36.dp),
@@ -92,6 +145,7 @@ fun SelectionButton(
     isPleasant: Boolean = false,
     fontSize: androidx.compose.ui.unit.TextUnit = 10.sp,
     height: androidx.compose.ui.unit.Dp = 20.dp,
+    cornerRadius: androidx.compose.ui.unit.Dp? = null,
 ) {
     var expanded by remember { mutableStateOf(value = false) }
 
@@ -102,7 +156,8 @@ fun SelectionButton(
                 .fillMaxWidth()
                 .height(height),
             contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
-            shape = if (isPleasant) RoundedCornerShape(6.dp) else RoundedCornerShape(2.dp),
+            shape = cornerRadius?.let { RoundedCornerShape(it) }
+                ?: if (isPleasant) RoundedCornerShape(6.dp) else RoundedCornerShape(2.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -125,7 +180,7 @@ fun SelectionButton(
                 )
             }
         }
-        DropdownMenu(
+        AnimatedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             offset = DpOffset(0.dp, height),

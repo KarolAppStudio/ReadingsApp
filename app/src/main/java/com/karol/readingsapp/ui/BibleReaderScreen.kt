@@ -185,6 +185,7 @@ fun BibleReaderScreen(
                             isPleasant = isPleasant,
                             height = 32.dp,
                             fontSize = 14.sp,
+                            cornerRadius = 26.dp,
                         )
                         SelectionButton(
                             text = strings.chapter,
@@ -196,6 +197,7 @@ fun BibleReaderScreen(
                             isPleasant = isPleasant,
                             height = 32.dp,
                             fontSize = 14.sp,
+                            cornerRadius = 26.dp,
                         )
                     }
                 }
