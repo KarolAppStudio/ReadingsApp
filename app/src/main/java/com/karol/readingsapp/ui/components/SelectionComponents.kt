@@ -3,7 +3,7 @@ package com.karol.readingsapp.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -48,7 +48,7 @@ fun TranslationSelector(
                     maxLines = 1,
                 )
                 Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
+                    imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.size(16.dp),
@@ -104,14 +104,26 @@ fun SelectionButton(
             contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
             shape = if (isPleasant) RoundedCornerShape(6.dp) else RoundedCornerShape(2.dp),
         ) {
-            AutoResizingText(
-                text = text,
-                fontSize = fontSize,
-                maxLines = 1,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onPrimary,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxWidth(),
-            )
+            ) {
+                AutoResizingText(
+                    text = text,
+                    fontSize = fontSize,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size((fontSize.value * 1.4f).dp),
+                )
+            }
         }
         DropdownMenu(
             expanded = expanded,

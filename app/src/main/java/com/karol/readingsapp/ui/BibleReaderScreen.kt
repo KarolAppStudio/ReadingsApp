@@ -157,9 +157,10 @@ fun BibleReaderScreen(
                                     modifier = Modifier.size(24.dp),
                                 )
                                 Text(
-                                    text = "Parallel",
+                                    text = strings.parallelReading,
                                     color = MaterialTheme.colorScheme.primary,
                                     fontSize = 10.sp,
+                                    maxLines = 1,
                                 )
                             }
                         },
@@ -174,7 +175,7 @@ fun BibleReaderScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         SelectionButton(
-                            text = bookName,
+                            text = strings.book,
                             options = bookOptions,
                             onOptionSelected = { index ->
                                 onChapterChange(allBooks[index].id, 1)
@@ -185,12 +186,12 @@ fun BibleReaderScreen(
                             fontSize = 14.sp,
                         )
                         SelectionButton(
-                            text = chapter.toString(),
-                            options = (1..chapterCount).map { it.toString() },
+                            text = strings.chapter,
+                            options = (1..chapterCount).map { numberFormatter.format(it) },
                             onOptionSelected = { index ->
                                 onChapterChange(bookId, index + 1)
                             },
-                            modifier = Modifier.weight(0.4f),
+                            modifier = Modifier.weight(1f),
                             isPleasant = isPleasant,
                             height = 32.dp,
                             fontSize = 14.sp,

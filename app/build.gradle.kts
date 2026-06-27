@@ -14,7 +14,7 @@ spotless {
             "ktlint_standard_property-naming" to "disabled"
         ))
         trimTrailingWhitespace()
-        indentWithSpaces()
+        leadingTabsToSpaces()
         endWithNewline()
     }
 }

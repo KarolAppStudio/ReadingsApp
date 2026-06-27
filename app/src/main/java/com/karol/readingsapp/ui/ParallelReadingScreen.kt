@@ -107,7 +107,7 @@ fun ParallelReadingScreen(
     }
     val strings2 = remember(selectedLanguage2) { Localization.getStrings(selectedLanguage2) }
 
-    val isPleasant = (MaterialTheme.colorScheme.outline == GlassBorder)
+    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
 
     var bookId1 by remember { mutableIntStateOf(bookId) }
     var chapter1 by remember { mutableIntStateOf(chapter) }
@@ -156,9 +156,9 @@ fun ParallelReadingScreen(
             TopAppBar(
                 title = {
                     val displayTitle = if ((bookId1 == bookId2) && (chapter1 == chapter2)) {
-                        "$bookName1 $chapter1"
+                        "$bookName1 ${numberFormatter1.format(chapter1)}"
                     } else {
-                        "$bookName1 $chapter1 | $bookName2 $chapter2"
+                        "$bookName1 ${numberFormatter1.format(chapter1)} | $bookName2 ${numberFormatter2.format(chapter2)}"
                     }
                     AutoResizingText(
                         text = displayTitle,
@@ -209,7 +209,7 @@ fun ParallelReadingScreen(
                             }
                         }
                         Text(
-                            text = "Lock Grids",
+                            text = strings1.sync,
                             color = MaterialTheme.colorScheme.primary,
                             fontSize = 10.sp,
                         )
@@ -239,7 +239,7 @@ fun ParallelReadingScreen(
                             )
                         }
                         Text(
-                            text = "Reset",
+                            text = strings1.reset,
                             color = MaterialTheme.colorScheme.primary,
                             fontSize = 10.sp,
                         )
@@ -284,7 +284,7 @@ fun ParallelReadingScreen(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         SelectionButton(
-                            text = bookName1,
+                            text = strings1.book,
                             options = bookOptions1,
                             onOptionSelected = { index ->
                                 val newBookId = allBooks[index].id
@@ -299,8 +299,8 @@ fun ParallelReadingScreen(
                             isPleasant = isPleasant,
                         )
                         SelectionButton(
-                            text = chapter1.toString(),
-                            options = (1..chapterCount1).map { it.toString() },
+                            text = strings1.chapter,
+                            options = (1..chapterCount1).map { numberFormatter1.format(it) },
                             onOptionSelected = {
                                 val newChapter = it + 1
                                 chapter1 = newChapter
@@ -331,7 +331,7 @@ fun ParallelReadingScreen(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         SelectionButton(
-                            text = bookName2,
+                            text = strings2.book,
                             options = bookOptions2,
                             onOptionSelected = { index ->
                                 val newBookId = allBooks[index].id
@@ -346,8 +346,8 @@ fun ParallelReadingScreen(
                             isPleasant = isPleasant,
                         )
                         SelectionButton(
-                            text = chapter2.toString(),
-                            options = (1..chapterCount2).map { it.toString() },
+                            text = strings2.chapter,
+                            options = (1..chapterCount2).map { numberFormatter2.format(it) },
                             onOptionSelected = {
                                 val newChapter = it + 1
                                 chapter2 = newChapter

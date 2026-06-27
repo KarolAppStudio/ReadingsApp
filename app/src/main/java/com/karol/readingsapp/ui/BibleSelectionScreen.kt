@@ -49,6 +49,10 @@ fun BibleSelectionScreen(
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
+    val numberFormatter = remember(strings.locale) {
+        java.text.NumberFormat.getIntegerInstance(strings.locale)
+    }
+
     var currentMode by remember { mutableStateOf(NavMode.Grid) }
     var selectedBook by remember { mutableStateOf<BookEntity?>(null) }
     var selectedChapter by remember { mutableIntStateOf(0) }
@@ -97,7 +101,7 @@ fun BibleSelectionScreen(
                         text = when {
                             selectedBook == null -> strings.bible
                             selectedChapter == 0 -> strings.bookNames[selectedBook!!.id] ?: selectedBook!!.name
-                            else -> "${strings.bookNames[selectedBook!!.id] ?: selectedBook!!.name} $selectedChapter"
+                            else -> "${strings.bookNames[selectedBook!!.id] ?: selectedBook!!.name} ${numberFormatter.format(selectedChapter)}"
                         },
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
@@ -122,14 +126,15 @@ fun BibleSelectionScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.AutoStories,
-                                contentDescription = "Parallel Reading",
+                                contentDescription = strings.parallelReading,
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp),
                             )
                             Text(
-                                text = "Parallel",
+                                text = strings.parallelReading,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontSize = 10.sp,
+                                maxLines = 1,
                             )
                         }
 
@@ -202,6 +207,8 @@ fun BibleSelectionScreen(
                     ChapterSelection(
                         mode = currentMode,
                         chapterCount = chapterCount,
+                        strings = strings,
+                        numberFormatter = numberFormatter,
                     ) { chapter ->
                         selectedChapter = chapter
                     }
@@ -209,6 +216,8 @@ fun BibleSelectionScreen(
                     VerseSelection(
                         mode = currentMode,
                         verseCount = verseCount,
+                        strings = strings,
+                        numberFormatter = numberFormatter,
                     ) { verse ->
                         onChapterClick(selectedBook!!.id, selectedChapter, verse)
                     }
@@ -256,6 +265,8 @@ fun BookSelection(
 fun ChapterSelection(
     mode: NavMode,
     chapterCount: Int,
+    strings: LocalizedStrings,
+    numberFormatter: java.text.NumberFormat,
     onChapterClick: (Int) -> Unit,
 ) {
     val chapters = (1..chapterCount).toList()
@@ -269,7 +280,7 @@ fun ChapterSelection(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(chapters) { chapter ->
-                    ChapterCard(chapter, onChapterClick)
+                    ChapterCard(chapter, numberFormatter, onChapterClick)
                 }
             }
         }
@@ -287,7 +298,7 @@ fun ChapterSelection(
                         shape = RoundedCornerShape(8.dp),
                     ) {
                         Text(
-                            text = "Chapter $chapter",
+                            text = "${strings.chapter} ${numberFormatter.format(chapter)}",
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurface,
                         )
@@ -302,6 +313,8 @@ fun ChapterSelection(
 fun VerseSelection(
     mode: NavMode,
     verseCount: Int,
+    strings: LocalizedStrings,
+    numberFormatter: java.text.NumberFormat,
     onVerseClick: (Int) -> Unit,
 ) {
     val verses = (1..verseCount).toList()
@@ -315,7 +328,7 @@ fun VerseSelection(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(verses) { verse ->
-                    ChapterCard(verse, onVerseClick) // Reusing ChapterCard style
+                    ChapterCard(verse, numberFormatter, onVerseClick) // Reusing ChapterCard style
                 }
             }
         }
@@ -333,7 +346,7 @@ fun VerseSelection(
                         shape = RoundedCornerShape(8.dp),
                     ) {
                         Text(
-                            text = "Verse $verse",
+                            text = "${strings.verse} ${numberFormatter.format(verse)}",
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurface,
                         )
@@ -398,7 +411,7 @@ fun BookListItem(book: BookEntity, strings: LocalizedStrings, onClick: (BookEnti
 }
 
 @Composable
-fun ChapterCard(chapter: Int, onClick: (Int) -> Unit) {
+fun ChapterCard(chapter: Int, numberFormatter: java.text.NumberFormat, onClick: (Int) -> Unit) {
     val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
 
     Card(
@@ -413,7 +426,7 @@ fun ChapterCard(chapter: Int, onClick: (Int) -> Unit) {
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = chapter.toString(),
+                text = numberFormatter.format(chapter),
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
             )

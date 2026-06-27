@@ -28,6 +28,9 @@ data class LocalizedStrings(
     val previousMonth: String,
     val nextMonth: String,
     val selectBible: String,
+    val book: String,
+    val chapter: String,
+    val verse: String,
     val locale: Locale,
     val bookNames: Map<Int, String> = emptyMap(),
 )
@@ -169,7 +172,7 @@ object Localization {
             61 to "1 यूहन्ना",
             62 to "2 यूहन्ना",
             63 to "3 यूहन्ना",
-            64 to "यहूదా",
+            64 to "यहूदा",
             65 to "प्रकाशितवाक्य",
         )
 
@@ -550,6 +553,9 @@ object Localization {
             previousMonth = "Previous Month",
             nextMonth = "Next Month",
             selectBible = "Select Bible",
+            book = "Book",
+            chapter = "Chapter",
+            verse = "Verse",
             locale = Locale.US,
             bookNames = EnglishBooks,
         )
@@ -581,6 +587,9 @@ object Localization {
             previousMonth = "পূর্ববর্তী মাস",
             nextMonth = "পরবর্তী মাস",
             selectBible = "বাইবেল নির্বাচন করুন",
+            book = "বই",
+            chapter = "অধ্যায়",
+            verse = "পদ",
             locale = Locale.forLanguageTag("bn-BD"),
             bookNames = BanglaBooks,
         )
@@ -612,6 +621,9 @@ object Localization {
             previousMonth = "पिछला महीना",
             nextMonth = "अगला महीना",
             selectBible = "बाइबिल चुनें",
+            book = "पुस्तक",
+            chapter = "अध्याय",
+            verse = "पद",
             locale = Locale.forLanguageTag("hi-IN"),
             bookNames = HindiBooks,
         )
@@ -643,6 +655,9 @@ object Localization {
             previousMonth = "ಹಿಂದಿನ ತಿಂಗಳು",
             nextMonth = "ಮುಂದಿನ ತಿಂಗಳು",
             selectBible = "ಬೈಬಲ್ ಆಯ್ಕೆಮಾಡಿ",
+            book = "ಪುಸ್ತಕ",
+            chapter = "ಅಧ್ಯಾಯ",
+            verse = "ವಚನ",
             locale = Locale.forLanguageTag("kn-IN"),
             bookNames = KannadaBooks,
         )
@@ -674,6 +689,9 @@ object Localization {
             previousMonth = "കഴിഞ്ഞ മാസം",
             nextMonth = "അടുത്ത മാസം",
             selectBible = "ബൈബിൾ തിരഞ്ഞെടുക്കുക",
+            book = "പുസ്തകം",
+            chapter = "അദ്ധ്യായം",
+            verse = "വാക്യം",
             locale = Locale.forLanguageTag("ml-IN"),
             bookNames = MalayalamBooks,
         )
@@ -705,6 +723,9 @@ object Localization {
             previousMonth = "முந்தைய மாதம்",
             nextMonth = "அடுத்த மாதம்",
             selectBible = "பைபிளைத் தேர்ந்தெடுக்கவும்",
+            book = "புத்தகம்",
+            chapter = "அதிகாரம்",
+            verse = "வசனம்",
             locale = Locale.forLanguageTag("ta-IN"),
             bookNames = TamilBooks,
         )
@@ -736,6 +757,9 @@ object Localization {
             previousMonth = "గత నెల",
             nextMonth = "వచ్చే నెల",
             selectBible = "బైబిల్‌ను ఎంచుకోండి",
+            book = "పుస్తకం",
+            chapter = "అధ్యాయం",
+            verse = "వచనము",
             locale = Locale.forLanguageTag("te-IN"),
             bookNames = TeluguBooks,
         )

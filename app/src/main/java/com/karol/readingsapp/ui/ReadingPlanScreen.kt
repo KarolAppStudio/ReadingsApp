@@ -50,6 +50,10 @@ fun ReadingPlanScreen(
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
+    val numberFormatter = remember(strings.locale) {
+        java.text.NumberFormat.getIntegerInstance(strings.locale)
+    }
+
     val listState = rememberLazyListState()
 
     LaunchedEffect(currentMonth) {
@@ -197,6 +201,7 @@ fun ReadingPlanScreen(
                     date = date,
                     readings = readings,
                     strings = strings,
+                    numberFormatter = numberFormatter,
                     isToday = date == today.toString(),
                 )
             }
@@ -209,6 +214,7 @@ fun ReadingDayItem(
     date: String,
     readings: List<SimpleReading>,
     strings: LocalizedStrings,
+    numberFormatter: java.text.NumberFormat,
     isToday: Boolean,
 ) {
     val parsedDate = try {
@@ -218,7 +224,7 @@ fun ReadingDayItem(
     }
 
     val dayOfWeek = parsedDate?.dayOfWeek?.getDisplayName(java.time.format.TextStyle.FULL, strings.locale) ?: "---"
-    val dayOfMonth = parsedDate?.dayOfMonth?.toString() ?: "--"
+    val dayOfMonth = parsedDate?.dayOfMonth?.let { numberFormatter.format(it) } ?: "--"
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -279,8 +285,9 @@ fun ReadingDayItem(
                 } else {
                     readings.forEach { reading ->
                         val bookName = strings.bookNames[reading.bookId] ?: reading.bookName
+                        val chapters = localizeDigits(reading.chaptersStr, strings.locale)
                         AutoResizingText(
-                            text = "$bookName ${reading.chaptersStr}",
+                            text = "$bookName $chapters",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurface,
@@ -290,4 +297,15 @@ fun ReadingDayItem(
             }
         }
     }
+}
+
+fun localizeDigits(text: String, locale: java.util.Locale): String {
+    val nf = java.text.NumberFormat.getIntegerInstance(locale)
+    val zero = nf.format(0)
+    if (zero == "0") return text
+    val zeroChar = zero[0]
+    val offset = zeroChar - '0'
+    return text.map { char ->
+        if (char in '0'..'9') (char + offset) else char
+    }.joinToString("")
 }

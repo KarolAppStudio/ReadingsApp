@@ -93,6 +93,9 @@ fun HomeScreen(
     }
 
     var menuExpanded by remember { mutableStateOf(value = false) }
+    val numberFormatter = remember(strings.locale) {
+        java.text.NumberFormat.getIntegerInstance(strings.locale)
+    }
 
     LaunchedEffect(Unit) {
         if (selectedDate.isEmpty()) {
@@ -311,6 +314,7 @@ fun HomeScreen(
                     title = localizedTitle,
                     items = readingsGrouped[type] ?: emptyList(),
                     strings = strings,
+                    numberFormatter = numberFormatter,
                     noReadingsText = strings.noReadings,
                     onItemClick = onReadingClick,
                 )
@@ -325,6 +329,7 @@ fun ReadingSection(
     title: String,
     items: List<TargetReadingDetails>,
     strings: LocalizedStrings,
+    numberFormatter: java.text.NumberFormat,
     noReadingsText: String,
     onItemClick: (TargetReadingDetails) -> Unit,
 ) {
@@ -367,6 +372,7 @@ fun ReadingSection(
                     ReadingItemRow(
                         item = item,
                         strings = strings,
+                        numberFormatter = numberFormatter,
                     ) { onItemClick(item) }
                     if (index < (distinctReadings.size - 1)) {
                         Spacer(modifier = Modifier.height(itemSpacing))
@@ -381,10 +387,11 @@ fun ReadingSection(
 fun ReadingItemRow(
     item: TargetReadingDetails,
     strings: LocalizedStrings,
+    numberFormatter: java.text.NumberFormat,
     onClick: () -> Unit,
 ) {
     val bookName = strings.bookNames[item.bookId] ?: item.bookName
-    val text = "$bookName ${item.chapter}"
+    val text = "$bookName ${numberFormatter.format(item.chapter)}"
 
     val fontSize = 14.sp
     val verticalPadding = 6.dp
