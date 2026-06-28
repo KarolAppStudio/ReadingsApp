@@ -18,7 +18,7 @@ abstract class BibleDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: BibleDatabase? = null
-        private const val ASSET_VERSION = 4
+        private const val ASSET_VERSION = 5
 
         fun getDatabase(context: Context): BibleDatabase = INSTANCE ?: synchronized(this) {
 // ... (omitting middle part for brevity, will use full block in tool)
