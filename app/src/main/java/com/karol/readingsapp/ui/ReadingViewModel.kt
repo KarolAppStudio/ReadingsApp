@@ -88,7 +88,7 @@ class ReadingViewModel(
                     val nativeName =
                         when {
                             (lang.contains("hindi") || (lang == "hi") || (lang == "hin")) -> "हिन्दी"
-                            (lang.contains("bangla") || lang.contains("bengali") || (lang == "bn") || (lang == "ben")) -> "বাংলা"
+                            (lang.contains("bangla") || lang.contains("bengali") || (lang == "bn") || (lang == "ban")) -> "বাংলা"
                             (lang.contains("kannada") || (lang == "kn") || (lang == "kan")) -> "ಕನ್ನಡ"
                             (lang.contains("malayalam") || (lang == "ml") || (lang == "mal")) -> "മലയാളം"
                             (lang.contains("tamil") || (lang == "ta") || (lang == "tam")) -> "தமிழ்"

@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [TranslationEntity::class, BookEntity::class, Verse::class],
-    version = 5,
+    version = 6,
     exportSchema = false,
 )
 abstract class BibleDatabase : RoomDatabase() {
@@ -18,7 +18,7 @@ abstract class BibleDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: BibleDatabase? = null
-        private const val ASSET_VERSION = 5
+        private const val ASSET_VERSION = 6
 
         fun getDatabase(context: Context): BibleDatabase = INSTANCE ?: synchronized(this) {
 // ... (omitting middle part for brevity, will use full block in tool)
