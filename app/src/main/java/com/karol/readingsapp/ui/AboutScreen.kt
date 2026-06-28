@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.karol.readingsapp.R
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
 
 @Composable

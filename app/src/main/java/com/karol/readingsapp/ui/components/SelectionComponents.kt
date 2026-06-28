@@ -33,7 +33,7 @@ fun AnimatedDropdownMenu(
     backgroundColor: Color = Color.White,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val expandedState = remember { MutableTransitionState(false) }
+    val expandedState = remember { MutableTransitionState(initialState = false) }
     expandedState.targetState = expanded
 
     if (expandedState.currentState || expandedState.targetState) {

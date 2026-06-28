@@ -8,11 +8,13 @@ plugins {
 spotless {
     kotlin {
         target("**/*.kt")
-        ktlint().editorConfigOverride(mapOf(
-            "ktlint_standard_no-wildcard-imports" to "disabled",
-            "ktlint_standard_function-naming" to "disabled",
-            "ktlint_standard_property-naming" to "disabled"
-        ))
+        ktlint().editorConfigOverride(
+            mapOf(
+                "ktlint_standard_no-wildcard-imports" to "disabled",
+                "ktlint_standard_function-naming" to "disabled",
+                "ktlint_standard_property-naming" to "disabled",
+            ),
+        )
         trimTrailingWhitespace()
         leadingTabsToSpaces()
         endWithNewline()

@@ -270,7 +270,7 @@ fun BibleReaderScreen(
                                 text = verse.text,
                                 fontSize = AdaptiveDimens.bodyFontSize,
                                 color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
-                                lineHeight = AdaptiveDimens.bodyFontSize.times(1.5f),
+                                lineHeight = AdaptiveDimens.bodyFontSize * 1.5f,
                                 modifier = Modifier.weight(1f),
                             )
                         }
