@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,11 +48,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
+import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.GlassBorder
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -111,7 +113,7 @@ fun HomeScreen(
                     AutoResizingText(
                         strings.appTitle,
                         color = MaterialTheme.colorScheme.primary,
-                        fontSize = 16.sp,
+                        fontSize = AdaptiveDimens.bodyFontSize,
                         fontWeight = FontWeight.Bold,
                     )
                 },
@@ -132,7 +134,7 @@ fun HomeScreen(
                                     Text(
                                         strings.settings,
                                         color = MaterialTheme.colorScheme.onSurface,
-                                        fontSize = 14.sp,
+                                        fontSize = AdaptiveDimens.smallFontSize,
                                         fontWeight = FontWeight.Normal,
                                     )
                                 },
@@ -154,7 +156,7 @@ fun HomeScreen(
                                     Text(
                                         strings.about,
                                         color = MaterialTheme.colorScheme.onSurface,
-                                        fontSize = 14.sp,
+                                        fontSize = AdaptiveDimens.smallFontSize,
                                         fontWeight = FontWeight.Normal,
                                     )
                                 },
@@ -191,135 +193,142 @@ fun HomeScreen(
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(innerPadding),
+            contentAlignment = Alignment.TopCenter,
         ) {
-            item {
-                val selectedName = translations.find { it.code == selectedCode }?.name ?: strings.selectBible
-                var expanded by remember { mutableStateOf(value = false) }
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .widthIn(max = AdaptiveDimens.contentMaxWidth)
+                    .padding(horizontal = AdaptiveDimens.paddingMedium),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                item {
+                    val selectedName = translations.find { it.code == selectedCode }?.name ?: strings.selectBible
+                    var expanded by remember { mutableStateOf(value = false) }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Icon(
-                        Icons.Default.Home,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(30.dp),
-                    )
-
-                    Box(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 4.dp),
+                            .padding(top = AdaptiveDimens.paddingSmall),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Box(modifier = Modifier.align(Alignment.CenterEnd)) {
-                            Surface(
-                                onClick = { expanded = true },
-                                color = MaterialTheme.colorScheme.secondaryContainer,
-                                shape = RoundedCornerShape(8.dp),
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
+                        Icon(
+                            Icons.Default.Home,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
+                        )
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp),
+                        ) {
+                            Box(modifier = Modifier.align(Alignment.CenterEnd)) {
+                                Surface(
+                                    onClick = { expanded = true },
+                                    color = MaterialTheme.colorScheme.secondaryContainer,
+                                    shape = RoundedCornerShape(8.dp),
                                 ) {
-                                    if (isDownloading) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(16.dp),
-                                            strokeWidth = 2.dp,
-                                            color = MaterialTheme.colorScheme.primary,
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                    }
-                                    Text(
-                                        text = selectedName,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 14.sp,
-                                    )
-                                    Icon(
-                                        Icons.Default.ArrowDropDown,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    )
-                                }
-                            }
-                            DropdownMenu(
-                                expanded = expanded,
-                                onDismissRequest = { expanded = false },
-                                modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.surface)
-                                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
-                            ) {
-                                translations.forEach { translation ->
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                translation.name,
-                                                color = MaterialTheme.colorScheme.onSurface,
-                                                fontSize = 14.sp,
-                                                fontWeight = FontWeight.Normal,
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        if (isDownloading) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(16.dp),
+                                                strokeWidth = 2.dp,
+                                                color = MaterialTheme.colorScheme.primary,
                                             )
-                                        },
-                                        onClick = {
-                                            viewModel.setTranslation(translation.code)
-                                            expanded = false
-                                        },
-                                    )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                        }
+                                        Text(
+                                            text = selectedName,
+                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = AdaptiveDimens.smallFontSize,
+                                        )
+                                        Icon(
+                                            Icons.Default.ArrowDropDown,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        )
+                                    }
+                                }
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false },
+                                    modifier = Modifier
+                                        .background(MaterialTheme.colorScheme.surface)
+                                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
+                                ) {
+                                    translations.forEach { translation ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    translation.name,
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                    fontSize = AdaptiveDimens.smallFontSize,
+                                                    fontWeight = FontWeight.Normal,
+                                                )
+                                            },
+                                            onClick = {
+                                                viewModel.setTranslation(translation.code)
+                                                expanded = false
+                                            },
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(AdaptiveDimens.paddingSmall))
+
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        AutoResizingText(
+                            text = if (isToday) strings.todaysReadings else strings.selectedReadings,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = AdaptiveDimens.bodyFontSize,
+                        )
+                        AutoResizingText(
+                            text = displayDate,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = AdaptiveDimens.smallFontSize,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(AdaptiveDimens.paddingMedium))
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                // Dynamically show sections based on available data, or default if empty
+                val sectionsToShow = if (readingsGrouped.isEmpty()) {
+                    listOf("First Reading", "Second Reading", "Third Reading")
+                } else {
+                    readingsGrouped.keys.sortedBy { it }
+                }
 
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    AutoResizingText(
-                        text = if (isToday) strings.todaysReadings else strings.selectedReadings,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
+                items(sectionsToShow, key = { it }) { type ->
+                    val localizedTitle = when (type) {
+                        "First Reading" -> strings.firstReading
+                        "Second Reading" -> strings.secondReading
+                        "Third Reading" -> strings.thirdReading
+                        else -> type
+                    }
+                    ReadingSection(
+                        title = localizedTitle,
+                        items = readingsGrouped[type] ?: emptyList(),
+                        strings = strings,
+                        numberFormatter = numberFormatter,
+                        noReadingsText = strings.noReadings,
+                        onItemClick = onReadingClick,
                     )
-                    AutoResizingText(
-                        text = displayDate,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 14.sp,
-                    )
+                    Spacer(modifier = Modifier.height(AdaptiveDimens.paddingSmall))
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-
-            // Dynamically show sections based on available data, or default if empty
-            val sectionsToShow = if (readingsGrouped.isEmpty()) {
-                listOf("First Reading", "Second Reading", "Third Reading")
-            } else {
-                readingsGrouped.keys.sortedBy { it }
-            }
-
-            items(sectionsToShow, key = { it }) { type ->
-                val localizedTitle = when (type) {
-                    "First Reading" -> strings.firstReading
-                    "Second Reading" -> strings.secondReading
-                    "Third Reading" -> strings.thirdReading
-                    else -> type
-                }
-                ReadingSection(
-                    title = localizedTitle,
-                    items = readingsGrouped[type] ?: emptyList(),
-                    strings = strings,
-                    numberFormatter = numberFormatter,
-                    noReadingsText = strings.noReadings,
-                    onItemClick = onReadingClick,
-                )
-                Spacer(modifier = Modifier.height(6.dp))
             }
         }
     }
@@ -337,8 +346,8 @@ fun ReadingSection(
     val distinctReadings = remember(items) { items.distinctBy { "${it.bookId} ${it.chapter}" } }
 
     // Dynamic dimensions for maximum compactness
-    val sectionPadding = 8.dp
-    val titleSize = 12.sp
+    val sectionPadding = AdaptiveDimens.paddingSmall
+    val titleSize = AdaptiveDimens.smallFontSize
     val innerSpacer = 4.dp
     val itemSpacing = 4.dp
 
@@ -365,7 +374,7 @@ fun ReadingSection(
                 Text(
                     noReadingsText,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                    fontSize = 13.sp,
+                    fontSize = AdaptiveDimens.smallFontSize,
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
             } else {
@@ -394,7 +403,7 @@ fun ReadingItemRow(
     val bookName = strings.bookNames[item.bookId] ?: item.bookName
     val text = "$bookName ${numberFormatter.format(item.chapter)}"
 
-    val fontSize = 14.sp
+    val fontSize = AdaptiveDimens.smallFontSize
     val verticalPadding = 6.dp
     val horizontalPadding = 12.dp
 

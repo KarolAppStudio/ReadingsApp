@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.SelectionButton
+import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -116,7 +117,7 @@ fun BibleReaderScreen(
                                 AutoResizingText(
                                     text = "$bookName ${numberFormatter.format(chapter)}",
                                     color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 18.sp,
+                                    fontSize = AdaptiveDimens.bodyFontSize,
                                     fontWeight = FontWeight.Bold,
                                     maxLines = 1,
                                 )
@@ -183,8 +184,8 @@ fun BibleReaderScreen(
                             },
                             modifier = Modifier.weight(1f),
                             isPleasant = isPleasant,
-                            height = 32.dp,
-                            fontSize = 14.sp,
+                            height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
+                            fontSize = AdaptiveDimens.smallFontSize,
                             cornerRadius = 26.dp,
                         )
                         SelectionButton(
@@ -195,8 +196,8 @@ fun BibleReaderScreen(
                             },
                             modifier = Modifier.weight(1f),
                             isPleasant = isPleasant,
-                            height = 32.dp,
-                            fontSize = 14.sp,
+                            height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
+                            fontSize = AdaptiveDimens.smallFontSize,
                             cornerRadius = 26.dp,
                         )
                     }
@@ -205,67 +206,74 @@ fun BibleReaderScreen(
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
-        LazyColumn(
-            state = listState,
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
-                .pointerInput(bookId, chapter) {
-                    // pointerInput uses bookId and chapter as keys to ensure the gesture
-                    // handler is re-initialized with the correct state when the page changes.
-                    detectHorizontalDragGestures(
-                        onDragStart = { offsetX = 0f },
-                        onHorizontalDrag = { _, dragAmount -> offsetX += dragAmount },
-                        onDragEnd = {
-                            if (offsetX < -60) { // Swipe Right-to-Left (finger moving <-) -> Next
-                                scope.launch {
-                                    viewModel.getNextChapter(bookId, chapter)?.let { (bId, chap) ->
-                                        onChapterChange(bId, chap)
-                                    }
-                                }
-                            } else if (offsetX > 60) { // Swipe Left-to-Right (finger moving ->) -> Previous
-                                scope.launch {
-                                    viewModel.getPreviousChapter(bookId, chapter)?.let { (bId, chap) ->
-                                        onChapterChange(bId, chap)
-                                    }
-                                }
-                            }
-                        },
-                    )
-                },
+                .padding(innerPadding),
+            contentAlignment = Alignment.TopCenter,
         ) {
-            if (verses.isEmpty()) {
-                item {
-                    Text(
-                        text = strings.loadingReading,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                        fontSize = 16.sp,
-                    )
-                }
-            } else {
-                items(verses, key = { "${it.translationCode}_${it.bookId}_${it.chapter}_${it.verseId}" }) { verse ->
-                    val isSelected = verse.verseId == initialVerse
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(if (isSelected) highlightColor.value else Color.Transparent)
-                            .padding(vertical = 4.dp, horizontal = 8.dp),
-                    ) {
-                        Text(
-                            text = numberFormatter.format(verse.verseId),
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(top = 2.dp, end = 8.dp),
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .widthIn(max = AdaptiveDimens.contentMaxWidth)
+                    .padding(AdaptiveDimens.paddingMedium)
+                    .pointerInput(bookId, chapter) {
+                        // pointerInput uses bookId and chapter as keys to ensure the gesture
+                        // handler is re-initialized with the correct state when the page changes.
+                        detectHorizontalDragGestures(
+                            onDragStart = { offsetX = 0f },
+                            onHorizontalDrag = { _, dragAmount -> offsetX += dragAmount },
+                            onDragEnd = {
+                                if (offsetX < -60) { // Swipe Right-to-Left (finger moving <-) -> Next
+                                    scope.launch {
+                                        viewModel.getNextChapter(bookId, chapter)?.let { (bId, chap) ->
+                                            onChapterChange(bId, chap)
+                                        }
+                                    }
+                                } else if (offsetX > 60) { // Swipe Left-to-Right (finger moving ->) -> Previous
+                                    scope.launch {
+                                        viewModel.getPreviousChapter(bookId, chapter)?.let { (bId, chap) ->
+                                            onChapterChange(bId, chap)
+                                        }
+                                    }
+                                }
+                            },
                         )
+                    },
+            ) {
+                if (verses.isEmpty()) {
+                    item {
                         Text(
-                            text = verse.text,
-                            fontSize = 16.sp,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
-                            lineHeight = 24.sp,
-                            modifier = Modifier.weight(1f),
+                            text = strings.loadingReading,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                            fontSize = AdaptiveDimens.bodyFontSize,
                         )
+                    }
+                } else {
+                    items(verses, key = { "${it.translationCode}_${it.bookId}_${it.chapter}_${it.verseId}" }) { verse ->
+                        val isSelected = verse.verseId == initialVerse
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(if (isSelected) highlightColor.value else Color.Transparent)
+                                .padding(vertical = 4.dp, horizontal = 8.dp),
+                        ) {
+                            Text(
+                                text = numberFormatter.format(verse.verseId),
+                                fontSize = AdaptiveDimens.smallFontSize * 0.85f,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 2.dp, end = 8.dp),
+                            )
+                            Text(
+                                text = verse.text,
+                                fontSize = AdaptiveDimens.bodyFontSize,
+                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
+                                lineHeight = AdaptiveDimens.bodyFontSize.times(1.5f),
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
                     }
                 }
             }

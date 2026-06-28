@@ -26,6 +26,7 @@ import com.karol.readingsapp.data.bible.BookEntity
 import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
+import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.GlassBorder
 import java.text.NumberFormat
 
@@ -106,7 +107,7 @@ fun BibleSelectionScreen(
                         },
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
+                        fontSize = AdaptiveDimens.bodyFontSize,
                         modifier = Modifier.align(Alignment.Center),
                         maxLines = 1,
                     )
@@ -172,55 +173,62 @@ fun BibleSelectionScreen(
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
+            contentAlignment = Alignment.TopCenter,
         ) {
-            SecondaryTabRow(
-                selectedTabIndex = currentMode.ordinal,
-                containerColor = if (isPleasant) Color.Transparent else MaterialTheme.colorScheme.background,
-                contentColor = MaterialTheme.colorScheme.primary,
-                indicator = {
-                    TabRowDefaults.SecondaryIndicator(
-                        Modifier.tabIndicatorOffset(currentMode.ordinal),
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                },
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .widthIn(max = AdaptiveDimens.contentMaxWidth),
             ) {
-                NavMode.entries.forEach { mode ->
-                    Tab(
-                        selected = currentMode == mode,
-                        onClick = { currentMode = mode },
-                        text = { Text(mode.name, fontSize = 12.sp) },
-                    )
-                }
-            }
-
-            Box(modifier = Modifier.fillMaxSize()) {
-                if (selectedBook == null) {
-                    BookSelection(
-                        mode = currentMode,
-                        books = allBooks,
-                        strings = strings,
-                    ) { selectedBook = it }
-                } else if (selectedChapter == 0) {
-                    ChapterSelection(
-                        mode = currentMode,
-                        chapterCount = chapterCount,
-                        strings = strings,
-                        numberFormatter = numberFormatter,
-                    ) { chapter ->
-                        selectedChapter = chapter
+                SecondaryTabRow(
+                    selectedTabIndex = currentMode.ordinal,
+                    containerColor = if (isPleasant) Color.Transparent else MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.primary,
+                    indicator = {
+                        TabRowDefaults.SecondaryIndicator(
+                            Modifier.tabIndicatorOffset(currentMode.ordinal),
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    },
+                ) {
+                    NavMode.entries.forEach { mode ->
+                        Tab(
+                            selected = currentMode == mode,
+                            onClick = { currentMode = mode },
+                            text = { Text(mode.name, fontSize = AdaptiveDimens.smallFontSize) },
+                        )
                     }
-                } else {
-                    VerseSelection(
-                        mode = currentMode,
-                        verseCount = verseCount,
-                        strings = strings,
-                        numberFormatter = numberFormatter,
-                    ) { verse ->
-                        onChapterClick(selectedBook!!.id, selectedChapter, verse)
+                }
+
+                Box(modifier = Modifier.fillMaxSize()) {
+                    if (selectedBook == null) {
+                        BookSelection(
+                            mode = currentMode,
+                            books = allBooks,
+                            strings = strings,
+                        ) { selectedBook = it }
+                    } else if (selectedChapter == 0) {
+                        ChapterSelection(
+                            mode = currentMode,
+                            chapterCount = chapterCount,
+                            strings = strings,
+                            numberFormatter = numberFormatter,
+                        ) { chapter ->
+                            selectedChapter = chapter
+                        }
+                    } else {
+                        VerseSelection(
+                            mode = currentMode,
+                            verseCount = verseCount,
+                            strings = strings,
+                            numberFormatter = numberFormatter,
+                        ) { verse ->
+                            onChapterClick(selectedBook!!.id, selectedChapter, verse)
+                        }
                     }
                 }
             }

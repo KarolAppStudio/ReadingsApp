@@ -20,11 +20,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.data.plan.SimpleReading
 import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
+import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.flow.first
 import java.text.NumberFormat
@@ -154,7 +154,7 @@ fun ReadingPlanScreen(
                         AutoResizingText(
                             text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM", strings.locale)),
                             color = MaterialTheme.colorScheme.primary,
-                            fontSize = 16.sp,
+                            fontSize = AdaptiveDimens.bodyFontSize,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center,
@@ -187,24 +187,31 @@ fun ReadingPlanScreen(
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
-        LazyColumn(
-            state = listState,
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(bottom = 16.dp),
+                .padding(innerPadding),
+            contentAlignment = Alignment.TopCenter,
         ) {
-            itemsIndexed(datesInMonth, key = { _, date -> date }) { _, date ->
-                val readings = monthlyPlan[date] ?: emptyList()
-                ReadingDayItem(
-                    date = date,
-                    readings = readings,
-                    strings = strings,
-                    numberFormatter = numberFormatter,
-                    isToday = date == today.toString(),
-                )
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .widthIn(max = AdaptiveDimens.contentMaxWidth)
+                    .padding(horizontal = AdaptiveDimens.paddingMedium),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = 16.dp),
+            ) {
+                itemsIndexed(datesInMonth, key = { _, date -> date }) { _, date ->
+                    val readings = monthlyPlan[date] ?: emptyList()
+                    ReadingDayItem(
+                        date = date,
+                        readings = readings,
+                        strings = strings,
+                        numberFormatter = numberFormatter,
+                        isToday = date == today.toString(),
+                    )
+                }
             }
         }
     }
@@ -255,17 +262,17 @@ fun ReadingDayItem(
                 }
                 Text(
                     text = dayOfMonth,
-                    fontSize = 20.sp,
+                    fontSize = AdaptiveDimens.titleFontSize,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 AutoResizingText(
                     text = dayOfWeek,
-                    fontSize = 12.sp,
+                    fontSize = AdaptiveDimens.smallFontSize,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     textAlign = TextAlign.Center,
-                    minFontSize = 7.sp,
+                    minFontSize = AdaptiveDimens.smallFontSize * 0.5f,
                 )
             }
 
@@ -279,7 +286,7 @@ fun ReadingDayItem(
                 if (readings.isEmpty()) {
                     Text(
                         text = strings.noReadingsShort,
-                        fontSize = 13.sp,
+                        fontSize = AdaptiveDimens.smallFontSize,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = androidx.compose.ui.text.font.FontStyle.Italic),
                     )
@@ -289,7 +296,7 @@ fun ReadingDayItem(
                         val chapters = localizeDigits(reading.chaptersStr, strings.locale)
                         AutoResizingText(
                             text = "$bookName $chapters",
-                            fontSize = 14.sp,
+                            fontSize = AdaptiveDimens.smallFontSize,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurface,
                         )

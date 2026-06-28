@@ -14,9 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.NavItem
+import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.AppTheme
 import com.karol.readingsapp.ui.theme.GlassBorder
 
@@ -89,11 +89,14 @@ fun SettingsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp),
+                .padding(innerPadding),
             contentAlignment = Alignment.Center,
         ) {
             Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .widthIn(max = AdaptiveDimens.contentMaxWidth)
+                    .padding(AdaptiveDimens.paddingMedium),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
@@ -106,13 +109,13 @@ fun SettingsScreen(
                     elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
                 ) {
                     Column(
-                        modifier = Modifier.padding(20.dp),
+                        modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
                     ) {
                         Text(
                             text = strings.appearance,
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
+                                fontSize = AdaptiveDimens.bodyFontSize,
                                 color = MaterialTheme.colorScheme.onSurface,
                             ),
                             modifier = Modifier.padding(bottom = 12.dp),
@@ -132,7 +135,10 @@ fun SettingsScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Text(text = currentTheme.getDisplayName(strings))
+                                    Text(
+                                        text = currentTheme.getDisplayName(strings),
+                                        fontSize = AdaptiveDimens.smallFontSize,
+                                    )
                                     Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                                 }
                             }
@@ -144,7 +150,12 @@ fun SettingsScreen(
                             ) {
                                 AppTheme.entries.forEach { theme ->
                                     DropdownMenuItem(
-                                        text = { Text(theme.getDisplayName(strings)) },
+                                        text = {
+                                            Text(
+                                                theme.getDisplayName(strings),
+                                                fontSize = AdaptiveDimens.smallFontSize,
+                                            )
+                                        },
                                         onClick = {
                                             viewModel.setTheme(theme)
                                             themeExpanded = false
@@ -156,7 +167,7 @@ fun SettingsScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(AdaptiveDimens.paddingSmall))
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -170,7 +181,7 @@ fun SettingsScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(20.dp),
+                            .padding(AdaptiveDimens.paddingMedium),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -178,7 +189,7 @@ fun SettingsScreen(
                             text = strings.about,
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
+                                fontSize = AdaptiveDimens.bodyFontSize,
                                 color = MaterialTheme.colorScheme.onSurface,
                             ),
                         )
@@ -190,7 +201,7 @@ fun SettingsScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(AdaptiveDimens.paddingSmall))
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -201,13 +212,13 @@ fun SettingsScreen(
                     elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
                 ) {
                     Column(
-                        modifier = Modifier.padding(20.dp),
+                        modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
                     ) {
                         Text(
                             text = strings.developerNoteTitle,
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp,
+                                fontSize = AdaptiveDimens.bodyFontSize,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             ),
                             modifier = Modifier.padding(bottom = 12.dp),
@@ -216,18 +227,19 @@ fun SettingsScreen(
                             text = strings.developerNoteContent,
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                                lineHeight = 22.sp,
+                                fontSize = AdaptiveDimens.smallFontSize,
+                                lineHeight = AdaptiveDimens.smallFontSize * 1.4f,
                             ),
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
 
                 Text(
                     text = strings.appTitle,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                    fontSize = 16.sp,
+                    fontSize = AdaptiveDimens.smallFontSize,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center,
                 )

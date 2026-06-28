@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -57,6 +58,7 @@ import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.SelectionButton
 import com.karol.readingsapp.ui.components.TranslationSelector
+import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -165,7 +167,7 @@ fun ParallelReadingScreen(
                         text = displayTitle,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
+                        fontSize = AdaptiveDimens.bodyFontSize,
                         maxLines = 1,
                     )
                 },
@@ -255,185 +257,200 @@ fun ParallelReadingScreen(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
+            contentAlignment = Alignment.TopCenter,
         ) {
-            // Selectors Row
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    .fillMaxHeight()
+                    .widthIn(max = AdaptiveDimens.contentMaxWidth),
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    TranslationSelector(
-                        selectedTranslationCode = selectedCode1,
-                        translations = translations,
-                        onTranslationSelected = {
-                            viewModel.setTranslation(it)
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = strings1.selectBible,
-                        isPleasant = isPleasant,
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        SelectionButton(
-                            text = strings1.book,
-                            options = bookOptions1,
-                            onOptionSelected = { index ->
-                                val newBookId = allBooks[index].id
-                                bookId1 = newBookId
-                                chapter1 = 1
-                                if (isSyncEnabled) {
-                                    bookId2 = newBookId
-                                    chapter2 = 1
-                                }
-                            },
-                            modifier = Modifier.weight(1f),
-                            isPleasant = isPleasant,
-                            cornerRadius = 26.dp,
-                        )
-                        SelectionButton(
-                            text = strings1.chapter,
-                            options = (1..chapterCount1).map { numberFormatter1.format(it) },
-                            onOptionSelected = {
-                                val newChapter = it + 1
-                                chapter1 = newChapter
-                                if (isSyncEnabled) {
-                                    chapter2 = newChapter
-                                }
-                            },
-                            modifier = Modifier.weight(1f),
-                            isPleasant = isPleasant,
-                            cornerRadius = 26.dp,
-                        )
-                    }
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    TranslationSelector(
-                        selectedTranslationCode = selectedCode2,
-                        translations = translations,
-                        onTranslationSelected = {
-                            viewModel.loadSecondChapterVerses(bookId2, chapter2, it)
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = strings2.selectBible,
-                        isPleasant = isPleasant,
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        SelectionButton(
-                            text = strings2.book,
-                            options = bookOptions2,
-                            onOptionSelected = { index ->
-                                val newBookId = allBooks[index].id
-                                bookId2 = newBookId
-                                chapter2 = 1
-                                if (isSyncEnabled) {
-                                    bookId1 = newBookId
-                                    chapter1 = 1
-                                }
-                            },
-                            modifier = Modifier.weight(1f),
-                            isPleasant = isPleasant,
-                            cornerRadius = 26.dp,
-                        )
-                        SelectionButton(
-                            text = strings2.chapter,
-                            options = (1..chapterCount2).map { numberFormatter2.format(it) },
-                            onOptionSelected = {
-                                val newChapter = it + 1
-                                chapter2 = newChapter
-                                if (isSyncEnabled) {
-                                    chapter1 = newChapter
-                                }
-                            },
-                            modifier = Modifier.weight(1f),
-                            isPleasant = isPleasant,
-                            cornerRadius = 26.dp,
-                        )
-                    }
-                }
-            }
-
-            // Content Row
-            if (isSyncEnabled) {
-                val maxVerses = maxOf(verses1.size, verses2.size)
-                LazyColumn(
-                    state = listState1,
-                    modifier = Modifier.fillMaxSize(),
+                // Selectors Row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    items(maxVerses) { index ->
-                        val v1 = verses1.getOrNull(index)
-                        val v2 = verses2.getOrNull(index)
+                    Column(modifier = Modifier.weight(1f)) {
+                        TranslationSelector(
+                            selectedTranslationCode = selectedCode1,
+                            translations = translations,
+                            onTranslationSelected = {
+                                viewModel.setTranslation(it)
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = strings1.selectBible,
+                            isPleasant = isPleasant,
+                        )
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(IntrinsicSize.Max),
+                                .padding(top = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(horizontal = 4.dp),
-                            ) {
-                                v1?.let { VerseItem(it, numberFormatter1) }
-                            }
-                            VerticalDivider(
-                                modifier = Modifier.fillMaxHeight(),
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                            SelectionButton(
+                                text = strings1.book,
+                                options = bookOptions1,
+                                onOptionSelected = { index ->
+                                    val newBookId = allBooks[index].id
+                                    bookId1 = newBookId
+                                    chapter1 = 1
+                                    if (isSyncEnabled) {
+                                        bookId2 = newBookId
+                                        chapter2 = 1
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                isPleasant = isPleasant,
+                                height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
+                                fontSize = AdaptiveDimens.smallFontSize,
+                                cornerRadius = 26.dp,
                             )
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(horizontal = 4.dp),
-                            ) {
-                                v2?.let { VerseItem(it, numberFormatter2) }
-                            }
+                            SelectionButton(
+                                text = strings1.chapter,
+                                options = (1..chapterCount1).map { numberFormatter1.format(it) },
+                                onOptionSelected = {
+                                    val newChapter = it + 1
+                                    chapter1 = newChapter
+                                    if (isSyncEnabled) {
+                                        chapter2 = newChapter
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                isPleasant = isPleasant,
+                                height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
+                                fontSize = AdaptiveDimens.smallFontSize,
+                                cornerRadius = 26.dp,
+                            )
+                        }
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        TranslationSelector(
+                            selectedTranslationCode = selectedCode2,
+                            translations = translations,
+                            onTranslationSelected = {
+                                viewModel.loadSecondChapterVerses(bookId2, chapter2, it)
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = strings2.selectBible,
+                            isPleasant = isPleasant,
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            SelectionButton(
+                                text = strings2.book,
+                                options = bookOptions2,
+                                onOptionSelected = { index ->
+                                    val newBookId = allBooks[index].id
+                                    bookId2 = newBookId
+                                    chapter2 = 1
+                                    if (isSyncEnabled) {
+                                        bookId1 = newBookId
+                                        chapter1 = 1
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                isPleasant = isPleasant,
+                                height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
+                                fontSize = AdaptiveDimens.smallFontSize,
+                                cornerRadius = 26.dp,
+                            )
+                            SelectionButton(
+                                text = strings2.chapter,
+                                options = (1..chapterCount2).map { numberFormatter2.format(it) },
+                                onOptionSelected = {
+                                    val newChapter = it + 1
+                                    chapter2 = newChapter
+                                    if (isSyncEnabled) {
+                                        chapter1 = newChapter
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                isPleasant = isPleasant,
+                                height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
+                                fontSize = AdaptiveDimens.smallFontSize,
+                                cornerRadius = 26.dp,
+                            )
                         }
                     }
                 }
-            } else {
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    // First Column
+
+                // Content Row
+                if (isSyncEnabled) {
+                    val maxVerses = maxOf(verses1.size, verses2.size)
                     LazyColumn(
                         state = listState1,
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .padding(horizontal = 4.dp),
+                        modifier = Modifier.fillMaxSize(),
                     ) {
-                        items(verses1) { verse ->
-                            VerseItem(verse, numberFormatter1)
+                        items(maxVerses) { index ->
+                            val v1 = verses1.getOrNull(index)
+                            val v2 = verses2.getOrNull(index)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(IntrinsicSize.Max),
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(horizontal = 4.dp),
+                                ) {
+                                    v1?.let { VerseItem(it, numberFormatter1) }
+                                }
+                                VerticalDivider(
+                                    modifier = Modifier.fillMaxHeight(),
+                                    thickness = 1.dp,
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(horizontal = 4.dp),
+                                ) {
+                                    v2?.let { VerseItem(it, numberFormatter2) }
+                                }
+                            }
                         }
                     }
-
-                    // Divider
-                    VerticalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
-
-                    // Second Column
-                    LazyColumn(
-                        state = listState2,
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                            .padding(horizontal = 4.dp),
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
                     ) {
-                        items(verses2) { verse ->
-                            VerseItem(verse, numberFormatter2)
+                        // First Column
+                        LazyColumn(
+                            state = listState1,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .padding(horizontal = 4.dp),
+                        ) {
+                            items(verses1) { verse ->
+                                VerseItem(verse, numberFormatter1)
+                            }
+                        }
+
+                        // Divider
+                        VerticalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+
+                        // Second Column
+                        LazyColumn(
+                            state = listState2,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                                .padding(horizontal = 4.dp),
+                        ) {
+                            items(verses2) { verse ->
+                                VerseItem(verse, numberFormatter2)
+                            }
                         }
                     }
                 }
@@ -447,15 +464,15 @@ fun VerseItem(verse: TargetReadingDetails, numberFormatter: NumberFormat) {
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
         Text(
             text = numberFormatter.format(verse.verseId),
-            fontSize = 11.sp,
+            fontSize = AdaptiveDimens.smallFontSize * 0.8f,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
         )
         Text(
             text = verse.text,
-            fontSize = 14.sp,
+            fontSize = AdaptiveDimens.bodyFontSize,
             color = MaterialTheme.colorScheme.primary,
-            lineHeight = 20.sp,
+            lineHeight = AdaptiveDimens.bodyFontSize * 1.4f,
         )
     }
 }

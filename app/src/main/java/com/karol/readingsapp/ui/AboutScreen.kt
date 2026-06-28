@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.R
+import com.karol.readingsapp.ui.theme.AdaptiveDimens
 
 @Composable
 fun AboutScreen(strings: LocalizedStrings, onHomeClick: () -> Unit) {
@@ -54,65 +54,77 @@ fun AboutScreen(strings: LocalizedStrings, onHomeClick: () -> Unit) {
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+                .padding(innerPadding),
+            contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = strings.appDescription,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary,
-                lineHeight = 24.sp,
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                ),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth(),
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .widthIn(max = AdaptiveDimens.contentMaxWidth)
+                    .padding(AdaptiveDimens.paddingLarge),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
             ) {
+                Text(
+                    text = strings.appDescription,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = AdaptiveDimens.bodyFontSize,
+                    lineHeight = AdaptiveDimens.bodyFontSize * 1.5f,
+                )
+                Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
+
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(
+                        modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
+                    ) {
+                        Text(
+                            text = strings.developerNoteTitle,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = AdaptiveDimens.bodyFontSize,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = strings.developerNoteContent,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+                            fontSize = AdaptiveDimens.smallFontSize,
+                            lineHeight = AdaptiveDimens.smallFontSize * 1.4f,
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
+
                 Column(
-                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = strings.developerNoteTitle,
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = strings.developerNoteContent,
+                        text = strings.appTitle,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                        lineHeight = 20.sp,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = AdaptiveDimens.smallFontSize,
+                    )
+                    Text(
+                        text = strings.developedBy,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                        fontSize = AdaptiveDimens.smallFontSize * 0.8f,
                     )
                 }
-            }
-
-            Spacer(modifier = Modifier.height(48.dp))
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = strings.appTitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Text(
-                    text = strings.developedBy,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                )
             }
         }
     }
