@@ -16,6 +16,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+data class ChapterReference(
+    val bookId: Int,
+    val chapter: Int,
+)
+
 class ReadingViewModel(
     private val repository: ReadingRepository,
     private val languageService: LanguageService,
@@ -34,6 +39,9 @@ class ReadingViewModel(
 
     private val _allBooks = MutableStateFlow<List<BookEntity>>(emptyList())
     val allBooks = _allBooks.asStateFlow()
+
+    private val _allChapters = MutableStateFlow<List<ChapterReference>>(emptyList())
+    val allChapters = _allChapters.asStateFlow()
 
     private val _chapterVerses = MutableStateFlow<List<TargetReadingDetails>>(emptyList())
     val chapterVerses = _chapterVerses.asStateFlow()
@@ -69,7 +77,17 @@ class ReadingViewModel(
 
     private fun loadAllBooks() {
         viewModelScope.launch {
-            _allBooks.value = repository.getAllBooks()
+            val books = repository.getAllBooks()
+            _allBooks.value = books
+
+            val chapters = mutableListOf<ChapterReference>()
+            for (book in books) {
+                val count = repository.getChapterCount(book.id)
+                for (ch in 1..count) {
+                    chapters.add(ChapterReference(book.id, ch))
+                }
+            }
+            _allChapters.value = chapters
         }
     }
 
@@ -141,6 +159,11 @@ class ReadingViewModel(
             _chapterVerses.value = repository.getChapterVerses(bookId, chapter, _selectedTranslationCode.value)
         }
     }
+
+    suspend fun getChapterVerses(
+        bookId: Int,
+        chapter: Int,
+    ): List<TargetReadingDetails> = repository.getChapterVerses(bookId, chapter, _selectedTranslationCode.value)
 
     fun loadSecondChapterVerses(
         bookId: Int,

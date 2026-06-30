@@ -211,7 +211,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                 ) { bId, chap ->
                                     navController.navigate("reader/$bId/$chap/1") {
-                                        popUpTo("reader/{bookId}/{chapter}/{verseId}") { inclusive = true }
+                                        launchSingleTop = true
                                     }
                                 }
                             }

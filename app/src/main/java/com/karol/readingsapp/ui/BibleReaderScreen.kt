@@ -1,16 +1,18 @@
 package com.karol.readingsapp.ui
 
-import androidx.compose.animation.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.Home
@@ -19,10 +21,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.SelectionButton
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
@@ -42,39 +44,71 @@ fun BibleReaderScreen(
     onParallelClick: (Int, Int) -> Unit,
     onChapterChange: (Int, Int) -> Unit,
 ) {
-    val verses by viewModel.chapterVerses.collectAsState()
+    val allChapters by viewModel.allChapters.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val allBooks by viewModel.allBooks.collectAsState()
 
-    var chapterCount by remember { mutableIntStateOf(0) }
-    LaunchedEffect(bookId) {
-        chapterCount = viewModel.getChapterCount(bookId)
-    }
+    val totalChapters = allChapters.size
+    val circularMultiplier = 1000 // Use a large enough but not excessive range
+    val virtualPageCount = if (totalChapters > 0) totalChapters * circularMultiplier else 0
 
-    val listState = rememberLazyListState()
-    val highlightColor = remember { Animatable(Color.Transparent) }
-    val secondaryColor = MaterialTheme.colorScheme.secondary
-    val scope = rememberCoroutineScope()
-    var offsetX by remember { mutableFloatStateOf(0f) }
+    val pagerState = rememberPagerState(
+        pageCount = { virtualPageCount },
+        initialPage = remember(allChapters) {
+            if (totalChapters == 0) {
+                0
+            } else {
+                val index = allChapters.indexOfFirst { it.bookId == bookId && it.chapter == chapter }
+                val safeIndex = if (index != -1) index else 0
+                // Start in the middle of the virtual range
+                (circularMultiplier / 2) * totalChapters + safeIndex
+            }
+        },
+    )
 
-    LaunchedEffect(bookId, chapter, selectedCode) {
-        viewModel.loadChapterVerses(bookId, chapter)
-    }
-
-    LaunchedEffect(verses, initialVerse) {
-        if (verses.isNotEmpty()) {
-            val index = verses.indexOfFirst { it.verseId == initialVerse }
-            if (index != -1) {
-                listState.scrollToItem(index)
-
-                // Blink 3 times in 1.5 seconds (each cycle 500ms: 250ms on, 250ms off)
-                repeat(3) {
-                    highlightColor.animateTo(secondaryColor.copy(alpha = 0.7f), animationSpec = tween(250))
-                    highlightColor.animateTo(Color.Transparent, animationSpec = tween(250))
+    // Sync pager with external navigation
+    LaunchedEffect(bookId, chapter, allChapters) {
+        if (totalChapters > 0) {
+            val targetIndex = allChapters.indexOfFirst { it.bookId == bookId && it.chapter == chapter }
+            if (targetIndex != -1) {
+                val currentActualIndex = pagerState.currentPage % totalChapters
+                // Use a larger buffer to decide if we need to re-center
+                val isNotInitialized = pagerState.currentPage < totalChapters
+                if ((isNotInitialized || targetIndex != currentActualIndex) && !pagerState.isScrollInProgress) {
+                    val virtualIndex = (circularMultiplier / 2) * totalChapters + targetIndex
+                    pagerState.scrollToPage(virtualIndex)
                 }
             }
         }
+    }
+
+    // Sync external state with pager swipes.
+    LaunchedEffect(pagerState.settledPage) {
+        if (totalChapters > 0) {
+            val actualIndex = pagerState.settledPage % totalChapters
+            val currentRef = allChapters[actualIndex]
+            if (currentRef.bookId != bookId || currentRef.chapter != chapter) {
+                onChapterChange(currentRef.bookId, currentRef.chapter)
+            }
+        }
+    }
+
+    // Determine current book and chapter for the UI from pager state.
+    // Using currentPage makes the TopBar feel more responsive during swiping.
+    val displayIndex = if (totalChapters > 0) pagerState.currentPage % totalChapters else -1
+    val currentRef = if (displayIndex != -1) {
+        allChapters[displayIndex]
+    } else {
+        ChapterReference(bookId, chapter)
+    }
+
+    val displayBookId = currentRef.bookId
+    val displayChapter = currentRef.chapter
+
+    var chapterCount by remember { mutableIntStateOf(0) }
+    LaunchedEffect(displayBookId) {
+        chapterCount = viewModel.getChapterCount(displayBookId)
     }
 
     val selectedLanguage = remember(selectedCode, translations) {
@@ -82,7 +116,7 @@ fun BibleReaderScreen(
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
     val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
-    val bookName = strings.bookNames[bookId] ?: "Book $bookId"
+    val bookName = strings.bookNames[displayBookId] ?: "Book $displayBookId"
 
     val bookOptions = remember(allBooks, strings) {
         allBooks.map { strings.bookNames[it.id] ?: it.name }
@@ -91,6 +125,8 @@ fun BibleReaderScreen(
     val numberFormatter = remember(strings.locale) {
         NumberFormat.getIntegerInstance(strings.locale)
     }
+
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -104,175 +140,301 @@ fun BibleReaderScreen(
                 Column(
                     modifier = Modifier.padding(bottom = 8.dp),
                 ) {
-                    CenterAlignedTopAppBar(
-                        title = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.MenuBook,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(24.dp),
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                AutoResizingText(
-                                    text = "$bookName ${numberFormatter.format(chapter)}",
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontSize = AdaptiveDimens.bodyFontSize,
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1,
-                                )
-                            }
-                        },
-                        navigationIcon = {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(start = 8.dp),
-                            ) {
-                                IconButton(onClick = onHomeClick) {
-                                    Icon(
-                                        imageVector = Icons.Default.Home,
-                                        contentDescription = strings.home,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(35.dp),
-                                    )
-                                }
-                                IconButton(onClick = onBackClick) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = strings.back,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                    )
-                                }
-                            }
-                        },
-                        actions = {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
-                                    .clickable { onParallelClick(bookId, chapter) }
-                                    .padding(horizontal = 8.dp),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.AutoStories,
-                                    contentDescription = strings.parallelReading,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(24.dp),
-                                )
-                                Text(
-                                    text = strings.parallelReading,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 10.sp,
-                                    maxLines = 1,
-                                )
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = Color.Transparent,
-                        ),
-                    )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        SelectionButton(
-                            text = strings.book,
-                            options = bookOptions,
-                            onOptionSelected = { index ->
-                                onChapterChange(allBooks[index].id, 1)
-                            },
-                            modifier = Modifier.weight(1f),
-                            isPleasant = isPleasant,
-                            height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
-                            fontSize = AdaptiveDimens.smallFontSize,
-                            cornerRadius = 26.dp,
-                        )
-                        SelectionButton(
-                            text = strings.chapter,
-                            options = (1..chapterCount).map { numberFormatter.format(it) },
-                            onOptionSelected = { index ->
-                                onChapterChange(bookId, index + 1)
-                            },
-                            modifier = Modifier.weight(1f),
-                            isPleasant = isPleasant,
-                            height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
-                            fontSize = AdaptiveDimens.smallFontSize,
-                            cornerRadius = 26.dp,
-                        )
+                        Column(
+                            modifier = Modifier.widthIn(max = AdaptiveDimens.contentMaxWidth),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            CenterAlignedTopAppBar(
+                                title = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.MenuBook,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(24.dp),
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        AutoResizingText(
+                                            text = "$bookName ${numberFormatter.format(displayChapter)}",
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontSize = AdaptiveDimens.bodyFontSize,
+                                            fontWeight = FontWeight.Bold,
+                                            maxLines = 1,
+                                        )
+                                    }
+                                },
+                                navigationIcon = {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(start = 8.dp),
+                                    ) {
+                                        IconButton(onClick = onHomeClick) {
+                                            Icon(
+                                                imageVector = Icons.Default.Home,
+                                                contentDescription = strings.home,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(35.dp),
+                                            )
+                                        }
+                                        IconButton(onClick = onBackClick) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                contentDescription = strings.back,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                            )
+                                        }
+                                    }
+                                },
+                                actions = {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier
+                                            .clickable { onParallelClick(displayBookId, displayChapter) }
+                                            .padding(horizontal = 8.dp),
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.AutoStories,
+                                            contentDescription = strings.parallelReading,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(24.dp),
+                                        )
+                                        Text(
+                                            text = strings.parallelReading,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            fontSize = 10.sp,
+                                            maxLines = 1,
+                                        )
+                                    }
+                                },
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = Color.Transparent,
+                                ),
+                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = AdaptiveDimens.paddingMedium),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                SelectionButton(
+                                    text = strings.book,
+                                    options = bookOptions,
+                                    onOptionSelected = { index ->
+                                        onChapterChange(allBooks[index].id, 1)
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    isPleasant = isPleasant,
+                                    height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
+                                    fontSize = AdaptiveDimens.smallFontSize,
+                                    cornerRadius = 26.dp,
+                                )
+                                SelectionButton(
+                                    text = strings.chapter,
+                                    options = (1..chapterCount).map { numberFormatter.format(it) },
+                                    onOptionSelected = { index ->
+                                        onChapterChange(displayBookId, index + 1)
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    isPleasant = isPleasant,
+                                    height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
+                                    fontSize = AdaptiveDimens.smallFontSize,
+                                    cornerRadius = 26.dp,
+                                )
+                            }
+                        }
                     }
                 }
             }
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.TopCenter,
-        ) {
-            LazyColumn(
-                state = listState,
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            beyondViewportPageCount = 1,
+            key = { it },
+        ) { pageIndex ->
+            Box(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .widthIn(max = AdaptiveDimens.contentMaxWidth)
-                    .padding(AdaptiveDimens.paddingMedium)
-                    .pointerInput(bookId, chapter) {
-                        // pointerInput uses bookId and chapter as keys to ensure the gesture
-                        // handler is re-initialized with the correct state when the page changes.
-                        detectHorizontalDragGestures(
-                            onDragStart = { offsetX = 0f },
-                            onHorizontalDrag = { _, dragAmount -> offsetX += dragAmount },
-                            onDragEnd = {
-                                if (offsetX < -60) { // Swipe Right-to-Left (finger moving <-) -> Next
-                                    scope.launch {
-                                        viewModel.getNextChapter(bookId, chapter)?.let { (bId, chap) ->
-                                            onChapterChange(bId, chap)
-                                        }
-                                    }
-                                } else if (offsetX > 60) { // Swipe Left-to-Right (finger moving ->) -> Previous
-                                    scope.launch {
-                                        viewModel.getPreviousChapter(bookId, chapter)?.let { (bId, chap) ->
-                                            onChapterChange(bId, chap)
-                                        }
-                                    }
-                                }
-                            },
-                        )
-                    },
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(
+                        top = innerPadding.calculateTopPadding(),
+                        bottom = innerPadding.calculateBottomPadding(),
+                    ),
             ) {
-                if (verses.isEmpty()) {
-                    item {
+                if (totalChapters > 0) {
+                    val actualIndex = pageIndex % totalChapters
+                    val ref = allChapters[actualIndex]
+
+                    // For circularity, the next chapter is always available (wraps around)
+                    val nextRef = allChapters[(actualIndex + 1) % totalChapters]
+                    val nextBookName = if (nextRef.bookId != ref.bookId) {
+                        strings.bookNames[nextRef.bookId]
+                    } else {
+                        null
+                    }
+
+                    ChapterPage(
+                        bookId = ref.bookId,
+                        chapter = ref.chapter,
+                        // Only pass initialVerse if it's the target chapter from navigation
+                        initialVerse = if (ref.bookId == bookId && ref.chapter == chapter) initialVerse else 1,
+                        viewModel = viewModel,
+                        numberFormatter = numberFormatter,
+                        strings = strings,
+                        onNextChapter = {
+                            scope.launch {
+                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                            }
+                        },
+                        onPreviousChapter = {
+                            scope.launch {
+                                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                            }
+                        },
+                        nextBookName = nextBookName,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ChapterPage(
+    bookId: Int,
+    chapter: Int,
+    initialVerse: Int,
+    viewModel: ReadingViewModel,
+    numberFormatter: NumberFormat,
+    strings: LocalizedStrings,
+    onNextChapter: (() -> Unit)? = null,
+    onPreviousChapter: (() -> Unit)? = null,
+    nextBookName: String? = null,
+) {
+    var verses by remember { mutableStateOf<List<TargetReadingDetails>>(emptyList()) }
+    val listState = rememberLazyListState()
+    val selectedCode by viewModel.selectedTranslationCode.collectAsState()
+
+    LaunchedEffect(bookId, chapter, selectedCode) {
+        verses = viewModel.getChapterVerses(bookId, chapter)
+    }
+
+    LaunchedEffect(verses, initialVerse) {
+        if (verses.isNotEmpty() && initialVerse > 0) {
+            val index = verses.indexOfFirst { it.verseId == initialVerse }
+            if (index != -1) {
+                listState.scrollToItem(index)
+            }
+        }
+    }
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .widthIn(max = AdaptiveDimens.contentMaxWidth),
+            contentPadding = PaddingValues(
+                horizontal = AdaptiveDimens.paddingMedium,
+                vertical = AdaptiveDimens.paddingMedium,
+            ),
+        ) {
+            if (verses.isEmpty()) {
+                item {
+                    Text(
+                        text = strings.loadingReading,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                        fontSize = AdaptiveDimens.bodyFontSize,
+                    )
+                }
+            } else {
+                items(verses, key = { "${it.translationCode}_${it.bookId}_${it.chapter}_${it.verseId}" }) { verse ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp, horizontal = 8.dp),
+                    ) {
                         Text(
-                            text = strings.loadingReading,
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                            text = numberFormatter.format(verse.verseId),
+                            fontSize = AdaptiveDimens.smallFontSize * 0.85f,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 2.dp, end = 8.dp),
+                        )
+                        Text(
+                            text = verse.text,
                             fontSize = AdaptiveDimens.bodyFontSize,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            lineHeight = AdaptiveDimens.bodyFontSize * 1.5f,
+                            modifier = Modifier.weight(1f),
                         )
                     }
-                } else {
-                    items(verses, key = { "${it.translationCode}_${it.bookId}_${it.chapter}_${it.verseId}" }) { verse ->
-                        val isSelected = verse.verseId == initialVerse
+                }
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = AdaptiveDimens.paddingLarge, bottom = AdaptiveDimens.paddingLarge * 2),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(bottom = AdaptiveDimens.paddingMedium),
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        )
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(if (isSelected) highlightColor.value else Color.Transparent)
-                                .padding(vertical = 4.dp, horizontal = 8.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(
-                                text = numberFormatter.format(verse.verseId),
-                                fontSize = AdaptiveDimens.smallFontSize * 0.85f,
-                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(top = 2.dp, end = 8.dp),
-                            )
-                            Text(
-                                text = verse.text,
-                                fontSize = AdaptiveDimens.bodyFontSize,
-                                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
-                                lineHeight = AdaptiveDimens.bodyFontSize * 1.5f,
-                                modifier = Modifier.weight(1f),
-                            )
+                            if (onPreviousChapter != null) {
+                                TextButton(onClick = onPreviousChapter) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = strings.back,
+                                        fontSize = AdaptiveDimens.smallFontSize,
+                                    )
+                                }
+                            } else {
+                                Spacer(modifier = Modifier.width(1.dp))
+                            }
+
+                            if (onNextChapter != null) {
+                                Button(
+                                    onClick = onNextChapter,
+                                    shape = RoundedCornerShape(26.dp),
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                ) {
+                                    Text(
+                                        text = if (nextBookName != null) {
+                                            "${strings.nextReading}: $nextBookName"
+                                        } else {
+                                            strings.nextReading
+                                        },
+                                        fontSize = AdaptiveDimens.smallFontSize,
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                }
+                            }
                         }
                     }
                 }
