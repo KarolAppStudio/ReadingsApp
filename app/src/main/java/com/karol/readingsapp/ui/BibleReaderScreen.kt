@@ -20,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,6 +32,7 @@ import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
+import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -261,6 +263,24 @@ fun BibleReaderScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .graphicsLayer {
+                        // Calculate the relative offset inside graphicsLayer to avoid recomposition
+                        val pageOffset = (pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction
+                        val absOffset = pageOffset.absoluteValue
+
+                        // Simple and smooth slide with subtle rotation and fade
+                        // This gives a slight "page turn" feel without being too complex
+                        rotationY = pageOffset * -15f
+                        cameraDistance = 12f
+
+                        // Fade out as the page rotates away
+                        alpha = (1f - absOffset).coerceIn(0f, 1f)
+
+                        // Subtle scale to maintain the sense of depth
+                        val scale = 0.9f + ((1f - absOffset).coerceIn(0f, 1f) * 0.1f)
+                        scaleX = scale
+                        scaleY = scale
+                    }
                     .background(MaterialTheme.colorScheme.background)
                     .padding(
                         top = innerPadding.calculateTopPadding(),
