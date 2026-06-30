@@ -268,18 +268,20 @@ fun BibleReaderScreen(
                         val pageOffset = (pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction
                         val absOffset = pageOffset.absoluteValue
 
-                        // Simple and smooth slide with subtle rotation and fade
-                        // This gives a slight "page turn" feel without being too complex
-                        rotationY = pageOffset * -15f
-                        cameraDistance = 12f
+                        // "Kindle Style" Fade-Through Animation
+                        // We counteract the default sliding motion to keep the text stationary
+                        // while fading it in/out, preventing motion blur for a cleaner reading experience.
 
-                        // Fade out as the page rotates away
+                        // Counteract the default HorizontalPager slide
+                        translationX = pageOffset * size.width
+
+                        // Apply a clean fade through. absOffset is 0 at the center, 1 when off-screen.
+                        // For a cross-fade effect:
                         alpha = (1f - absOffset).coerceIn(0f, 1f)
 
-                        // Subtle scale to maintain the sense of depth
-                        val scale = 0.9f + ((1f - absOffset).coerceIn(0f, 1f) * 0.1f)
-                        scaleX = scale
-                        scaleY = scale
+                        // Ensure no scaling to keep text sharp and consistent
+                        scaleX = 1f
+                        scaleY = 1f
                     }
                     .background(MaterialTheme.colorScheme.background)
                     .padding(
