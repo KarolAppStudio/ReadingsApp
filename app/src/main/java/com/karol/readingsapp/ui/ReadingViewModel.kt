@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.karol.readingsapp.data.LanguageService
 import com.karol.readingsapp.data.ReadingRepository
 import com.karol.readingsapp.data.bible.BookEntity
+import com.karol.readingsapp.data.bible.ChapterReference
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.data.bible.TranslationEntity
 import com.karol.readingsapp.data.plan.SimpleReading
@@ -15,11 +16,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
-data class ChapterReference(
-    val bookId: Int,
-    val chapter: Int,
-)
 
 class ReadingViewModel(
     private val repository: ReadingRepository,
@@ -77,17 +73,8 @@ class ReadingViewModel(
 
     private fun loadAllBooks() {
         viewModelScope.launch {
-            val books = repository.getAllBooks()
-            _allBooks.value = books
-
-            val chapters = mutableListOf<ChapterReference>()
-            for (book in books) {
-                val count = repository.getChapterCount(book.id)
-                for (ch in 1..count) {
-                    chapters.add(ChapterReference(book.id, ch))
-                }
-            }
-            _allChapters.value = chapters
+            _allBooks.value = repository.getAllBooks()
+            _allChapters.value = repository.getAllChapters()
         }
     }
 

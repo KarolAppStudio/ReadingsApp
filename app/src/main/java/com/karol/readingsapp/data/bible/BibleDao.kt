@@ -11,6 +11,9 @@ interface BibleDao {
     @Query("SELECT * FROM books ORDER BY sort_order ASC")
     suspend fun getAllBooks(): List<BookEntity>
 
+    @Query("SELECT DISTINCT book_id as bookId, chapter FROM verses ORDER BY book_id ASC, chapter ASC")
+    suspend fun getAllChapters(): List<ChapterReference>
+
     @Query("SELECT MAX(chapter) FROM verses WHERE book_id = :bookId")
     suspend fun getChapterCount(bookId: Int): Int
 

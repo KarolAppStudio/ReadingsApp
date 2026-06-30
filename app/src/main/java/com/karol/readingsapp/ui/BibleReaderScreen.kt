@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.karol.readingsapp.data.bible.ChapterReference
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.SelectionButton

@@ -44,7 +44,8 @@ data class TranslationEntity(
         ),
     ],
     indices = [
-        Index(value = ["book_id"]),
+        Index(value = ["book_id", "chapter"]),
+        Index(value = ["translation_code", "book_id", "chapter"]),
     ],
 )
 data class Verse(
@@ -64,4 +65,9 @@ data class TargetReadingDetails(
     val text: String,
     val readingType: String,
     val translationCode: String,
+)
+
+data class ChapterReference(
+    val bookId: Int,
+    val chapter: Int,
 )

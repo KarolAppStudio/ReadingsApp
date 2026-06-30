@@ -2,6 +2,7 @@ package com.karol.readingsapp.data
 
 import com.karol.readingsapp.data.bible.BibleDao
 import com.karol.readingsapp.data.bible.BookEntity
+import com.karol.readingsapp.data.bible.ChapterReference
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.data.bible.TranslationEntity
 import com.karol.readingsapp.data.plan.ReadingPlanDao
@@ -352,22 +353,25 @@ class ReadingRepository(
 
     suspend fun getReadingsForMonth(monthStr: String): Map<String, List<SimpleReading>> = withContext(Dispatchers.IO) {
         val firstOfMonth = LocalDate.parse("$monthStr-01")
-        val daysInMonth = firstOfMonth.lengthOfMonth()
+        val lastOfMonth = firstOfMonth.withDayOfMonth(firstOfMonth.lengthOfMonth())
+
+        val startDayIndex = getPlanDayIndex(firstOfMonth)
+        val endDayIndex = getPlanDayIndex(lastOfMonth)
+
+        // Fetch all plans for the month in a single query
+        val plans = planDao.getReadingPlanInRange(startDayIndex - 1, endDayIndex).associateBy { it.dayOfYear }
 
         val result = mutableMapOf<String, List<SimpleReading>>()
-        for (day in 1..daysInMonth) {
-            val date = firstOfMonth.withDayOfMonth(day)
-            val dayIndex = getPlanDayIndex(date)
-            val fullDate = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
+        var currentDate = firstOfMonth
+        while (!currentDate.isAfter(lastOfMonth)) {
+            val dayIndex = getPlanDayIndex(currentDate)
+            val fullDate = currentDate.format(DateTimeFormatter.ISO_LOCAL_DATE)
 
-            var plan = planDao.getReadingPlanByDay(dayIndex)
-            if (plan == null) {
-                plan = planDao.getReadingPlanByDay(dayIndex - 1)
-            }
+            // Try dayIndex first, then dayIndex - 1
+            val plan = plans[dayIndex] ?: plans[dayIndex - 1]
 
             plan?.let { p ->
                 val simpleList = mutableListOf<SimpleReading>()
-
                 listOf(
                     p.track1 to "First Reading",
                     p.track2 to "Second Reading",
@@ -381,6 +385,7 @@ class ReadingRepository(
                 }
                 result[fullDate] = simpleList
             }
+            currentDate = currentDate.plusDays(1)
         }
         result
     }
@@ -391,6 +396,10 @@ class ReadingRepository(
 
     suspend fun getAllBooks(): List<BookEntity> = withContext(Dispatchers.IO) {
         bibleDao.getAllBooks()
+    }
+
+    suspend fun getAllChapters(): List<ChapterReference> = withContext(Dispatchers.IO) {
+        bibleDao.getAllChapters()
     }
 
     suspend fun getChapterCount(bookId: Int): Int = withContext(Dispatchers.IO) {

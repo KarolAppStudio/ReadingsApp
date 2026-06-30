@@ -5,6 +5,7 @@ import androidx.core.content.edit
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.RoomDatabase.JournalMode
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
@@ -41,6 +42,7 @@ abstract class BibleDatabase : RoomDatabase() {
                 BibleDatabase::class.java,
                 "bibles.db",
             )
+                .setJournalMode(JournalMode.WRITE_AHEAD_LOGGING)
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .addCallback(
                     object : Callback() {
