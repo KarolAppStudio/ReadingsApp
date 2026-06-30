@@ -143,6 +143,10 @@ class MainActivity : ComponentActivity() {
                                     onSettingsClick = {
                                         navController.navigate("settings")
                                     },
+                                    onDateClick = { date ->
+                                        viewModel.loadReading(date)
+                                        navController.popBackStack("home", inclusive = false)
+                                    },
                                 )
                             }
                             composable("bible") {

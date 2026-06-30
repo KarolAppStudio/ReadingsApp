@@ -1,6 +1,7 @@
 package com.karol.readingsapp.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -39,6 +40,7 @@ fun ReadingPlanScreen(
     onHomeClick: () -> Unit,
     onBibleClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onDateClick: (String) -> Unit,
     today: LocalDate = LocalDate.now(),
 ) {
     var currentMonth by remember { mutableStateOf(YearMonth.from(today)) }
@@ -210,6 +212,7 @@ fun ReadingPlanScreen(
                         strings = strings,
                         numberFormatter = numberFormatter,
                         isToday = date == today.toString(),
+                        onClick = { onDateClick(date) },
                     )
                 }
             }
@@ -224,6 +227,7 @@ fun ReadingDayItem(
     strings: LocalizedStrings,
     numberFormatter: NumberFormat,
     isToday: Boolean,
+    onClick: () -> Unit,
 ) {
     val parsedDate = try {
         LocalDate.parse(date)
@@ -241,6 +245,7 @@ fun ReadingDayItem(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        onClick = onClick,
     ) {
         Row(
             modifier = Modifier
@@ -253,12 +258,14 @@ fun ReadingDayItem(
                 modifier = Modifier.width(50.dp),
             ) {
                 if (isToday) {
+                    // Bright LED Light Indicator
                     Box(
                         modifier = Modifier
-                            .size(8.dp)
-                            .background(Color(0xFF00FF00), shape = CircleShape),
+                            .size(10.dp)
+                            .background(Color(0xFF00FF00), shape = CircleShape)
+                            .border(1.5.dp, Color.White.copy(alpha = 0.8f), CircleShape),
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
                 Text(
                     text = dayOfMonth,
