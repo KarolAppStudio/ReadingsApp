@@ -3,14 +3,14 @@ package com.karol.readingsapp.ui.theme
 import com.karol.readingsapp.ui.LocalizedStrings
 
 enum class AppTheme {
-    BLUE,
+    SKY_BLUE,
     PURPLE,
     SEPIA,
     PLEASANT,
     ;
 
     fun getDisplayName(strings: LocalizedStrings): String = when (this) {
-        BLUE -> strings.themeSkyBlue
+        SKY_BLUE -> strings.themeSkyBlue
         PURPLE -> strings.themePurple
         SEPIA -> strings.themeSepia
         PLEASANT -> strings.themeModernGlass

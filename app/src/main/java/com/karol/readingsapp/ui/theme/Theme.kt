@@ -1,8 +1,6 @@
 package com.karol.readingsapp.ui.theme
 
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -96,7 +94,7 @@ private val PleasantColorScheme = lightColorScheme(
 
 @Composable
 fun ReadingsAppTheme(
-    appTheme: AppTheme = AppTheme.BLUE,
+    appTheme: AppTheme = AppTheme.SKY_BLUE,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
@@ -109,7 +107,7 @@ fun ReadingsAppTheme(
             }
         }
 
-        AppTheme.BLUE -> BlueColorScheme
+        AppTheme.SKY_BLUE -> BlueColorScheme
 
         AppTheme.SEPIA -> SepiaColorScheme
 
