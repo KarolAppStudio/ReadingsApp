@@ -87,7 +87,7 @@ fun BibleReaderScreen(
         if (totalChapters > 0) {
             val actualIndex = pagerState.settledPage % totalChapters
             val currentRef = allChapters[actualIndex]
-            if (currentRef.bookId != bookId || currentRef.chapter != chapter) {
+            if ((currentRef.bookId != bookId) || (currentRef.chapter != chapter)) {
                 onChapterChange(currentRef.bookId, currentRef.chapter)
             }
         }
@@ -325,7 +325,7 @@ fun ChapterPage(
     }
 
     LaunchedEffect(verses, initialVerse) {
-        if (verses.isNotEmpty() && initialVerse > 0) {
+        if ((verses.isNotEmpty()) && (initialVerse > 0)) {
             val index = verses.indexOfFirst { it.verseId == initialVerse }
             if (index != -1) {
                 listState.scrollToItem(index)

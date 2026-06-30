@@ -194,38 +194,4 @@ class ReadingViewModel(
             _secondChapterVerses.value = repository.getChapterVerses(bookId, chapter, "ENG")
         }
     }
-
-    suspend fun getNextChapter(
-        bookId: Int,
-        chapter: Int,
-    ): Pair<Int, Int>? {
-        val currentChapterCount = getChapterCount(bookId)
-        if (chapter < currentChapterCount) {
-            return bookId to (chapter + 1)
-        }
-        val books = _allBooks.value
-        val currentIndex = books.indexOfFirst { it.id == bookId }
-        if ((currentIndex != -1) && (currentIndex < (books.size - 1))) {
-            val nextBook = books[currentIndex + 1]
-            return nextBook.id to 1
-        }
-        return null
-    }
-
-    suspend fun getPreviousChapter(
-        bookId: Int,
-        chapter: Int,
-    ): Pair<Int, Int>? {
-        if (chapter > 1) {
-            return bookId to (chapter - 1)
-        }
-        val books = _allBooks.value
-        val currentIndex = books.indexOfFirst { it.id == bookId }
-        if (currentIndex > 0) {
-            val prevBook = books[currentIndex - 1]
-            val prevBookChapterCount = getChapterCount(prevBook.id)
-            return prevBook.id to prevBookChapterCount
-        }
-        return null
-    }
 }
