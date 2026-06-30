@@ -5,7 +5,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,7 +25,6 @@ fun SettingsScreen(
     onHomeClick: () -> Unit,
     onCalendarClick: () -> Unit,
     onBibleClick: () -> Unit,
-    onAboutClick: () -> Unit,
 ) {
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
@@ -164,40 +162,6 @@ fun SettingsScreen(
                                 }
                             }
                         }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(AdaptiveDimens.paddingSmall))
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = onAboutClick,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                    ),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(AdaptiveDimens.paddingMedium),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = strings.about,
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = AdaptiveDimens.bodyFontSize,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            ),
-                        )
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
                     }
                 }
 

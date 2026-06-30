@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -35,6 +37,7 @@ import com.karol.readingsapp.ui.ParallelReadingScreen
 import com.karol.readingsapp.ui.ReadingPlanScreen
 import com.karol.readingsapp.ui.ReadingViewModel
 import com.karol.readingsapp.ui.SettingsScreen
+import com.karol.readingsapp.ui.components.DownloadProgressOverlay
 import com.karol.readingsapp.ui.theme.ProvideWindowSizeClass
 import com.karol.readingsapp.ui.theme.ReadingsAppTheme
 import kotlinx.coroutines.delay
@@ -63,7 +66,7 @@ class MainActivity : ComponentActivity() {
                     bibleDatabase.bibleDao(),
                     planDatabase.readingPlanDao(),
                 )
-            val languageService = LanguageService()
+            val languageService = LanguageService(applicationContext)
             val viewModel: ReadingViewModel =
                 viewModel(
                     factory =
@@ -74,6 +77,7 @@ class MainActivity : ComponentActivity() {
                 )
 
             val currentTheme by viewModel.appTheme.collectAsState()
+            val batchProgress by viewModel.batchProgress.collectAsState()
             val translations by viewModel.availableTranslations.collectAsState()
             val selectedCode by viewModel.selectedTranslationCode.collectAsState()
 
@@ -88,137 +92,142 @@ class MainActivity : ComponentActivity() {
 
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        color = androidx.compose.material3.MaterialTheme.colorScheme.background,
+                        color = MaterialTheme.colorScheme.background,
                     ) {
-                        NavHost(navController = navController, startDestination = "home") {
-                            composable("home") {
-                                HomeScreen(
-                                    viewModel = viewModel,
-                                    onReadingClick = { reading ->
-                                        navController.navigate("reader/${reading.bookId}/${reading.chapter}/1")
-                                    },
-                                    onCalendarClick = {
-                                        navController.navigate("reading_plan")
-                                    },
-                                    onBibleClick = {
-                                        navController.navigate("bible")
-                                    },
-                                    onSettingsClick = {
-                                        navController.navigate("settings")
-                                    },
-                                ) {
-                                    navController.navigate("about")
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            NavHost(navController = navController, startDestination = "home") {
+                                composable("home") {
+                                    HomeScreen(
+                                        viewModel = viewModel,
+                                        onReadingClick = { reading ->
+                                            navController.navigate("reader/${reading.bookId}/${reading.chapter}/1")
+                                        },
+                                        onCalendarClick = {
+                                            navController.navigate("reading_plan")
+                                        },
+                                        onBibleClick = {
+                                            navController.navigate("bible")
+                                        },
+                                        onSettingsClick = {
+                                            navController.navigate("settings")
+                                        },
+                                    ) {
+                                        navController.navigate("about")
+                                    }
                                 }
-                            }
-                            composable("about") {
-                                AboutScreen(strings = strings) {
-                                    navController.popBackStack("home", inclusive = false)
+                                composable("about") {
+                                    AboutScreen(strings = strings) {
+                                        navController.popBackStack("home", inclusive = false)
+                                    }
                                 }
-                            }
-                            composable("settings") {
-                                SettingsScreen(
-                                    viewModel = viewModel,
-                                    onHomeClick = {
-                                        navController.popBackStack("home", inclusive = false)
-                                    },
-                                    onCalendarClick = {
-                                        navController.navigate("reading_plan")
-                                    },
-                                    onBibleClick = {
-                                        navController.navigate("bible")
-                                    },
-                                ) {
-                                    navController.navigate("about")
+                                composable("settings") {
+                                    SettingsScreen(
+                                        viewModel = viewModel,
+                                        onHomeClick = {
+                                            navController.popBackStack("home", inclusive = false)
+                                        },
+                                        onCalendarClick = {
+                                            navController.navigate("reading_plan")
+                                        },
+                                        onBibleClick = {
+                                            navController.navigate("bible")
+                                        },
+                                    )
                                 }
-                            }
-                            composable("reading_plan") {
-                                ReadingPlanScreen(
-                                    viewModel = viewModel,
-                                    onHomeClick = {
-                                        navController.popBackStack("home", inclusive = false)
-                                    },
-                                    onBibleClick = {
-                                        navController.navigate("bible")
-                                    },
-                                    onSettingsClick = {
-                                        navController.navigate("settings")
-                                    },
-                                    onDateClick = { date ->
-                                        viewModel.loadReading(date)
-                                        navController.popBackStack("home", inclusive = false)
-                                    },
-                                )
-                            }
-                            composable("bible") {
-                                BibleSelectionScreen(
-                                    viewModel = viewModel,
-                                    onHomeClick = {
-                                        navController.popBackStack("home", inclusive = false)
-                                    },
-                                    onCalendarClick = {
-                                        navController.navigate("reading_plan")
-                                    },
-                                    onSettingsClick = {
-                                        navController.navigate("settings")
-                                    },
-                                    onChapterClick = { bookId, chapter, verseId ->
-                                        navController.navigate("reader/$bookId/$chapter/$verseId")
-                                    },
-                                ) { bookId, chapter ->
-                                    navController.navigate("parallel_reader/$bookId/$chapter")
+                                composable("reading_plan") {
+                                    ReadingPlanScreen(
+                                        viewModel = viewModel,
+                                        onHomeClick = {
+                                            navController.popBackStack("home", inclusive = false)
+                                        },
+                                        onBibleClick = {
+                                            navController.navigate("bible")
+                                        },
+                                        onSettingsClick = {
+                                            navController.navigate("settings")
+                                        },
+                                        onDateClick = { date ->
+                                            viewModel.loadReading(date)
+                                            navController.popBackStack("home", inclusive = false)
+                                        },
+                                    )
                                 }
-                            }
-                            composable(
-                                route = "parallel_reader/{bookId}/{chapter}",
-                                arguments =
-                                listOf(
-                                    navArgument("bookId") { type = NavType.IntType },
-                                    navArgument("chapter") { type = NavType.IntType },
-                                ),
-                            ) { backStackEntry ->
-                                val bookId = backStackEntry.arguments?.getInt("bookId") ?: 0
-                                val chapter = backStackEntry.arguments?.getInt("chapter") ?: 0
-                                ParallelReadingScreen(
-                                    bookId = bookId,
-                                    chapter = chapter,
-                                    viewModel = viewModel,
-                                ) {
-                                    navController.popBackStack()
+                                composable("bible") {
+                                    BibleSelectionScreen(
+                                        viewModel = viewModel,
+                                        onHomeClick = {
+                                            navController.popBackStack("home", inclusive = false)
+                                        },
+                                        onCalendarClick = {
+                                            navController.navigate("reading_plan")
+                                        },
+                                        onSettingsClick = {
+                                            navController.navigate("settings")
+                                        },
+                                        onChapterClick = { bookId, chapter, verseId ->
+                                            navController.navigate("reader/$bookId/$chapter/$verseId")
+                                        },
+                                    ) { bookId, chapter ->
+                                        navController.navigate("parallel_reader/$bookId/$chapter")
+                                    }
                                 }
-                            }
-                            composable(
-                                route = "reader/{bookId}/{chapter}/{verseId}",
-                                arguments =
-                                listOf(
-                                    navArgument("bookId") { type = NavType.IntType },
-                                    navArgument("chapter") { type = NavType.IntType },
-                                    navArgument("verseId") { type = NavType.IntType },
-                                ),
-                            ) { backStackEntry ->
-                                val bookId = backStackEntry.arguments?.getInt("bookId") ?: 0
-                                val chapter = backStackEntry.arguments?.getInt("chapter") ?: 0
-                                val verseId = backStackEntry.arguments?.getInt("verseId") ?: 1
-                                BibleReaderScreen(
-                                    bookId = bookId,
-                                    chapter = chapter,
-                                    initialVerse = verseId,
-                                    viewModel = viewModel,
-                                    onHomeClick = {
-                                        navController.popBackStack("home", inclusive = false)
-                                    },
-                                    onBackClick = {
+                                composable(
+                                    route = "parallel_reader/{bookId}/{chapter}",
+                                    arguments =
+                                    listOf(
+                                        navArgument("bookId") { type = NavType.IntType },
+                                        navArgument("chapter") { type = NavType.IntType },
+                                    ),
+                                ) { backStackEntry ->
+                                    val bookId = backStackEntry.arguments?.getInt("bookId") ?: 0
+                                    val chapter = backStackEntry.arguments?.getInt("chapter") ?: 0
+                                    ParallelReadingScreen(
+                                        bookId = bookId,
+                                        chapter = chapter,
+                                        viewModel = viewModel,
+                                    ) {
                                         navController.popBackStack()
-                                    },
-                                    onParallelClick = { bId, chap ->
-                                        viewModel.loadSecondChapterVerses(bId, chap, "ENG")
-                                        navController.navigate("parallel_reader/$bId/$chap")
-                                    },
-                                ) { bId, chap ->
-                                    navController.navigate("reader/$bId/$chap/1") {
-                                        launchSingleTop = true
+                                    }
+                                }
+                                composable(
+                                    route = "reader/{bookId}/{chapter}/{verseId}",
+                                    arguments =
+                                    listOf(
+                                        navArgument("bookId") { type = NavType.IntType },
+                                        navArgument("chapter") { type = NavType.IntType },
+                                        navArgument("verseId") { type = NavType.IntType },
+                                    ),
+                                ) { backStackEntry ->
+                                    val bookId = backStackEntry.arguments?.getInt("bookId") ?: 0
+                                    val chapter = backStackEntry.arguments?.getInt("chapter") ?: 0
+                                    val verseId = backStackEntry.arguments?.getInt("verseId") ?: 1
+                                    BibleReaderScreen(
+                                        bookId = bookId,
+                                        chapter = chapter,
+                                        initialVerse = verseId,
+                                        viewModel = viewModel,
+                                        onHomeClick = {
+                                            navController.popBackStack("home", inclusive = false)
+                                        },
+                                        onBackClick = {
+                                            navController.popBackStack()
+                                        },
+                                        onParallelClick = { bId, chap ->
+                                            viewModel.loadSecondChapterVerses(bId, chap, "ENG")
+                                            navController.navigate("parallel_reader/$bId/$chap")
+                                        },
+                                    ) { bId, chap ->
+                                        navController.navigate("reader/$bId/$chap/1") {
+                                            launchSingleTop = true
+                                        }
                                     }
                                 }
                             }
+
+                            DownloadProgressOverlay(
+                                progress = batchProgress,
+                                strings = strings,
+                            )
                         }
                     }
                 }

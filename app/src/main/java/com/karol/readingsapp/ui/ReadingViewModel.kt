@@ -54,14 +54,15 @@ class ReadingViewModel(
     private val _appTheme =
         MutableStateFlow(
             try {
-                AppTheme.valueOf(prefs.getString("app_theme", AppTheme.BLUE.name) ?: AppTheme.BLUE.name)
+                AppTheme.valueOf(prefs.getString("app_theme", AppTheme.SKY_BLUE.name) ?: AppTheme.SKY_BLUE.name)
             } catch (_: Exception) {
-                AppTheme.BLUE
+                AppTheme.SKY_BLUE
             },
         )
     val appTheme = _appTheme.asStateFlow()
 
     val downloadStatus = languageService.downloadStatus
+    val batchProgress = languageService.batchProgress
 
     private val _currentDate = MutableStateFlow("")
     val currentDate: StateFlow<String> = _currentDate.asStateFlow()
@@ -105,6 +106,15 @@ class ReadingViewModel(
                     it.copy(name = nativeName, language = displayLanguage)
                 }
             _availableTranslations.value = translations
+
+            val isFirstRun = prefs.getBoolean("is_first_run", true)
+            if (isFirstRun) {
+                val allLanguages = translations.map { it.language }.distinct()
+                startBatchDownload(allLanguages)
+                setTheme(AppTheme.SKY_BLUE)
+                prefs.edit { putBoolean("is_first_run", false) }
+            }
+
             translations.find { it.code == _selectedTranslationCode.value }?.let {
                 languageService.downloadLanguageScript(it.language)
             }
@@ -122,6 +132,12 @@ class ReadingViewModel(
                     loadReading(_currentDate.value)
                 }
             }
+        }
+    }
+
+    fun startBatchDownload(languages: List<String>) {
+        viewModelScope.launch {
+            languageService.batchDownload(languages)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.karol.readingsapp.ui
 
+import java.text.NumberFormat
 import java.util.Locale
 
 data class LocalizedStrings(
@@ -40,6 +41,7 @@ data class LocalizedStrings(
     val themePurple: String,
     val themeSepia: String,
     val themeModernGlass: String,
+    val downloadAll: String,
     val locale: Locale,
     val bookNames: Map<Int, String> = emptyMap(),
 )
@@ -574,6 +576,7 @@ object Localization {
             themePurple = "Purple",
             themeSepia = "Sepia",
             themeModernGlass = "Modern Glass",
+            downloadAll = "Download All Translations",
             locale = Locale.US,
             bookNames = EnglishBooks,
         )
@@ -617,6 +620,7 @@ object Localization {
             themePurple = "বেগুনী",
             themeSepia = "সেপিয়া",
             themeModernGlass = "আধুনিক গ্লাস",
+            downloadAll = "সব অনুবাদ ডাউনলোড করুন",
             locale = Locale.forLanguageTag("bn-BD"),
             bookNames = BanglaBooks,
         )
@@ -660,6 +664,7 @@ object Localization {
             themePurple = "बैंगनी",
             themeSepia = "सेपिया",
             themeModernGlass = "आधुनिक ग्लास",
+            downloadAll = "सभी अनुवाद डाउनलोड करें",
             locale = Locale.forLanguageTag("hi-IN"),
             bookNames = HindiBooks,
         )
@@ -703,6 +708,7 @@ object Localization {
             themePurple = "ನೇರಳೆ",
             themeSepia = "ಸೆಪಿಯಾ",
             themeModernGlass = "ಆಧುನಿಕ ಗಾಜು",
+            downloadAll = "ಎಲ್ಲಾ ಅನುವಾದಗಳನ್ನು ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ",
             locale = Locale.forLanguageTag("kn-IN"),
             bookNames = KannadaBooks,
         )
@@ -746,6 +752,7 @@ object Localization {
             themePurple = "പർപ്പിൾ",
             themeSepia = "സെപ്പിയ",
             themeModernGlass = "മോഡേൺ ഗ്ലാസ്",
+            downloadAll = "എല്ലാ വിവർത്തനങ്ങളും ഡൗൺലോഡ് ചെയ്യുക",
             locale = Locale.forLanguageTag("ml-IN"),
             bookNames = MalayalamBooks,
         )
@@ -789,6 +796,7 @@ object Localization {
             themePurple = "ஊதா",
             themeSepia = "செபியா",
             themeModernGlass = "மாடர்ன் கிளாஸ்",
+            downloadAll = "அனைத்து மொழிபெயர்ப்புகளையும் பதிவிறக்கவும்",
             locale = Locale.forLanguageTag("ta-IN"),
             bookNames = TamilBooks,
         )
@@ -832,6 +840,7 @@ object Localization {
             themePurple = "పర్పుల్",
             themeSepia = "సెపియా",
             themeModernGlass = "మోడ్రన్ గ్లాస్",
+            downloadAll = "అన్ని అనువాదాలను డౌన్‌లోడ్ చేయండి",
             locale = Locale.forLanguageTag("te-IN"),
             bookNames = TeluguBooks,
         )
@@ -858,5 +867,16 @@ object Localization {
         } else {
             baseStrings
         }
+    }
+
+    fun localizeDigits(text: String, locale: Locale): String {
+        val nf = NumberFormat.getIntegerInstance(locale)
+        val zero = nf.format(0)
+        if (zero == "0") return text
+        val zeroChar = zero[0]
+        val offset = zeroChar - '0'
+        return text.map { char ->
+            if (char in ('0'..'9')) (char + offset) else char
+        }.joinToString("")
     }
 }

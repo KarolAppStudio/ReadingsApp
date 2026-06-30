@@ -1,10 +1,18 @@
 package com.karol.readingsapp.data.bible
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 @Dao
 interface BibleDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTranslation(translation: TranslationEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertVerses(verses: List<Verse>)
+
     @Query("SELECT * FROM translations")
     suspend fun getAvailableTranslations(): List<TranslationEntity>
 

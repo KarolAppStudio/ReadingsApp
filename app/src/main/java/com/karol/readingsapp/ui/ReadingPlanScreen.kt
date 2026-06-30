@@ -300,7 +300,7 @@ fun ReadingDayItem(
                 } else {
                     readings.forEach { reading ->
                         val bookName = strings.bookNames[reading.bookId] ?: reading.bookName
-                        val chapters = localizeDigits(reading.chaptersStr, strings.locale)
+                        val chapters = Localization.localizeDigits(reading.chaptersStr, strings.locale)
                         AutoResizingText(
                             text = "$bookName $chapters",
                             fontSize = AdaptiveDimens.smallFontSize,
@@ -312,15 +312,4 @@ fun ReadingDayItem(
             }
         }
     }
-}
-
-fun localizeDigits(text: String, locale: Locale): String {
-    val nf = NumberFormat.getIntegerInstance(locale)
-    val zero = nf.format(0)
-    if (zero == "0") return text
-    val zeroChar = zero[0]
-    val offset = zeroChar - '0'
-    return text.map { char ->
-        if (char in ('0'..'9')) (char + offset) else char
-    }.joinToString("")
 }
