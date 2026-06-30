@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -59,10 +58,10 @@ fun BibleReaderScreen(
             if (totalChapters == 0) {
                 0
             } else {
-                val index = allChapters.indexOfFirst { it.bookId == bookId && it.chapter == chapter }
+                val index = allChapters.indexOfFirst { (it.bookId == bookId) && (it.chapter == chapter) }
                 val safeIndex = if (index != -1) index else 0
                 // Start in the middle of the virtual range
-                (circularMultiplier / 2) * totalChapters + safeIndex
+                ((circularMultiplier / 2) * totalChapters) + safeIndex
             }
         },
     )
@@ -70,13 +69,13 @@ fun BibleReaderScreen(
     // Sync pager with external navigation
     LaunchedEffect(bookId, chapter, allChapters) {
         if (totalChapters > 0) {
-            val targetIndex = allChapters.indexOfFirst { it.bookId == bookId && it.chapter == chapter }
+            val targetIndex = allChapters.indexOfFirst { (it.bookId == bookId) && (it.chapter == chapter) }
             if (targetIndex != -1) {
                 val currentActualIndex = pagerState.currentPage % totalChapters
                 // Use a larger buffer to decide if we need to re-center
                 val isNotInitialized = pagerState.currentPage < totalChapters
-                if ((isNotInitialized || targetIndex != currentActualIndex) && !pagerState.isScrollInProgress) {
-                    val virtualIndex = (circularMultiplier / 2) * totalChapters + targetIndex
+                if ((isNotInitialized || (targetIndex != currentActualIndex)) && (!pagerState.isScrollInProgress)) {
+                    val virtualIndex = ((circularMultiplier / 2) * totalChapters) + targetIndex
                     pagerState.scrollToPage(virtualIndex)
                 }
             }
@@ -283,7 +282,7 @@ fun BibleReaderScreen(
                         bookId = ref.bookId,
                         chapter = ref.chapter,
                         // Only pass initialVerse if it's the target chapter from navigation
-                        initialVerse = if (ref.bookId == bookId && ref.chapter == chapter) initialVerse else 1,
+                        initialVerse = if ((ref.bookId == bookId) && (ref.chapter == chapter)) initialVerse else 1,
                         viewModel = viewModel,
                         numberFormatter = numberFormatter,
                         strings = strings,
@@ -396,8 +395,8 @@ fun ChapterPage(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            if (onPreviousChapter != null) {
-                                TextButton(onClick = onPreviousChapter) {
+                            onPreviousChapter?.let { action ->
+                                TextButton(onClick = action) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = null,
@@ -409,13 +408,11 @@ fun ChapterPage(
                                         fontSize = AdaptiveDimens.smallFontSize,
                                     )
                                 }
-                            } else {
-                                Spacer(modifier = Modifier.width(1.dp))
-                            }
+                            } ?: Spacer(modifier = Modifier.width(1.dp))
 
-                            if (onNextChapter != null) {
+                            onNextChapter?.let { action ->
                                 Button(
-                                    onClick = onNextChapter,
+                                    onClick = action,
                                     shape = RoundedCornerShape(26.dp),
                                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                                 ) {
