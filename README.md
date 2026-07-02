@@ -19,3 +19,5 @@ The app includes Bible support in multiple Indian languages, making daily readin
 Purpose
 
 The goal of this app is to provide a convenient and accessible way to follow a structured Bible reading plan every day.
+
+
