@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -132,7 +133,7 @@ fun HomeScreen(
                             DropdownMenuItem(
                                 text = {
                                     Text(
-                                        strings.settings,
+                                        strings.availableBibles,
                                         color = MaterialTheme.colorScheme.onSurface,
                                         fontSize = AdaptiveDimens.smallFontSize,
                                         fontWeight = FontWeight.Normal,
@@ -140,11 +141,11 @@ fun HomeScreen(
                                 },
                                 onClick = {
                                     menuExpanded = false
-                                    onSettingsClick()
+                                    onBibleClick()
                                 },
                                 leadingIcon = {
                                     Icon(
-                                        Icons.Default.Settings,
+                                        Icons.Default.MenuBook,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(18.dp),

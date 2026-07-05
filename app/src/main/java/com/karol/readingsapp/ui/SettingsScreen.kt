@@ -9,9 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,8 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.karol.readingsapp.data.LanguageStatus
-import com.karol.readingsapp.data.bible.TranslationEntity
 import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
@@ -40,8 +36,6 @@ fun SettingsScreen(
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
     val currentTheme by viewModel.appTheme.collectAsState()
-    val downloadStatus by viewModel.downloadStatus.collectAsState()
-    val batchProgress by viewModel.batchProgress.collectAsState()
 
     val selectedLanguage = remember(selectedCode, translations) {
         translations.find { it.code == selectedCode }?.language ?: "English"
@@ -50,7 +44,7 @@ fun SettingsScreen(
     val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = remember(strings) { listOf(strings.appearance, strings.availableBibles) }
+    val tabs = remember(strings) { listOf(strings.appearance, strings.about) }
     var themeExpanded by remember { mutableStateOf(value = false) }
 
     Scaffold(
@@ -149,7 +143,7 @@ fun SettingsScreen(
                                         },
                                     )
                                     .clickable { selectedTabIndex = index }
-                                    .padding(start = 25.dp, end = 45.dp, top = 10.dp, bottom = 10.dp),
+                                    .padding(start = 16.dp, end = 35.dp, top = 8.dp, bottom = 8.dp),
                                 contentAlignment = Alignment.Center,
                             ) {
                                 Text(
@@ -192,49 +186,10 @@ fun SettingsScreen(
                                 isPleasant = isPleasant,
                             )
 
-                            1 -> BibleSettings(
+                            1 -> AboutSettings(
                                 strings = strings,
-                                translations = translations,
-                                downloadStatus = downloadStatus,
-                                batchProgress = batchProgress,
-                                onRetryDownload = { viewModel.retryDownload(it) },
-                                onStartBatchDownload = { viewModel.startBatchDownload(it) },
-                                onClearOfflineData = { viewModel.clearOfflineData() },
                                 isPleasant = isPleasant,
                             )
-                        }
-
-                        Spacer(modifier = Modifier.height(AdaptiveDimens.paddingSmall))
-
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            ),
-                            shape = RoundedCornerShape(16.dp),
-                            elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
-                            ) {
-                                Text(
-                                    text = strings.developerNoteTitle,
-                                    style = MaterialTheme.typography.titleLarge.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = AdaptiveDimens.bodyFontSize,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    ),
-                                    modifier = Modifier.padding(bottom = 12.dp),
-                                )
-                                Text(
-                                    text = strings.developerNoteContent,
-                                    style = MaterialTheme.typography.bodyLarge.copy(
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                                        fontSize = AdaptiveDimens.smallFontSize,
-                                        lineHeight = AdaptiveDimens.smallFontSize * 1.4f,
-                                    ),
-                                )
-                            }
                         }
                     }
                 }
@@ -330,148 +285,71 @@ fun AppearanceSettings(
 }
 
 @Composable
-fun BibleSettings(
+fun AboutSettings(
     strings: LocalizedStrings,
-    translations: List<TranslationEntity>,
-    downloadStatus: Map<String, LanguageStatus>,
-    batchProgress: Float?,
-    onRetryDownload: (String) -> Unit,
-    onStartBatchDownload: (List<String>) -> Unit,
-    onClearOfflineData: () -> Unit,
     isPleasant: Boolean,
 ) {
-    Card(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
-        shape = RoundedCornerShape(16.dp),
-        elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Column(
-            modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
+        Text(
+            text = strings.appDescription,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = AdaptiveDimens.bodyFontSize,
+            lineHeight = AdaptiveDimens.bodyFontSize * 1.5f,
+            modifier = Modifier.padding(vertical = AdaptiveDimens.paddingMedium),
+        )
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+            shape = RoundedCornerShape(16.dp),
+            elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
         ) {
-            Text(
-                text = strings.availableBibles,
-                style = MaterialTheme.typography.titleLarge.copy(
+            Column(
+                modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
+            ) {
+                Text(
+                    text = strings.developerNoteTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
                     fontSize = AdaptiveDimens.bodyFontSize,
-                    color = MaterialTheme.colorScheme.onSurface,
-                ),
-                modifier = Modifier.padding(bottom = 12.dp),
-            )
-
-            translations.forEach { translation ->
-                val status = downloadStatus[translation.language]
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column {
-                        Text(
-                            text = translation.name,
-                            fontSize = AdaptiveDimens.smallFontSize,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                        Text(
-                            text = translation.language,
-                            fontSize = AdaptiveDimens.smallFontSize * 0.8f,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        )
-                    }
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        when (status) {
-                            LanguageStatus.DOWNLOADING -> {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    strokeWidth = 2.dp,
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = strings.downloading,
-                                    fontSize = AdaptiveDimens.smallFontSize * 0.8f,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-
-                            LanguageStatus.DOWNLOADED -> {
-                                Icon(
-                                    imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(16.dp),
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = strings.downloaded,
-                                    fontSize = AdaptiveDimens.smallFontSize * 0.8f,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                                )
-                            }
-
-                            LanguageStatus.FAILED -> {
-                                IconButton(
-                                    onClick = { onRetryDownload(translation.language) },
-                                    modifier = Modifier.size(24.dp),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Refresh,
-                                        contentDescription = strings.retry,
-                                        tint = MaterialTheme.colorScheme.error,
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = strings.failed,
-                                    fontSize = AdaptiveDimens.smallFontSize * 0.8f,
-                                    color = MaterialTheme.colorScheme.error,
-                                )
-                            }
-
-                            null -> {
-                                // Show nothing or a download button if needed
-                            }
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (batchProgress != null) {
-                LinearProgressIndicator(
-                    progress = { batchProgress },
-                    modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = strings.developerNoteContent,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                    fontSize = AdaptiveDimens.smallFontSize,
+                    lineHeight = AdaptiveDimens.smallFontSize * 1.4f,
+                )
             }
+        }
 
-            Button(
-                onClick = { onStartBatchDownload(translations.map { it.language }) },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = batchProgress == null,
-                shape = RoundedCornerShape(8.dp),
-            ) {
-                Text(strings.downloadAll)
-            }
+        Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedButton(
-                onClick = { onClearOfflineData() },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error,
-                ),
-            ) {
-                Text(strings.clearOfflineData)
-            }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = strings.appTitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                fontWeight = FontWeight.SemiBold,
+                fontSize = AdaptiveDimens.smallFontSize,
+            )
+            Text(
+                text = strings.developedBy,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                fontSize = AdaptiveDimens.smallFontSize * 0.8f,
+            )
         }
     }
 }
