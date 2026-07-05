@@ -26,7 +26,7 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
     private val _batchProgress = MutableStateFlow<Float?>(null)
     val batchProgress = _batchProgress.asStateFlow()
 
-    private val baseUrl = "https://raw.githubusercontent.com/karol-bible/bible-data/main"
+    private val baseUrl = "https://raw.githubusercontent.com/KarolAppStudio/bible-data/main"
 
     init {
         // Load persisted download status
