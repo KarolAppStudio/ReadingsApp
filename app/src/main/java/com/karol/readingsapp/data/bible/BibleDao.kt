@@ -13,6 +13,9 @@ interface BibleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVerses(verses: List<Verse>)
 
+    @Query("DELETE FROM verses WHERE translation_code = :code")
+    suspend fun deleteVersesByTranslation(code: String)
+
     @Query("SELECT * FROM translations")
     suspend fun getAvailableTranslations(): List<TranslationEntity>
 

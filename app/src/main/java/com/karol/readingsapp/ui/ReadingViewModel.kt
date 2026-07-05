@@ -141,6 +141,21 @@ class ReadingViewModel(
         }
     }
 
+    fun retryDownload(language: String) {
+        viewModelScope.launch {
+            languageService.retryDownload(language)
+        }
+    }
+
+    fun clearOfflineData() {
+        viewModelScope.launch {
+            languageService.clearOfflineData()
+            // Reload translations and books after clearing
+            loadTranslations()
+            loadAllBooks()
+        }
+    }
+
     fun setTheme(theme: AppTheme) {
         _appTheme.value = theme
         prefs.edit { putString("app_theme", theme.name) }

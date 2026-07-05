@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
                     bibleDatabase.bibleDao(),
                     planDatabase.readingPlanDao(),
                 )
-            val languageService = LanguageService(applicationContext)
+            val languageService = LanguageService(applicationContext, bibleDatabase.bibleDao())
             val viewModel: ReadingViewModel =
                 viewModel(
                     factory =

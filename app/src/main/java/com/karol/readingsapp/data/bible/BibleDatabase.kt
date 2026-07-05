@@ -104,6 +104,32 @@ abstract class BibleDatabase : RoomDatabase() {
                 db.execSQL("DELETE FROM books")
                 populateBooks(db)
             }
+
+            populateTranslations(db)
+        }
+
+        private fun populateTranslations(db: SupportSQLiteDatabase) {
+            val translations = listOf(
+                arrayOf("ENG", "English", "English-ASV"),
+                arrayOf("HIN", "Hindi", "Hindi Bible"),
+                arrayOf("BAN", "Bangla", "Bangla Bible"),
+                arrayOf("KAN", "Kannada", "Kannada Bible"),
+                arrayOf("MAL", "Malayalam", "Malayalam Bible"),
+                arrayOf("TAM", "Tamil", "Tamil Bible"),
+                arrayOf("TEL", "Telugu", "Telugu Bible"),
+            )
+            db.beginTransaction()
+            try {
+                for (t in translations) {
+                    db.execSQL(
+                        "INSERT OR IGNORE INTO translations (code, language, name) VALUES (?, ?, ?)",
+                        t,
+                    )
+                }
+                db.setTransactionSuccessful()
+            } finally {
+                db.endTransaction()
+            }
         }
 
         private fun populateBooks(db: SupportSQLiteDatabase) {

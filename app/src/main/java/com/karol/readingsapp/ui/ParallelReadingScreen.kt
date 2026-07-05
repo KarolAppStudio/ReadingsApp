@@ -110,6 +110,8 @@ fun ParallelReadingScreen(
     }
     val strings2 = remember(selectedLanguage2) { Localization.getStrings(selectedLanguage2) }
 
+    val englishStrings = remember { Localization.getStrings("English") }
+
     val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
 
     var bookId1 by remember { mutableIntStateOf(bookId) }
@@ -192,7 +194,7 @@ fun ParallelReadingScreen(
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp)) {
                             Icon(
                                 imageVector = if (isSyncEnabled) Icons.Default.Lock else Icons.Default.LockOpen,
-                                contentDescription = strings1.sync,
+                                contentDescription = englishStrings.sync,
                                 tint = if (isSyncEnabled) activeColor else inactiveColor,
                                 modifier = Modifier.size(24.dp),
                             )
@@ -212,7 +214,7 @@ fun ParallelReadingScreen(
                             }
                         }
                         Text(
-                            text = strings1.sync,
+                            text = englishStrings.sync,
                             color = MaterialTheme.colorScheme.primary,
                             fontSize = 10.sp,
                         )
@@ -236,13 +238,13 @@ fun ParallelReadingScreen(
                         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp)) {
                             Icon(
                                 imageVector = Icons.Default.RestartAlt,
-                                contentDescription = strings1.reset,
+                                contentDescription = englishStrings.reset,
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(24.dp),
                             )
                         }
                         Text(
-                            text = strings1.reset,
+                            text = englishStrings.reset,
                             color = MaterialTheme.colorScheme.primary,
                             fontSize = 10.sp,
                         )
