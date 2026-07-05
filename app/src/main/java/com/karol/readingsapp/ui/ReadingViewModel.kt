@@ -109,7 +109,7 @@ class ReadingViewModel(
 
             val isFirstRun = prefs.getBoolean("is_first_run", true)
             if (isFirstRun) {
-                val allLanguages = translations.map { it.language }.distinct()
+                val allLanguages = translations.asSequence().map { it.language }.distinct().toList()
                 startBatchDownload(allLanguages)
                 setTheme(AppTheme.SKY_BLUE)
                 prefs.edit { putBoolean("is_first_run", false) }
@@ -138,21 +138,6 @@ class ReadingViewModel(
     fun startBatchDownload(languages: List<String>) {
         viewModelScope.launch {
             languageService.batchDownload(languages)
-        }
-    }
-
-    fun retryDownload(language: String) {
-        viewModelScope.launch {
-            languageService.retryDownload(language)
-        }
-    }
-
-    fun clearOfflineData() {
-        viewModelScope.launch {
-            languageService.clearOfflineData()
-            // Reload translations and books after clearing
-            loadTranslations()
-            loadAllBooks()
         }
     }
 

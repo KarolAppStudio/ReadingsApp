@@ -11,7 +11,6 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import java.net.HttpURLConnection
 import java.net.URL
-import kotlin.time.Duration.Companion.seconds
 
 enum class LanguageStatus {
     DOWNLOADING,
@@ -27,7 +26,7 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
     private val _batchProgress = MutableStateFlow<Float?>(null)
     val batchProgress = _batchProgress.asStateFlow()
 
-    private val BASE_URL = "https://raw.githubusercontent.com/karol-bible/bible-data/main"
+    private val baseUrl = "https://raw.githubusercontent.com/karol-bible/bible-data/main"
 
     init {
         // Load persisted download status
@@ -54,10 +53,6 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
         } else {
             updateStatus(language, LanguageStatus.FAILED)
         }
-    }
-
-    suspend fun retryDownload(language: String) {
-        downloadLanguageScript(language)
     }
 
     suspend fun batchDownload(languages: List<String>) = withContext(Dispatchers.IO) {
@@ -96,16 +91,15 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
         val assetPath = "bibles/$code.json"
         val jsonString = try {
             context.assets.open(assetPath).bufferedReader().use { it.readText() }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
 
-        if (jsonString != null) {
-            return@withContext processJson(jsonString, code)
+        // Try reading from assets first (included in APK) or fallback to network
+        jsonString?.let {
+            return@withContext processJson(it, code)
         }
-
-        // Fallback to network if not in assets
-        return@withContext fetchFromNetwork(code)
+        fetchFromNetwork(code)
     }
 
     private suspend fun processJson(jsonString: String, code: String): Boolean = try {
@@ -136,7 +130,7 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
 
     private suspend fun fetchFromNetwork(code: String): Boolean = withContext(Dispatchers.IO) {
         try {
-            val url = URL("$BASE_URL/$code.json")
+            val url = URL("$baseUrl/$code.json")
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
             connection.connectTimeout = 10000
@@ -152,31 +146,6 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
             e.printStackTrace()
             false
         }
-    }
-
-    suspend fun clearOfflineData() = withContext(Dispatchers.IO) {
-        // Find all downloaded languages except English
-        val downloaded = prefs.all.keys.filter { it != "English" && prefs.getBoolean(it, false) }
-
-        downloaded.forEach { language ->
-            val code = when (language) {
-                "Hindi" -> "HIN"
-                "Bangla" -> "BAN"
-                "Kannada" -> "KAN"
-                "Malayalam" -> "MAL"
-                "Tamil" -> "TAM"
-                "Telugu" -> "TEL"
-                else -> null
-            }
-            if (code != null) {
-                bibleDao.deleteVersesByTranslation(code)
-            }
-            prefs.edit { remove(language) }
-        }
-
-        // Reset state
-        val statusMap = mutableMapOf<String, LanguageStatus>("English" to LanguageStatus.DOWNLOADED)
-        _downloadStatus.value = statusMap
     }
 
     private fun updateStatus(language: String, status: LanguageStatus) {

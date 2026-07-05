@@ -212,8 +212,7 @@ fun ReadingPlanScreen(
                         strings = strings,
                         numberFormatter = numberFormatter,
                         isToday = date == today.toString(),
-                        onClick = { onDateClick(date) },
-                    )
+                    ) { onDateClick(date) }
                 }
             }
         }
