@@ -27,7 +27,6 @@ import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import kotlinx.coroutines.flow.first
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.YearMonth
