@@ -93,89 +93,13 @@ fun ReadingPlanScreen(
 
     Scaffold(
         topBar = {
-            Column(modifier = Modifier.statusBarsPadding()) {
-                // Custom 40dp Navigation Bar with centered icon and Home button
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp),
-                    color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        IconButton(
-                            onClick = onHomeClick,
-                            modifier = Modifier.align(Alignment.CenterStart),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Home,
-                                contentDescription = strings.home,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(32.dp),
-                            )
-                        }
-
-                        Icon(
-                            imageVector = Icons.Default.DateRange,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .size(18.dp)
-                                .align(Alignment.Center),
-                        )
-                    }
-                }
-
-                // Month Selector Bar
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                    ) {
-                        IconButton(
-                            onClick = { currentMonth = currentMonth.minusMonths(1) },
-                            modifier = Modifier.size(36.dp),
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = strings.previousMonth,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp),
-                            )
-                        }
-
-                        AutoResizingText(
-                            text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM", strings.locale)),
-                            color = MaterialTheme.colorScheme.primary,
-                            fontSize = AdaptiveDimens.bodyFontSize,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.weight(1f),
-                            textAlign = TextAlign.Center,
-                        )
-
-                        IconButton(
-                            onClick = { currentMonth = currentMonth.plusMonths(1) },
-                            modifier = Modifier.size(36.dp),
-                        ) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = strings.nextMonth,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp),
-                            )
-                        }
-                    }
-                }
-            }
+            ReadingPlanTopBar(
+                currentMonth = currentMonth,
+                strings = strings,
+                isPleasant = isPleasant,
+                onHomeClick = onHomeClick,
+                onPreviousMonthClick = { currentMonth = currentMonth.minusMonths(1) },
+            ) { currentMonth = currentMonth.plusMonths(1) }
         },
         bottomBar = {
             AppBottomNavBar(
@@ -213,6 +137,100 @@ fun ReadingPlanScreen(
                         numberFormatter = numberFormatter,
                         isToday = date == today.toString(),
                     ) { onDateClick(date) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ReadingPlanTopBar(
+    currentMonth: YearMonth,
+    strings: LocalizedStrings,
+    isPleasant: Boolean,
+    onHomeClick: () -> Unit,
+    onPreviousMonthClick: () -> Unit,
+    onNextMonthClick: () -> Unit,
+) {
+    Column(modifier = Modifier.statusBarsPadding()) {
+        // Custom 40dp Navigation Bar with centered icon and Home button
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp),
+            color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                IconButton(
+                    onClick = onHomeClick,
+                    modifier = Modifier.align(Alignment.CenterStart),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Home,
+                        contentDescription = strings.home,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
+                    )
+                }
+
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(18.dp)
+                        .align(Alignment.Center),
+                )
+            }
+        }
+
+        // Month Selector Bar
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                IconButton(
+                    onClick = onPreviousMonthClick,
+                    modifier = Modifier.size(36.dp),
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = strings.previousMonth,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+
+                AutoResizingText(
+                    text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM", strings.locale)),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = AdaptiveDimens.bodyFontSize,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center,
+                )
+
+                IconButton(
+                    onClick = onNextMonthClick,
+                    modifier = Modifier.size(36.dp),
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = strings.nextMonth,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp),
+                    )
                 }
             }
         }

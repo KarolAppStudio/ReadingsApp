@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.karol.readingsapp.data.bible.BookEntity
 import com.karol.readingsapp.data.bible.ChapterReference
 import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.ui.components.AutoResizingText
@@ -52,32 +53,28 @@ fun BibleReaderScreen(
     val allBooks by viewModel.allBooks.collectAsState()
 
     val totalChapters = allChapters.size
-    val circularMultiplier = 1000 // Use a large enough but not excessive range
+    val circularMultiplier = 1000
     val virtualPageCount = if (totalChapters > 0) totalChapters * circularMultiplier else 0
 
     val pagerState = rememberPagerState(
-        pageCount = { virtualPageCount },
         initialPage = remember(allChapters) {
             if (totalChapters == 0) {
                 0
             } else {
-                val index = allChapters.indexOfFirst { (it.bookId == bookId) && (it.chapter == chapter) }
+                val index = allChapters.indexOfFirst { it.bookId == bookId && it.chapter == chapter }
                 val safeIndex = if (index != -1) index else 0
-                // Start in the middle of the virtual range
                 ((circularMultiplier / 2) * totalChapters) + safeIndex
             }
         },
-    )
+    ) { virtualPageCount }
 
-    // Sync pager with external navigation
     LaunchedEffect(bookId, chapter, allChapters) {
         if (totalChapters > 0) {
-            val targetIndex = allChapters.indexOfFirst { (it.bookId == bookId) && (it.chapter == chapter) }
+            val targetIndex = allChapters.indexOfFirst { it.bookId == bookId && it.chapter == chapter }
             if (targetIndex != -1) {
                 val currentActualIndex = pagerState.currentPage % totalChapters
-                // Use a larger buffer to decide if we need to re-center
                 val isNotInitialized = pagerState.currentPage < totalChapters
-                if ((isNotInitialized || (targetIndex != currentActualIndex)) && (!pagerState.isScrollInProgress)) {
+                if ((isNotInitialized || targetIndex != currentActualIndex) && !pagerState.isScrollInProgress) {
                     val virtualIndex = ((circularMultiplier / 2) * totalChapters) + targetIndex
                     pagerState.scrollToPage(virtualIndex)
                 }
@@ -85,25 +82,18 @@ fun BibleReaderScreen(
         }
     }
 
-    // Sync external state with pager swipes.
     LaunchedEffect(pagerState.settledPage) {
         if (totalChapters > 0) {
             val actualIndex = pagerState.settledPage % totalChapters
             val currentRef = allChapters[actualIndex]
-            if ((currentRef.bookId != bookId) || (currentRef.chapter != chapter)) {
+            if (currentRef.bookId != bookId || currentRef.chapter != chapter) {
                 onChapterChange(currentRef.bookId, currentRef.chapter)
             }
         }
     }
 
-    // Determine current book and chapter for the UI from pager state.
-    // Using currentPage makes the TopBar feel more responsive during swiping.
     val displayIndex = if (totalChapters > 0) pagerState.currentPage % totalChapters else -1
-    val currentRef = if (displayIndex != -1) {
-        allChapters[displayIndex]
-    } else {
-        ChapterReference(bookId, chapter)
-    }
+    val currentRef = if (displayIndex != -1) allChapters[displayIndex] else ChapterReference(bookId, chapter)
 
     val displayBookId = currentRef.bookId
     val displayChapter = currentRef.chapter
@@ -132,125 +122,21 @@ fun BibleReaderScreen(
 
     Scaffold(
         topBar = {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding(),
-                color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
-                tonalElevation = 4.dp,
-            ) {
-                Column(
-                    modifier = Modifier.padding(bottom = 8.dp),
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Column(
-                            modifier = Modifier.widthIn(max = AdaptiveDimens.contentMaxWidth),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            CenterAlignedTopAppBar(
-                                title = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            Icons.AutoMirrored.Filled.MenuBook,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(24.dp),
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        AutoResizingText(
-                                            text = "$bookName ${numberFormatter.format(displayChapter)}",
-                                            color = MaterialTheme.colorScheme.primary,
-                                            fontSize = AdaptiveDimens.bodyFontSize,
-                                            fontWeight = FontWeight.Bold,
-                                            maxLines = 1,
-                                        )
-                                    }
-                                },
-                                navigationIcon = {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(start = 8.dp),
-                                    ) {
-                                        IconButton(onClick = onHomeClick) {
-                                            Icon(
-                                                imageVector = Icons.Default.Home,
-                                                contentDescription = strings.home,
-                                                tint = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.size(35.dp),
-                                            )
-                                        }
-                                        IconButton(onClick = onBackClick) {
-                                            Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = strings.back,
-                                                tint = MaterialTheme.colorScheme.primary,
-                                            )
-                                        }
-                                    }
-                                },
-                                actions = {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier
-                                            .clickable { onParallelClick(displayBookId, displayChapter) }
-                                            .padding(horizontal = 8.dp),
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.AutoStories,
-                                            contentDescription = strings.parallelReading,
-                                            tint = MaterialTheme.colorScheme.primary,
-                                            modifier = Modifier.size(24.dp),
-                                        )
-                                        Text(
-                                            text = strings.parallelReading,
-                                            color = MaterialTheme.colorScheme.primary,
-                                            fontSize = 10.sp,
-                                            maxLines = 1,
-                                        )
-                                    }
-                                },
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = Color.Transparent,
-                                ),
-                            )
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = AdaptiveDimens.paddingMedium),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                SelectionButton(
-                                    text = strings.book,
-                                    options = bookOptions,
-                                    onOptionSelected = { index ->
-                                        onChapterChange(allBooks[index].id, 1)
-                                    },
-                                    modifier = Modifier.weight(1f),
-                                    isPleasant = isPleasant,
-                                    height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
-                                    fontSize = AdaptiveDimens.smallFontSize,
-                                    cornerRadius = 26.dp,
-                                )
-                                SelectionButton(
-                                    text = strings.chapter,
-                                    options = (1..chapterCount).map { numberFormatter.format(it) },
-                                    onOptionSelected = { index ->
-                                        onChapterChange(displayBookId, index + 1)
-                                    },
-                                    modifier = Modifier.weight(1f),
-                                    isPleasant = isPleasant,
-                                    height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
-                                    fontSize = AdaptiveDimens.smallFontSize,
-                                    cornerRadius = 26.dp,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            ReaderTopBar(
+                bookName = bookName,
+                displayBookId = displayBookId,
+                displayChapter = displayChapter,
+                isPleasant = isPleasant,
+                strings = strings,
+                numberFormatter = numberFormatter,
+                bookOptions = bookOptions,
+                chapterCount = chapterCount,
+                allBooks = allBooks,
+                onHomeClick = onHomeClick,
+                onBackClick = onBackClick,
+                onParallelClick = { onParallelClick(displayBookId, displayChapter) },
+                onChapterChange = onChapterChange,
+            )
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
@@ -260,69 +146,223 @@ fun BibleReaderScreen(
             beyondViewportPageCount = 1,
             key = { it },
         ) { pageIndex ->
+            ReaderPagerPage(
+                pageIndex = pageIndex,
+                pagerState = pagerState,
+                innerPadding = innerPadding,
+                totalChapters = totalChapters,
+                allChapters = allChapters,
+                bookId = bookId,
+                chapter = chapter,
+                initialVerse = initialVerse,
+                viewModel = viewModel,
+                numberFormatter = numberFormatter,
+                strings = strings,
+                scope = scope,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReaderTopBar(
+    bookName: String,
+    displayBookId: Int,
+    displayChapter: Int,
+    isPleasant: Boolean,
+    strings: LocalizedStrings,
+    numberFormatter: NumberFormat,
+    bookOptions: List<String>,
+    chapterCount: Int,
+    allBooks: List<BookEntity>,
+    onHomeClick: () -> Unit,
+    onBackClick: () -> Unit,
+    onParallelClick: () -> Unit,
+    onChapterChange: (Int, Int) -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding(),
+        color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+        tonalElevation = 4.dp,
+    ) {
+        Column(
+            modifier = Modifier.padding(bottom = 8.dp),
+        ) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        // Calculate the relative offset inside graphicsLayer to avoid recomposition
-                        val pageOffset = (pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction
-                        val absOffset = pageOffset.absoluteValue
-
-                        // "Kindle Style" Fade-Through Animation
-                        // We counteract the default sliding motion to keep the text stationary
-                        // while fading it in/out, preventing motion blur for a cleaner reading experience.
-
-                        // Counteract the default HorizontalPager slide
-                        translationX = pageOffset * size.width
-
-                        // Apply a clean fade through. absOffset is 0 at the center, 1 when off-screen.
-                        // For a cross-fade effect:
-                        alpha = (1f - absOffset).coerceIn(0f, 1f)
-
-                        // Ensure no scaling to keep text sharp and consistent
-                        scaleX = 1f
-                        scaleY = 1f
-                    }
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(
-                        top = innerPadding.calculateTopPadding(),
-                        bottom = innerPadding.calculateBottomPadding(),
-                    ),
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
             ) {
-                if (totalChapters > 0) {
-                    val actualIndex = pageIndex % totalChapters
-                    val ref = allChapters[actualIndex]
-
-                    // For circularity, the next chapter is always available (wraps around)
-                    val nextRef = allChapters[(actualIndex + 1) % totalChapters]
-                    val nextBookName = if (nextRef.bookId != ref.bookId) {
-                        strings.bookNames[nextRef.bookId]
-                    } else {
-                        null
-                    }
-
-                    ChapterPage(
-                        bookId = ref.bookId,
-                        chapter = ref.chapter,
-                        // Only pass initialVerse if it's the target chapter from navigation
-                        initialVerse = if ((ref.bookId == bookId) && (ref.chapter == chapter)) initialVerse else 1,
-                        viewModel = viewModel,
-                        numberFormatter = numberFormatter,
-                        strings = strings,
-                        onNextChapter = {
-                            scope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                Column(
+                    modifier = Modifier.widthIn(max = AdaptiveDimens.contentMaxWidth),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    CenterAlignedTopAppBar(
+                        title = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.MenuBook,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                AutoResizingText(
+                                    text = "$bookName ${numberFormatter.format(displayChapter)}",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = AdaptiveDimens.bodyFontSize,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                )
                             }
                         },
-                        onPreviousChapter = {
-                            scope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                        navigationIcon = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(start = 8.dp),
+                            ) {
+                                IconButton(onClick = onHomeClick) {
+                                    Icon(
+                                        imageVector = Icons.Default.Home,
+                                        contentDescription = strings.home,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
+                                    )
+                                }
+                                IconButton(onClick = onBackClick) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = strings.back,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
                             }
                         },
-                        nextBookName = nextBookName,
+                        actions = {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .clickable { onParallelClick() }
+                                    .padding(horizontal = 8.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AutoStories,
+                                    contentDescription = strings.parallelReading,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                                Text(
+                                    text = strings.parallelReading,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 10.sp,
+                                    maxLines = 1,
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color.Transparent,
+                        ),
                     )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = AdaptiveDimens.paddingMedium),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        SelectionButton(
+                            text = strings.book,
+                            options = bookOptions,
+                            onOptionSelected = { index ->
+                                onChapterChange(allBooks[index].id, 1)
+                            },
+                            modifier = Modifier.weight(1f),
+                            isPleasant = isPleasant,
+                            height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
+                            fontSize = AdaptiveDimens.smallFontSize,
+                            cornerRadius = 26.dp,
+                        )
+                        SelectionButton(
+                            text = strings.chapter,
+                            options = (1..chapterCount).map { numberFormatter.format(it) },
+                            onOptionSelected = { index ->
+                                onChapterChange(displayBookId, index + 1)
+                            },
+                            modifier = Modifier.weight(1f),
+                            isPleasant = isPleasant,
+                            height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
+                            fontSize = AdaptiveDimens.smallFontSize,
+                            cornerRadius = 26.dp,
+                        )
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ReaderPagerPage(
+    pageIndex: Int,
+    pagerState: androidx.compose.foundation.pager.PagerState,
+    innerPadding: PaddingValues,
+    totalChapters: Int,
+    allChapters: List<ChapterReference>,
+    bookId: Int,
+    chapter: Int,
+    initialVerse: Int,
+    viewModel: ReadingViewModel,
+    numberFormatter: NumberFormat,
+    strings: LocalizedStrings,
+    scope: kotlinx.coroutines.CoroutineScope,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .graphicsLayer {
+                val pageOffset = (pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction
+                val absOffset = pageOffset.absoluteValue
+                translationX = pageOffset * size.width
+                alpha = (1f - absOffset).coerceIn(0f, 1f)
+                scaleX = 1f
+                scaleY = 1f
+            }
+            .background(MaterialTheme.colorScheme.background)
+            .padding(
+                top = innerPadding.calculateTopPadding(),
+                bottom = innerPadding.calculateBottomPadding(),
+            ),
+    ) {
+        if (totalChapters > 0) {
+            val actualIndex = pageIndex % totalChapters
+            val ref = allChapters[actualIndex]
+            val nextRef = allChapters[(actualIndex + 1) % totalChapters]
+            val nextBookName = if (nextRef.bookId != ref.bookId) {
+                strings.bookNames[nextRef.bookId]
+            } else {
+                null
+            }
+
+            ChapterPage(
+                bookId = ref.bookId,
+                chapter = ref.chapter,
+                initialVerse = if (ref.bookId == bookId && ref.chapter == chapter) initialVerse else 1,
+                viewModel = viewModel,
+                numberFormatter = numberFormatter,
+                strings = strings,
+                onNextChapter = {
+                    scope.launch {
+                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    }
+                },
+                onPreviousChapter = {
+                    scope.launch {
+                        pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                    }
+                },
+                nextBookName = nextBookName,
+            )
         }
     }
 }
@@ -348,7 +388,7 @@ fun ChapterPage(
     }
 
     LaunchedEffect(verses, initialVerse) {
-        if ((verses.isNotEmpty()) && (initialVerse > 0)) {
+        if (verses.isNotEmpty() && initialVerse > 0) {
             val index = verses.indexOfFirst { it.verseId == initialVerse }
             if (index != -1) {
                 listState.scrollToItem(index)

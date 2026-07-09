@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.karol.readingsapp.ui.components.AboutContent
 import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
@@ -49,38 +50,11 @@ fun SettingsScreen(
 
     Scaffold(
         topBar = {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .height(40.dp),
-                color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    IconButton(
-                        onClick = onHomeClick,
-                        modifier = Modifier.align(Alignment.CenterStart),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Home,
-                            contentDescription = strings.home,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(32.dp),
-                        )
-                    }
-
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .size(18.dp)
-                            .align(Alignment.Center),
-                    )
-                }
-            }
+            SettingsTopBar(
+                strings = strings,
+                isPleasant = isPleasant,
+                onHomeClick = onHomeClick,
+            )
         },
         bottomBar = {
             AppBottomNavBar(
@@ -108,65 +82,10 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.Top,
             ) {
                 // Custom Folder-style Tabs
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy((-20).dp),
-                        verticalAlignment = Alignment.Bottom,
-                    ) {
-                        tabs.forEachIndexed { index, title ->
-                            val selected = selectedTabIndex == index
-                            Box(
-                                modifier = Modifier
-                                    .zIndex(if (selected) 1f else 0f)
-                                    .clip(
-                                        GenericShape { size, _ ->
-                                            val slantWidth = size.height * 0.7f // tan(35 degrees) approx 0.7
-
-                                            moveTo(0f, size.height)
-                                            // Left side: straight vertical
-                                            lineTo(0f, 0f)
-                                            // Top edge to the top-right corner
-                                            lineTo(size.width - slantWidth, 0f)
-                                            // Right side: 35-degree slant
-                                            lineTo(size.width, size.height)
-                                            close()
-                                        },
-                                    )
-                                    .background(
-                                        if (selected) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
-                                        },
-                                    )
-                                    .clickable { selectedTabIndex = index }
-                                    .padding(start = 16.dp, end = 35.dp, top = 8.dp, bottom = 8.dp),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    text = title,
-                                    color = if (selected) {
-                                        MaterialTheme.colorScheme.onPrimary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    },
-                                    fontSize = AdaptiveDimens.smallFontSize,
-                                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                                )
-                            }
-                        }
-                    }
-                    // Bottom border that connects with the active tab
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(2.dp)
-                            .background(MaterialTheme.colorScheme.primary),
-                    )
-                }
+                SettingsTabs(
+                    tabs = tabs,
+                    selectedTabIndex = selectedTabIndex,
+                ) { selectedTabIndex = it }
 
                 Spacer(modifier = Modifier.height(AdaptiveDimens.paddingMedium))
 
@@ -204,6 +123,113 @@ fun SettingsScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun SettingsTopBar(
+    strings: LocalizedStrings,
+    isPleasant: Boolean,
+    onHomeClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
+            .height(40.dp),
+        color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            IconButton(
+                onClick = onHomeClick,
+                modifier = Modifier.align(Alignment.CenterStart),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = strings.home,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(18.dp)
+                    .align(Alignment.Center),
+            )
+        }
+    }
+}
+
+@Composable
+fun SettingsTabs(
+    tabs: List<String>,
+    selectedTabIndex: Int,
+    onTabSelected: (Int) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy((-20).dp),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            tabs.forEachIndexed { index, title ->
+                val selected = selectedTabIndex == index
+                Box(
+                    modifier = Modifier
+                        .zIndex(if (selected) 1f else 0f)
+                        .clip(
+                            GenericShape { size, _ ->
+                                val slantWidth = size.height * 0.7f // tan(35 degrees) approx 0.7
+
+                                moveTo(0f, size.height)
+                                // Left side: straight vertical
+                                lineTo(0f, 0f)
+                                // Top edge to the top-right corner
+                                lineTo(size.width - slantWidth, 0f)
+                                // Right side: 35-degree slant
+                                lineTo(size.width, size.height)
+                                close()
+                            },
+                        )
+                        .background(
+                            if (selected) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
+                            },
+                        )
+                        .clickable { onTabSelected(index) }
+                        .padding(start = 16.dp, end = 35.dp, top = 8.dp, bottom = 8.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = title,
+                        color = if (selected) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        fontSize = AdaptiveDimens.smallFontSize,
+                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                    )
+                }
+            }
+        }
+        // Bottom border that connects with the active tab
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(2.dp)
+                .background(MaterialTheme.colorScheme.primary),
+        )
     }
 }
 
@@ -289,67 +315,5 @@ fun AboutSettings(
     strings: LocalizedStrings,
     isPleasant: Boolean,
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = strings.appDescription,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.primary,
-            fontSize = AdaptiveDimens.bodyFontSize,
-            lineHeight = AdaptiveDimens.bodyFontSize * 1.5f,
-            modifier = Modifier.padding(vertical = AdaptiveDimens.paddingMedium),
-        )
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
-            shape = RoundedCornerShape(16.dp),
-            elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
-        ) {
-            Column(
-                modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
-            ) {
-                Text(
-                    text = strings.developerNoteTitle,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = AdaptiveDimens.bodyFontSize,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = strings.developerNoteContent,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                    fontSize = AdaptiveDimens.smallFontSize,
-                    lineHeight = AdaptiveDimens.smallFontSize * 1.4f,
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = strings.appTitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-                fontWeight = FontWeight.SemiBold,
-                fontSize = AdaptiveDimens.smallFontSize,
-            )
-            Text(
-                text = strings.developedBy,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                fontSize = AdaptiveDimens.smallFontSize * 0.8f,
-            )
-        }
-    }
+    AboutContent(strings = strings, isPleasant = isPleasant)
 }

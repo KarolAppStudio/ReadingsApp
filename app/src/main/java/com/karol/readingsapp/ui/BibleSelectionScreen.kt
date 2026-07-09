@@ -70,7 +70,7 @@ fun BibleSelectionScreen(
     }
 
     LaunchedEffect(selectedBook, selectedChapter) {
-        if ((selectedBook != null) && (selectedChapter > 0)) {
+        if (selectedBook != null && selectedChapter > 0) {
             verseCount = viewModel.getVerseCount(selectedBook!!.id, selectedChapter)
         }
     }
@@ -79,85 +79,23 @@ fun BibleSelectionScreen(
 
     Scaffold(
         topBar = {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .height(48.dp),
-                color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+            SelectionTopBar(
+                selectedBook = selectedBook,
+                selectedChapter = selectedChapter,
+                strings = strings,
+                numberFormatter = numberFormatter,
+                isPleasant = isPleasant,
+                onHomeClick = onHomeClick,
+                onParallelClick = {
+                    val bookId = selectedBook?.id ?: 0
+                    val chapter = if (selectedChapter > 0) selectedChapter else 1
+                    onParallelClick(bookId, chapter)
+                },
             ) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    IconButton(
-                        onClick = onHomeClick,
-                        modifier = Modifier.align(Alignment.CenterStart),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Home,
-                            contentDescription = strings.home,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(32.dp),
-                        )
-                    }
-
-                    AutoResizingText(
-                        text = when {
-                            selectedBook == null -> strings.bible
-                            selectedChapter == 0 -> strings.bookNames[selectedBook!!.id] ?: selectedBook!!.name
-                            else -> "${strings.bookNames[selectedBook!!.id] ?: selectedBook!!.name} ${numberFormatter.format(selectedChapter)}"
-                        },
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = AdaptiveDimens.bodyFontSize,
-                        modifier = Modifier.align(Alignment.Center),
-                        maxLines = 1,
-                    )
-
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterEnd),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .clickable {
-                                    val bookId = selectedBook?.id ?: 0
-                                    val chapter = if (selectedChapter > 0) selectedChapter else 1
-                                    onParallelClick(bookId, chapter)
-                                }
-                                .padding(horizontal = 8.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.AutoStories,
-                                contentDescription = strings.parallelReading,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp),
-                            )
-                            Text(
-                                text = strings.parallelReading,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontSize = 10.sp,
-                                maxLines = 1,
-                            )
-                        }
-
-                        if (selectedBook != null) {
-                            IconButton(
-                                onClick = {
-                                    if (selectedChapter != 0) {
-                                        selectedChapter = 0
-                                    } else {
-                                        selectedBook = null
-                                    }
-                                },
-                            ) {
-                                Icon(
-                                    Icons.Default.Close,
-                                    contentDescription = "Clear selection",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-                        }
-                    }
+                if (selectedChapter != 0) {
+                    selectedChapter = 0
+                } else {
+                    selectedBook = null
                 }
             }
         },
@@ -237,6 +175,88 @@ fun BibleSelectionScreen(
 }
 
 @Composable
+fun SelectionTopBar(
+    selectedBook: BookEntity?,
+    selectedChapter: Int,
+    strings: LocalizedStrings,
+    numberFormatter: NumberFormat,
+    isPleasant: Boolean,
+    onHomeClick: () -> Unit,
+    onParallelClick: () -> Unit,
+    onClearSelection: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
+            .height(48.dp),
+        color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            IconButton(
+                onClick = onHomeClick,
+                modifier = Modifier.align(Alignment.CenterStart),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = strings.home,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
+                )
+            }
+
+            AutoResizingText(
+                text = when {
+                    selectedBook == null -> strings.bible
+                    selectedChapter == 0 -> strings.bookNames[selectedBook.id] ?: selectedBook.name
+                    else -> "${strings.bookNames[selectedBook.id] ?: selectedBook.name} ${numberFormatter.format(selectedChapter)}"
+                },
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                fontSize = AdaptiveDimens.bodyFontSize,
+                modifier = Modifier.align(Alignment.Center),
+                maxLines = 1,
+            )
+
+            Row(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clickable { onParallelClick() }
+                        .padding(horizontal = 8.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AutoStories,
+                        contentDescription = strings.parallelReading,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp),
+                    )
+                    Text(
+                        text = strings.parallelReading,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 10.sp,
+                        maxLines = 1,
+                    )
+                }
+
+                if (selectedBook != null) {
+                    IconButton(onClick = onClearSelection) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Clear selection",
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun BookSelection(
     mode: NavMode,
     books: List<BookEntity>,
@@ -278,44 +298,13 @@ fun ChapterSelection(
     numberFormatter: NumberFormat,
     onChapterClick: (Int) -> Unit,
 ) {
-    val chapters = (1..chapterCount).toList()
-
-    when (mode) {
-        NavMode.Grid -> {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(5),
-                contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                items(chapters) { chapter ->
-                    ChapterCard(chapter, numberFormatter, onChapterClick)
-                }
-            }
-        }
-
-        else -> {
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                items(chapters) { chapter ->
-                    Surface(
-                        onClick = { onChapterClick(chapter) },
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(8.dp),
-                    ) {
-                        Text(
-                            text = "${strings.chapter} ${numberFormatter.format(chapter)}",
-                            modifier = Modifier.padding(16.dp),
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                }
-            }
-        }
-    }
+    GridOrListSelection(
+        mode = mode,
+        items = (1..chapterCount).toList(),
+        itemLabel = { "${strings.chapter} ${numberFormatter.format(it)}" },
+        gridLabel = { numberFormatter.format(it) },
+        onItemClick = onChapterClick,
+    )
 }
 
 @Composable
@@ -326,8 +315,23 @@ fun VerseSelection(
     numberFormatter: NumberFormat,
     onVerseClick: (Int) -> Unit,
 ) {
-    val verses = (1..verseCount).toList()
+    GridOrListSelection(
+        mode = mode,
+        items = (1..verseCount).toList(),
+        itemLabel = { "${strings.verse} ${numberFormatter.format(it)}" },
+        gridLabel = { numberFormatter.format(it) },
+        onItemClick = onVerseClick,
+    )
+}
 
+@Composable
+fun GridOrListSelection(
+    mode: NavMode,
+    items: List<Int>,
+    itemLabel: (Int) -> String,
+    gridLabel: (Int) -> String,
+    onItemClick: (Int) -> Unit,
+) {
     when (mode) {
         NavMode.Grid -> {
             LazyVerticalGrid(
@@ -336,26 +340,26 @@ fun VerseSelection(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(verses) { verse ->
-                    ChapterCard(verse, numberFormatter, onVerseClick) // Reusing ChapterCard style
+                items(items) { item ->
+                    ChapterCard(item, gridLabel(item), onItemClick)
                 }
             }
         }
 
-        else -> {
+        NavMode.List -> {
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                items(verses) { verse ->
+                items(items) { item ->
                     Surface(
-                        onClick = { onVerseClick(verse) },
+                        onClick = { onItemClick(item) },
                         modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(8.dp),
                     ) {
                         Text(
-                            text = "${strings.verse} ${numberFormatter.format(verse)}",
+                            text = itemLabel(item),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurface,
                         )
@@ -420,11 +424,11 @@ fun BookListItem(book: BookEntity, strings: LocalizedStrings, onClick: (BookEnti
 }
 
 @Composable
-fun ChapterCard(chapter: Int, numberFormatter: NumberFormat, onClick: (Int) -> Unit) {
+fun ChapterCard(item: Int, label: String, onClick: (Int) -> Unit) {
     val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
 
     Card(
-        onClick = { onClick(chapter) },
+        onClick = { onClick(item) },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(8.dp),
         border = if (isPleasant) null else CardDefaults.outlinedCardBorder(),
@@ -435,7 +439,7 @@ fun ChapterCard(chapter: Int, numberFormatter: NumberFormat, onClick: (Int) -> U
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = numberFormatter.format(chapter),
+                text = label,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
             )

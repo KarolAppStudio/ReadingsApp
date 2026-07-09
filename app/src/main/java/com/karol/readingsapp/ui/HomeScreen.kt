@@ -207,102 +207,14 @@ fun HomeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 item {
-                    val selectedName = translations.find { it.code == selectedCode }?.name ?: strings.selectBible
-                    var expanded by remember { mutableStateOf(value = false) }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = AdaptiveDimens.paddingSmall),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Icon(
-                            Icons.Default.Home,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
-                        )
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 4.dp),
-                        ) {
-                            Box(modifier = Modifier.align(Alignment.CenterEnd)) {
-                                Surface(
-                                    onClick = { expanded = true },
-                                    color = MaterialTheme.colorScheme.secondaryContainer,
-                                    shape = RoundedCornerShape(8.dp),
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        if (isDownloading) {
-                                            CircularProgressIndicator(
-                                                modifier = Modifier.size(16.dp),
-                                                strokeWidth = 2.dp,
-                                                color = MaterialTheme.colorScheme.primary,
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                        }
-                                        Text(
-                                            text = selectedName,
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = AdaptiveDimens.smallFontSize,
-                                        )
-                                        Icon(
-                                            Icons.Default.ArrowDropDown,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                                        )
-                                    }
-                                }
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false },
-                                    modifier = Modifier
-                                        .background(MaterialTheme.colorScheme.surface)
-                                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
-                                ) {
-                                    translations.forEach { translation ->
-                                        DropdownMenuItem(
-                                            text = {
-                                                Text(
-                                                    translation.name,
-                                                    color = MaterialTheme.colorScheme.onSurface,
-                                                    fontSize = AdaptiveDimens.smallFontSize,
-                                                    fontWeight = FontWeight.Normal,
-                                                )
-                                            },
-                                            onClick = {
-                                                viewModel.setTranslation(translation.code)
-                                                expanded = false
-                                            },
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(AdaptiveDimens.paddingSmall))
-
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        AutoResizingText(
-                            text = if (isToday) strings.todaysReadings else strings.selectedReadings,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = AdaptiveDimens.bodyFontSize,
-                        )
-                        AutoResizingText(
-                            text = displayDate,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = AdaptiveDimens.smallFontSize,
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(AdaptiveDimens.paddingMedium))
+                    HomeHeader(
+                        isDownloading = isDownloading,
+                        selectedName = translations.find { it.code == selectedCode }?.name ?: strings.selectBible,
+                        isToday = isToday,
+                        strings = strings,
+                        displayDate = displayDate,
+                        translations = translations,
+                    ) { viewModel.setTranslation(it) }
                 }
 
                 // Dynamically show sections based on available data, or default if empty
@@ -332,6 +244,113 @@ fun HomeScreen(
             }
         }
     }
+}
+
+@Composable
+fun HomeHeader(
+    isDownloading: Boolean,
+    selectedName: String,
+    isToday: Boolean,
+    strings: LocalizedStrings,
+    displayDate: String,
+    translations: List<com.karol.readingsapp.data.bible.TranslationEntity>,
+    onTranslationSelected: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(value = false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = AdaptiveDimens.paddingSmall),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Icon(
+            Icons.Default.Home,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 4.dp),
+        ) {
+            Box(modifier = Modifier.align(Alignment.CenterEnd)) {
+                Surface(
+                    onClick = { expanded = true },
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    shape = RoundedCornerShape(8.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (isDownloading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        Text(
+                            text = selectedName,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = AdaptiveDimens.smallFontSize,
+                        )
+                        Icon(
+                            Icons.Default.ArrowDropDown,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        )
+                    }
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
+                ) {
+                    translations.forEach { translation ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    translation.name,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontSize = AdaptiveDimens.smallFontSize,
+                                    fontWeight = FontWeight.Normal,
+                                )
+                            },
+                            onClick = {
+                                onTranslationSelected(translation.code)
+                                expanded = false
+                            },
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    Spacer(modifier = Modifier.height(AdaptiveDimens.paddingSmall))
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        AutoResizingText(
+            text = if (isToday) strings.todaysReadings else strings.selectedReadings,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold,
+            fontSize = AdaptiveDimens.bodyFontSize,
+        )
+        AutoResizingText(
+            text = displayDate,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = AdaptiveDimens.smallFontSize,
+        )
+    }
+    Spacer(modifier = Modifier.height(AdaptiveDimens.paddingMedium))
 }
 
 @Composable
