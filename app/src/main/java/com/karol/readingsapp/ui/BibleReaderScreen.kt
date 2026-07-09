@@ -60,7 +60,7 @@ fun BibleReaderScreen(
             if (totalChapters == 0) {
                 0
             } else {
-                val index = allChapters.indexOfFirst { it.bookId == bookId && it.chapter == chapter }
+                val index = allChapters.indexOfFirst { (it.bookId == bookId) && (it.chapter == chapter) }
                 val safeIndex = if (index != -1) index else 0
                 ((circularMultiplier / 2) * totalChapters) + safeIndex
             }
@@ -69,11 +69,11 @@ fun BibleReaderScreen(
 
     LaunchedEffect(bookId, chapter, allChapters) {
         if (totalChapters > 0) {
-            val targetIndex = allChapters.indexOfFirst { it.bookId == bookId && it.chapter == chapter }
+            val targetIndex = allChapters.indexOfFirst { (it.bookId == bookId) && (it.chapter == chapter) }
             if (targetIndex != -1) {
                 val currentActualIndex = pagerState.currentPage % totalChapters
                 val isNotInitialized = pagerState.currentPage < totalChapters
-                if ((isNotInitialized || targetIndex != currentActualIndex) && !pagerState.isScrollInProgress) {
+                if ((isNotInitialized || (targetIndex != currentActualIndex)) && !pagerState.isScrollInProgress) {
                     val virtualIndex = ((circularMultiplier / 2) * totalChapters) + targetIndex
                     pagerState.scrollToPage(virtualIndex)
                 }
@@ -85,7 +85,7 @@ fun BibleReaderScreen(
         if (totalChapters > 0) {
             val actualIndex = pagerState.settledPage % totalChapters
             val currentRef = allChapters[actualIndex]
-            if (currentRef.bookId != bookId || currentRef.chapter != chapter) {
+            if ((currentRef.bookId != bookId) || (currentRef.chapter != chapter)) {
                 onChapterChange(currentRef.bookId, currentRef.chapter)
             }
         }
@@ -341,7 +341,7 @@ fun ReaderPagerPage(
             ChapterPage(
                 bookId = ref.bookId,
                 chapter = ref.chapter,
-                initialVerse = if (ref.bookId == bookId && ref.chapter == chapter) initialVerse else 1,
+                initialVerse = if ((ref.bookId == bookId) && (ref.chapter == chapter)) initialVerse else 1,
                 viewModel = viewModel,
                 numberFormatter = numberFormatter,
                 strings = strings,
@@ -382,7 +382,7 @@ fun ChapterPage(
     }
 
     LaunchedEffect(verses, initialVerse) {
-        if (verses.isNotEmpty() && initialVerse > 0) {
+        if (verses.isNotEmpty() && (initialVerse > 0)) {
             val index = verses.indexOfFirst { it.verseId == initialVerse }
             if (index != -1) {
                 listState.scrollToItem(index)

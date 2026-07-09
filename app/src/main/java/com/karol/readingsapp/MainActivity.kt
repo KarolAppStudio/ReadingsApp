@@ -129,10 +129,9 @@ class MainActivity : ComponentActivity() {
                                         onCalendarClick = {
                                             navController.navigate("reading_plan")
                                         },
-                                        onBibleClick = {
-                                            navController.navigate("bible")
-                                        },
-                                    )
+                                    ) {
+                                        navController.navigate("bible")
+                                    }
                                 }
                                 composable("reading_plan") {
                                     ReadingPlanScreen(

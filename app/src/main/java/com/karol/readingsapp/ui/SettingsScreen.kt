@@ -99,8 +99,7 @@ fun SettingsScreen(
                                 currentTheme = currentTheme,
                                 themeExpanded = themeExpanded,
                                 onThemeExpandedChange = { themeExpanded = it },
-                                onThemeSelected = { viewModel.setTheme(it) },
-                            )
+                            ) { viewModel.setTheme(it) }
 
                             1 -> AboutSettings(
                                 strings = strings,
@@ -200,7 +199,7 @@ fun SettingsTabs(
                                 quadraticTo(
                                     size.width - slantWidth,
                                     0f,
-                                    size.width - slantWidth + r * 0.57f,
+                                    (size.width - slantWidth) + (r * 0.57f),
                                     r * 0.82f,
                                 )
 

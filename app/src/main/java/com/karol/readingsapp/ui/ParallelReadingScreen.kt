@@ -93,7 +93,7 @@ fun ParallelReadingScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    val displayTitle = if (bookId1 == bookId2 && chapter1 == chapter2) {
+                    val displayTitle = if ((bookId1 == bookId2) && (chapter1 == chapter2)) {
                         "$bookName1 ${numberFormatter1.format(chapter1)}"
                     } else {
                         "$bookName1 ${numberFormatter1.format(chapter1)} | $bookName2 ${numberFormatter2.format(chapter2)}"
