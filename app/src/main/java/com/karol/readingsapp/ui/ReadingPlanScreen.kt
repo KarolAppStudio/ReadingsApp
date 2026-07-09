@@ -26,7 +26,6 @@ import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import kotlinx.coroutines.flow.first
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.YearMonth
@@ -87,8 +86,7 @@ fun ReadingPlanScreen(
                 strings = strings,
                 onHomeClick = onHomeClick,
                 onPreviousMonthClick = { currentMonth = currentMonth.minusMonths(1) },
-                onNextMonthClick = { currentMonth = currentMonth.plusMonths(1) },
-            )
+            ) { currentMonth = currentMonth.plusMonths(1) }
         },
         bottomBar = {
             AppBottomNavBar(
