@@ -78,7 +78,6 @@ fun TranslationSelector(
     onTranslationSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String = "",
-    isPleasant: Boolean = false,
 ) {
     var expanded by remember { mutableStateOf(value = false) }
     val transName = translations.find { it.code == selectedTranslationCode }?.name ?: placeholder
@@ -86,8 +85,8 @@ fun TranslationSelector(
     Box(modifier = modifier) {
         Surface(
             onClick = { expanded = true },
-            color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.secondaryContainer,
-            shape = if (isPleasant) RoundedCornerShape(12.dp) else RoundedCornerShape(4.dp),
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            shape = RoundedCornerShape(4.dp),
             modifier = Modifier.fillMaxWidth(),
         ) {
             Row(
@@ -115,7 +114,7 @@ fun TranslationSelector(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             offset = DpOffset(0.dp, 36.dp),
-            backgroundColor = if (isPleasant) MaterialTheme.colorScheme.surface else Color.White,
+            backgroundColor = Color.White,
             modifier = Modifier
                 .heightIn(max = 500.dp)
                 .widthIn(min = 1.dp)
@@ -146,7 +145,6 @@ fun SelectionButton(
     options: List<String>,
     onOptionSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    isPleasant: Boolean = false,
     fontSize: androidx.compose.ui.unit.TextUnit = 10.sp,
     height: androidx.compose.ui.unit.Dp = 20.dp,
     cornerRadius: androidx.compose.ui.unit.Dp? = null,
@@ -161,7 +159,7 @@ fun SelectionButton(
                 .height(height),
             contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
             shape = cornerRadius?.let { RoundedCornerShape(it) }
-                ?: if (isPleasant) RoundedCornerShape(6.dp) else RoundedCornerShape(2.dp),
+                ?: RoundedCornerShape(2.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

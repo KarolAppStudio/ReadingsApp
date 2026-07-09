@@ -27,7 +27,6 @@ import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import com.karol.readingsapp.ui.theme.GlassBorder
 import java.text.NumberFormat
 
 enum class NavMode { Grid, List }
@@ -75,8 +74,6 @@ fun BibleSelectionScreen(
         }
     }
 
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
-
     Scaffold(
         topBar = {
             SelectionTopBar(
@@ -84,7 +81,6 @@ fun BibleSelectionScreen(
                 selectedChapter = selectedChapter,
                 strings = strings,
                 numberFormatter = numberFormatter,
-                isPleasant = isPleasant,
                 onHomeClick = onHomeClick,
                 onParallelClick = {
                     val bookId = selectedBook?.id ?: 0
@@ -124,7 +120,7 @@ fun BibleSelectionScreen(
             ) {
                 SecondaryTabRow(
                     selectedTabIndex = currentMode.ordinal,
-                    containerColor = if (isPleasant) Color.Transparent else MaterialTheme.colorScheme.background,
+                    containerColor = MaterialTheme.colorScheme.background,
                     contentColor = MaterialTheme.colorScheme.primary,
                     indicator = {
                         TabRowDefaults.SecondaryIndicator(
@@ -180,7 +176,6 @@ fun SelectionTopBar(
     selectedChapter: Int,
     strings: LocalizedStrings,
     numberFormatter: NumberFormat,
-    isPleasant: Boolean,
     onHomeClick: () -> Unit,
     onParallelClick: () -> Unit,
     onClearSelection: () -> Unit,
@@ -190,7 +185,7 @@ fun SelectionTopBar(
             .fillMaxWidth()
             .statusBarsPadding()
             .height(48.dp),
-        color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+        color = MaterialTheme.colorScheme.background,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             IconButton(
@@ -373,7 +368,6 @@ fun GridOrListSelection(
 @Composable
 fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) -> Unit) {
     Log.d("BookCard", "Book ID: ${book.id}, Name: ${book.name}, Localized: ${strings.bookNames[book.id]}")
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
 
     val (backgroundColor, textColor) = when (book.testament) {
         "OT" -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
@@ -384,7 +378,7 @@ fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) 
         onClick = { onClick(book) },
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         shape = RoundedCornerShape(8.dp),
-        elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
     ) {
         Box(
             modifier = Modifier
@@ -425,14 +419,12 @@ fun BookListItem(book: BookEntity, strings: LocalizedStrings, onClick: (BookEnti
 
 @Composable
 fun ChapterCard(item: Int, label: String, onClick: (Int) -> Unit) {
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
-
     Card(
         onClick = { onClick(item) },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(8.dp),
-        border = if (isPleasant) null else CardDefaults.outlinedCardBorder(),
-        elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(1.dp),
+        border = CardDefaults.outlinedCardBorder(),
+        elevation = CardDefaults.cardElevation(1.dp),
     ) {
         Box(
             modifier = Modifier.aspectRatio(1f),

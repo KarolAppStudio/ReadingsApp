@@ -18,7 +18,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.LocalizedStrings
-import com.karol.readingsapp.ui.theme.GlassBorder
 
 enum class NavItem {
     Home,
@@ -36,11 +35,9 @@ fun AppBottomNavBar(
     onBibleClick: () -> Unit,
     onSettingsClick: () -> Unit,
 ) {
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
-
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
-        tonalElevation = if (isPleasant) 0.dp else 8.dp,
+        tonalElevation = 8.dp,
     ) {
         AppNavigationBarItem(
             selected = selectedItem == NavItem.Home,

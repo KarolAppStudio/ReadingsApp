@@ -30,7 +30,6 @@ import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.SelectionButton
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import kotlin.math.absoluteValue
@@ -107,7 +106,6 @@ fun BibleReaderScreen(
         translations.find { it.code == selectedCode }?.language ?: "English"
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
     val bookName = strings.bookNames[displayBookId] ?: "Book $displayBookId"
 
     val bookOptions = remember(allBooks, strings) {
@@ -126,7 +124,6 @@ fun BibleReaderScreen(
                 bookName = bookName,
                 displayBookId = displayBookId,
                 displayChapter = displayChapter,
-                isPleasant = isPleasant,
                 strings = strings,
                 numberFormatter = numberFormatter,
                 bookOptions = bookOptions,
@@ -170,7 +167,6 @@ fun ReaderTopBar(
     bookName: String,
     displayBookId: Int,
     displayChapter: Int,
-    isPleasant: Boolean,
     strings: LocalizedStrings,
     numberFormatter: NumberFormat,
     bookOptions: List<String>,
@@ -185,7 +181,7 @@ fun ReaderTopBar(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding(),
-        color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+        color = MaterialTheme.colorScheme.background,
         tonalElevation = 4.dp,
     ) {
         Column(
@@ -278,7 +274,6 @@ fun ReaderTopBar(
                                 onChapterChange(allBooks[index].id, 1)
                             },
                             modifier = Modifier.weight(1f),
-                            isPleasant = isPleasant,
                             height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
                             fontSize = AdaptiveDimens.smallFontSize,
                             cornerRadius = 26.dp,
@@ -290,7 +285,6 @@ fun ReaderTopBar(
                                 onChapterChange(displayBookId, index + 1)
                             },
                             modifier = Modifier.weight(1f),
-                            isPleasant = isPleasant,
                             height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
                             fontSize = AdaptiveDimens.smallFontSize,
                             cornerRadius = 26.dp,

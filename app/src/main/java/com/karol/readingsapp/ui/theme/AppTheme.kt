@@ -6,13 +6,11 @@ enum class AppTheme {
     SKY_BLUE,
     PURPLE,
     SEPIA,
-    PLEASANT,
     ;
 
     fun getDisplayName(strings: LocalizedStrings): String = when (this) {
         SKY_BLUE -> strings.themeSkyBlue
         PURPLE -> strings.themePurple
         SEPIA -> strings.themeSepia
-        PLEASANT -> strings.themeModernGlass
     }
 }

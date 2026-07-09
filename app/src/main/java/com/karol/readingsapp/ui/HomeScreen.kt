@@ -53,7 +53,6 @@ import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import com.karol.readingsapp.ui.theme.GlassBorder
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -77,7 +76,6 @@ fun HomeScreen(
         translations.find { it.code == selectedCode }?.language ?: "English"
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
 
     val downloadStatus by viewModel.downloadStatus.collectAsState()
     val isDownloading = downloadStatus[selectedLanguage] == com.karol.readingsapp.data.LanguageStatus.DOWNLOADING
@@ -177,7 +175,7 @@ fun HomeScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+                    containerColor = MaterialTheme.colorScheme.background,
                 ),
             )
         },
@@ -426,14 +424,12 @@ fun ReadingItemRow(
     val verticalPadding = 6.dp
     val horizontalPadding = 12.dp
 
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
-
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(8.dp),
-        shadowElevation = if (isPleasant) 0.dp else 1.dp,
+        shadowElevation = 1.dp,
     ) {
         AutoResizingText(
             text = text,

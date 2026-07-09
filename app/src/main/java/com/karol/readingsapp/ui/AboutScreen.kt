@@ -11,12 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.karol.readingsapp.ui.components.AboutContent
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import com.karol.readingsapp.ui.theme.GlassBorder
 
 @Composable
 fun AboutScreen(strings: LocalizedStrings, onHomeClick: () -> Unit) {
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
-
     Scaffold(
         topBar = {
             AboutTopBar(strings = strings, onHomeClick = onHomeClick)
@@ -31,7 +28,6 @@ fun AboutScreen(strings: LocalizedStrings, onHomeClick: () -> Unit) {
         ) {
             AboutContent(
                 strings = strings,
-                isPleasant = isPleasant,
                 modifier = Modifier
                     .fillMaxHeight()
                     .widthIn(max = AdaptiveDimens.contentMaxWidth)

@@ -28,7 +28,6 @@ import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.SelectionButton
 import com.karol.readingsapp.ui.components.TranslationSelector
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 
@@ -71,8 +70,6 @@ fun ParallelReadingScreen(
     val strings2 = getStrings(selectedCode2, translations)
     val numberFormatter2 = remember(strings2.locale) { NumberFormat.getIntegerInstance(strings2.locale) }
     val bookName2 = strings2.bookNames[bookId2] ?: "Book $bookId2"
-
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
 
     // Effects
     LaunchedEffect(bookId1) { chapterCount1 = viewModel.getChapterCount(bookId1) }
@@ -129,7 +126,7 @@ fun ParallelReadingScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+                    containerColor = MaterialTheme.colorScheme.background,
                 ),
                 windowInsets = WindowInsets(0, 0, 0, 0),
             )
@@ -149,7 +146,6 @@ fun ParallelReadingScreen(
                         strings = strings1,
                         numberFormatter = numberFormatter1,
                         chapterCount = chapterCount1,
-                        isPleasant = isPleasant,
                         onTranslationSelected = { viewModel.setTranslation(it) },
                     ) { b, c ->
                         if (b != -1) bookId1 = b
@@ -167,7 +163,6 @@ fun ParallelReadingScreen(
                         strings = strings2,
                         numberFormatter = numberFormatter2,
                         chapterCount = chapterCount2,
-                        isPleasant = isPleasant,
                         onTranslationSelected = { viewModel.loadSecondChapterVerses(bookId2, chapter2, it) },
                     ) { b, c ->
                         if (b != -1) bookId2 = b
@@ -207,7 +202,6 @@ private fun ReadingSideSelector(
     strings: LocalizedStrings,
     numberFormatter: NumberFormat,
     chapterCount: Int,
-    isPleasant: Boolean,
     onTranslationSelected: (String) -> Unit,
     onLocationSelected: (Int, Int) -> Unit,
 ) {
@@ -218,7 +212,6 @@ private fun ReadingSideSelector(
             onTranslationSelected = onTranslationSelected,
             modifier = Modifier.fillMaxWidth(),
             placeholder = strings.selectBible,
-            isPleasant = isPleasant,
         )
         Row(modifier = Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             SelectionButton(
@@ -226,7 +219,6 @@ private fun ReadingSideSelector(
                 options = remember(allBooks, strings) { allBooks.map { strings.bookNames[it.id] ?: it.name } },
                 onOptionSelected = { onLocationSelected(allBooks[it].id, 1) },
                 modifier = Modifier.weight(1f),
-                isPleasant = isPleasant,
                 height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
                 fontSize = AdaptiveDimens.smallFontSize,
                 cornerRadius = 26.dp,
@@ -236,7 +228,6 @@ private fun ReadingSideSelector(
                 options = remember(chapterCount, numberFormatter) { (1..chapterCount).map { numberFormatter.format(it) } },
                 onOptionSelected = { onLocationSelected(-1, it + 1) }, // -1 indicates keeping current book
                 modifier = Modifier.weight(1f),
-                isPleasant = isPleasant,
                 height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
                 fontSize = AdaptiveDimens.smallFontSize,
                 cornerRadius = 26.dp,

@@ -25,7 +25,6 @@ import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.AppTheme
-import com.karol.readingsapp.ui.theme.GlassBorder
 
 @Composable
 fun SettingsScreen(
@@ -42,7 +41,6 @@ fun SettingsScreen(
         translations.find { it.code == selectedCode }?.language ?: "English"
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = remember(strings) { listOf(strings.appearance, strings.about) }
@@ -52,7 +50,6 @@ fun SettingsScreen(
         topBar = {
             SettingsTopBar(
                 strings = strings,
-                isPleasant = isPleasant,
                 onHomeClick = onHomeClick,
             )
         },
@@ -102,12 +99,10 @@ fun SettingsScreen(
                                 themeExpanded = themeExpanded,
                                 onThemeExpandedChange = { themeExpanded = it },
                                 onThemeSelected = { viewModel.setTheme(it) },
-                                isPleasant = isPleasant,
                             )
 
                             1 -> AboutSettings(
                                 strings = strings,
-                                isPleasant = isPleasant,
                             )
                         }
                     }
@@ -129,7 +124,6 @@ fun SettingsScreen(
 @Composable
 fun SettingsTopBar(
     strings: LocalizedStrings,
-    isPleasant: Boolean,
     onHomeClick: () -> Unit,
 ) {
     Surface(
@@ -137,7 +131,7 @@ fun SettingsTopBar(
             .fillMaxWidth()
             .statusBarsPadding()
             .height(40.dp),
-        color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+        color = MaterialTheme.colorScheme.background,
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -240,7 +234,6 @@ fun AppearanceSettings(
     themeExpanded: Boolean,
     onThemeExpandedChange: (Boolean) -> Unit,
     onThemeSelected: (AppTheme) -> Unit,
-    isPleasant: Boolean,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -248,7 +241,7 @@ fun AppearanceSettings(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
         shape = RoundedCornerShape(16.dp),
-        elevation = if (isPleasant) CardDefaults.cardElevation(0.dp) else CardDefaults.cardElevation(2.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
     ) {
         Column(
             modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
@@ -313,7 +306,6 @@ fun AppearanceSettings(
 @Composable
 fun AboutSettings(
     strings: LocalizedStrings,
-    isPleasant: Boolean,
 ) {
-    AboutContent(strings = strings, isPleasant = isPleasant)
+    AboutContent(strings = strings)
 }

@@ -26,7 +26,6 @@ import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import com.karol.readingsapp.ui.theme.GlassBorder
 import kotlinx.coroutines.flow.first
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -77,29 +76,19 @@ fun ReadingPlanScreen(
 
     LaunchedEffect(todayIndex) {
         if (todayIndex != -1) {
-            snapshotFlow { listState.layoutInfo.viewportSize.height }
-                .first { it > 0 }
-                .let { viewportHeight ->
-                    // Scroll so the top of the item is roughly at the center of the viewport
-                    // Subtracting an estimated half-item height (approx 40dp in pixels) to center it better
-                    val density = 3f // Approximate density, though using pixel offset is safer
-                    val halfItemHeight = (40 * density).toInt()
-                    listState.scrollToItem(todayIndex, -((viewportHeight / 2) - halfItemHeight))
-                }
+            listState.scrollToItem(todayIndex)
         }
     }
-
-    val isPleasant = MaterialTheme.colorScheme.outline == GlassBorder
 
     Scaffold(
         topBar = {
             ReadingPlanTopBar(
                 currentMonth = currentMonth,
                 strings = strings,
-                isPleasant = isPleasant,
                 onHomeClick = onHomeClick,
                 onPreviousMonthClick = { currentMonth = currentMonth.minusMonths(1) },
-            ) { currentMonth = currentMonth.plusMonths(1) }
+                onNextMonthClick = { currentMonth = currentMonth.plusMonths(1) },
+            )
         },
         bottomBar = {
             AppBottomNavBar(
@@ -147,7 +136,6 @@ fun ReadingPlanScreen(
 fun ReadingPlanTopBar(
     currentMonth: YearMonth,
     strings: LocalizedStrings,
-    isPleasant: Boolean,
     onHomeClick: () -> Unit,
     onPreviousMonthClick: () -> Unit,
     onNextMonthClick: () -> Unit,
@@ -158,7 +146,7 @@ fun ReadingPlanTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(40.dp),
-            color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+            color = MaterialTheme.colorScheme.background,
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -191,7 +179,7 @@ fun ReadingPlanTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            color = if (isPleasant) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background,
+            color = MaterialTheme.colorScheme.background,
         ) {
             Row(
                 modifier = Modifier
