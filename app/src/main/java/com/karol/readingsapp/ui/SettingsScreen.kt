@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -43,7 +44,7 @@ fun SettingsScreen(
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = remember(strings) { listOf(strings.appearance, strings.about) }
+    val tabs = remember(strings) { listOf(strings.appearance, strings.about, strings.contact) }
     var themeExpanded by remember { mutableStateOf(value = false) }
 
     Scaffold(
@@ -102,6 +103,10 @@ fun SettingsScreen(
                             )
 
                             1 -> AboutSettings(
+                                strings = strings,
+                            )
+
+                            2 -> ContactSettings(
                                 strings = strings,
                             )
                         }
@@ -166,6 +171,7 @@ fun SettingsTabs(
     selectedTabIndex: Int,
     onTabSelected: (Int) -> Unit,
 ) {
+    val r = with(LocalDensity.current) { 10.dp.toPx() }
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -184,10 +190,20 @@ fun SettingsTabs(
                                 val slantWidth = size.height * 0.7f // tan(35 degrees) approx 0.7
 
                                 moveTo(0f, size.height)
-                                // Left side: straight vertical
-                                lineTo(0f, 0f)
-                                // Top edge to the top-right corner
-                                lineTo(size.width - slantWidth, 0f)
+                                // Left side: straight vertical, rounded at top
+                                lineTo(0f, r)
+                                quadraticTo(0f, 0f, r, 0f)
+
+                                // Top edge to the top-right corner, rounded
+                                lineTo(size.width - slantWidth - r, 0f)
+                                // Slanted corner rounding approximation
+                                quadraticTo(
+                                    size.width - slantWidth,
+                                    0f,
+                                    size.width - slantWidth + r * 0.57f,
+                                    r * 0.82f,
+                                )
+
                                 // Right side: 35-degree slant
                                 lineTo(size.width, size.height)
                                 close()
@@ -308,4 +324,53 @@ fun AboutSettings(
     strings: LocalizedStrings,
 ) {
     AboutContent(strings = strings)
+}
+
+@Composable
+fun ContactSettings(
+    strings: LocalizedStrings,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
+            horizontalAlignment = Alignment.Start,
+        ) {
+            Text(
+                text = strings.contact,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = AdaptiveDimens.bodyFontSize,
+                    color = MaterialTheme.colorScheme.onSurface,
+                ),
+                modifier = Modifier.padding(bottom = 12.dp),
+            )
+
+            Text(
+                text = "If you have any questions, suggestions, or feedback, please feel free to reach out to us at:",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = AdaptiveDimens.smallFontSize,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
+                textAlign = TextAlign.Start,
+                modifier = Modifier.padding(bottom = 16.dp),
+            )
+
+            Text(
+                text = "justkarol@icloud.com",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = AdaptiveDimens.bodyFontSize,
+                    color = MaterialTheme.colorScheme.primary,
+                ),
+                modifier = Modifier.clickable { /* Handle email click if needed */ },
+            )
+        }
+    }
 }
