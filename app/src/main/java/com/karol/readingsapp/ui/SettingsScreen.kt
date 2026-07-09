@@ -353,52 +353,12 @@ fun ContactSettings(
                 )
 
                 Text(
-                    text = "If you have any questions, suggestions, or feedback, please feel free to reach out to us at:",
+                    text = "We’d love to hear from you! Send your questions, suggestions, or feedback to justkarol@icloud.com",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = AdaptiveDimens.smallFontSize,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     ),
                     textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(bottom = 16.dp),
-                )
-
-                Text(
-                    text = "justkarol@icloud.com",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = AdaptiveDimens.bodyFontSize,
-                        color = MaterialTheme.colorScheme.primary,
-                    ),
-                    modifier = Modifier.clickable { /* Handle email click if needed */ },
-                )
-            }
-        }
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            ),
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(2.dp),
-        ) {
-            Column(
-                modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
-            ) {
-                Text(
-                    text = strings.developerNoteTitle,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = AdaptiveDimens.bodyFontSize,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = strings.developerNoteContent,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                    fontSize = AdaptiveDimens.smallFontSize,
-                    lineHeight = AdaptiveDimens.smallFontSize * 1.4f,
                 )
             }
         }
