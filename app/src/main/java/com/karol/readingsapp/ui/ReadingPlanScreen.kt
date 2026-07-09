@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -74,9 +75,16 @@ fun ReadingPlanScreen(
         datesInMonth.indexOf(today.toString())
     }
 
+    val density = LocalDensity.current
     LaunchedEffect(todayIndex) {
         if (todayIndex != -1) {
-            listState.scrollToItem(todayIndex)
+            snapshotFlow { listState.layoutInfo }
+                .first { it.viewportSize.height > 0 }
+                .let { layoutInfo ->
+                    val viewportHeight = layoutInfo.viewportSize.height
+                    val itemHeightPx = with(density) { 90.dp.toPx() }.toInt()
+                    listState.scrollToItem(todayIndex, -((viewportHeight / 2) - (itemHeightPx / 2)))
+                }
         }
     }
 
@@ -87,8 +95,7 @@ fun ReadingPlanScreen(
                 strings = strings,
                 onHomeClick = onHomeClick,
                 onPreviousMonthClick = { currentMonth = currentMonth.minusMonths(1) },
-                onNextMonthClick = { currentMonth = currentMonth.plusMonths(1) },
-            )
+            ) { currentMonth = currentMonth.plusMonths(1) }
         },
         bottomBar = {
             AppBottomNavBar(
