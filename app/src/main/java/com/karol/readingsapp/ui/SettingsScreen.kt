@@ -329,47 +329,78 @@ fun AboutSettings(
 fun ContactSettings(
     strings: LocalizedStrings,
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(2.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
-            horizontalAlignment = Alignment.Start,
+    Column(verticalArrangement = Arrangement.spacedBy(AdaptiveDimens.paddingMedium)) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(2.dp),
         ) {
-            Text(
-                text = strings.contact,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = AdaptiveDimens.bodyFontSize,
-                    color = MaterialTheme.colorScheme.onSurface,
-                ),
-                modifier = Modifier.padding(bottom = 12.dp),
-            )
+            Column(
+                modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Text(
+                    text = strings.contact,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = AdaptiveDimens.bodyFontSize,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    ),
+                    modifier = Modifier.padding(bottom = 12.dp),
+                )
 
-            Text(
-                text = "If you have any questions, suggestions, or feedback, please feel free to reach out to us at:",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontSize = AdaptiveDimens.smallFontSize,
+                Text(
+                    text = "If you have any questions, suggestions, or feedback, please feel free to reach out to us at:",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = AdaptiveDimens.smallFontSize,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(bottom = 16.dp),
+                )
+
+                Text(
+                    text = "justkarol@icloud.com",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = AdaptiveDimens.bodyFontSize,
+                        color = MaterialTheme.colorScheme.primary,
+                    ),
+                    modifier = Modifier.clickable { /* Handle email click if needed */ },
+                )
+            }
+        }
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(2.dp),
+        ) {
+            Column(
+                modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
+            ) {
+                Text(
+                    text = strings.developerNoteTitle,
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-                textAlign = TextAlign.Start,
-                modifier = Modifier.padding(bottom = 16.dp),
-            )
-
-            Text(
-                text = "justkarol@icloud.com",
-                style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = AdaptiveDimens.bodyFontSize,
-                    color = MaterialTheme.colorScheme.primary,
-                ),
-                modifier = Modifier.clickable { /* Handle email click if needed */ },
-            )
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = strings.developerNoteContent,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
+                    fontSize = AdaptiveDimens.smallFontSize,
+                    lineHeight = AdaptiveDimens.smallFontSize * 1.4f,
+                )
+            }
         }
     }
 }

@@ -21,43 +21,48 @@ fun AboutContent(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = strings.appDescription,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.primary,
-            fontSize = AdaptiveDimens.bodyFontSize,
-            lineHeight = AdaptiveDimens.bodyFontSize * 1.5f,
-            modifier = Modifier.padding(vertical = AdaptiveDimens.paddingMedium),
-        )
-
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                containerColor = MaterialTheme.colorScheme.surface,
             ),
             shape = RoundedCornerShape(16.dp),
             elevation = CardDefaults.cardElevation(2.dp),
         ) {
-            Column(
-                modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
-            ) {
-                Text(
-                    text = strings.developerNoteTitle,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = AdaptiveDimens.bodyFontSize,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = strings.developerNoteContent,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.9f),
-                    fontSize = AdaptiveDimens.smallFontSize,
-                    lineHeight = AdaptiveDimens.smallFontSize * 1.4f,
-                )
-            }
+            Text(
+                text = strings.appDescription,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = AdaptiveDimens.bodyFontSize,
+                lineHeight = AdaptiveDimens.bodyFontSize * 1.5f,
+                modifier = Modifier
+                    .padding(AdaptiveDimens.paddingMedium)
+                    .fillMaxWidth(),
+            )
+        }
+
+        Spacer(modifier = Modifier.height(AdaptiveDimens.paddingMedium))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(2.dp),
+        ) {
+            Text(
+                text = strings.copyrightNotice,
+                textAlign = TextAlign.Start,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = AdaptiveDimens.smallFontSize,
+                lineHeight = AdaptiveDimens.smallFontSize * 1.4f,
+                modifier = Modifier
+                    .padding(AdaptiveDimens.paddingMedium)
+                    .fillMaxWidth(),
+            )
         }
 
         Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
