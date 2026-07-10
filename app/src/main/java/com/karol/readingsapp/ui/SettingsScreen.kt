@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.karol.readingsapp.ui.components.AboutContent
 import com.karol.readingsapp.ui.components.AppBottomNavBar
@@ -124,16 +125,30 @@ fun SettingsScreen(
                         }
                     }
                 }
-
-                Text(
-                    text = strings.appTitle,
-                    color = (if (isGlass) Color.White else MaterialTheme.colorScheme.onBackground).copy(alpha = 0.6f),
-                    fontSize = AdaptiveDimens.smallFontSize,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = AdaptiveDimens.paddingMedium),
-                )
             }
+        }
+
+        Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth().padding(bottom = AdaptiveDimens.paddingMedium),
+        ) {
+            Text(
+                text = strings.appTitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.7f),
+                fontWeight = FontWeight.SemiBold,
+                fontSize = AdaptiveDimens.smallFontSize,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = strings.developedBy,
+                style = MaterialTheme.typography.bodySmall,
+                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
+                fontSize = 10.sp,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
@@ -173,6 +188,29 @@ fun SettingsTopBar(
                 modifier = Modifier
                     .size(18.dp)
                     .align(Alignment.Center),
+            )
+        }
+
+        Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth().padding(bottom = AdaptiveDimens.paddingMedium),
+        ) {
+            Text(
+                text = strings.appTitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.7f),
+                fontWeight = FontWeight.SemiBold,
+                fontSize = AdaptiveDimens.smallFontSize,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = strings.developedBy,
+                style = MaterialTheme.typography.bodySmall,
+                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
+                fontSize = 10.sp,
+                textAlign = TextAlign.Center,
             )
         }
     }
@@ -358,6 +396,29 @@ fun AppearanceSettings(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth().padding(bottom = AdaptiveDimens.paddingMedium),
+        ) {
+            Text(
+                text = strings.appTitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.7f),
+                fontWeight = FontWeight.SemiBold,
+                fontSize = AdaptiveDimens.smallFontSize,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = strings.developedBy,
+                style = MaterialTheme.typography.bodySmall,
+                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
+                fontSize = 10.sp,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 
@@ -414,6 +475,29 @@ fun ContactSettings(
                     textAlign = TextAlign.Start,
                 )
             }
+        }
+
+        Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth().padding(bottom = AdaptiveDimens.paddingMedium),
+        ) {
+            Text(
+                text = strings.appTitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.7f),
+                fontWeight = FontWeight.SemiBold,
+                fontSize = AdaptiveDimens.smallFontSize,
+                textAlign = TextAlign.Center,
+            )
+            Text(
+                text = strings.developedBy,
+                style = MaterialTheme.typography.bodySmall,
+                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
+                fontSize = 10.sp,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }

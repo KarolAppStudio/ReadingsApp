@@ -109,23 +109,5 @@ fun AboutContent(
         }
 
         Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = strings.appTitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.7f),
-                fontWeight = FontWeight.SemiBold,
-                fontSize = AdaptiveDimens.smallFontSize,
-            )
-            Text(
-                text = strings.developedBy,
-                style = MaterialTheme.typography.bodySmall,
-                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
-                fontSize = AdaptiveDimens.smallFontSize * 0.8f,
-            )
-        }
     }
 }
