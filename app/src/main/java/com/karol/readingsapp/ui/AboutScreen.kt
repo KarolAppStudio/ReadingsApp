@@ -11,7 +11,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.components.AboutContent
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.AppTheme
@@ -28,21 +31,51 @@ fun AboutScreen(viewModel: ReadingViewModel, strings: LocalizedStrings, onHomeCl
         },
         containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentAlignment = Alignment.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            AboutContent(
-                strings = strings,
-                isGlass = isGlass,
+            Box(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .widthIn(max = AdaptiveDimens.contentMaxWidth)
-                    .padding(AdaptiveDimens.paddingLarge)
-                    .then(if (isGlass) Modifier.glassEffect() else Modifier),
-            )
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                AboutContent(
+                    strings = strings,
+                    isGlass = isGlass,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .widthIn(max = AdaptiveDimens.contentMaxWidth)
+                        .padding(AdaptiveDimens.paddingLarge)
+                        .then(if (isGlass) Modifier.glassEffect() else Modifier),
+                )
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = AdaptiveDimens.paddingMedium),
+            ) {
+                Text(
+                    text = strings.appTitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.7f),
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = AdaptiveDimens.smallFontSize,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = strings.developedBy,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
+                    fontSize = 10.sp,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }
