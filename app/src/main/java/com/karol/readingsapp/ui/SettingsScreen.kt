@@ -1,7 +1,6 @@
 package com.karol.readingsapp.ui
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -36,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
+import androidx.core.net.toUri
 import com.karol.readingsapp.ui.components.AboutContent
 import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.NavItem
@@ -697,7 +697,7 @@ fun FeedbackDialog(
                     Button(
                         onClick = {
                             val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                data = Uri.parse("mailto:justkarol@icloud.com")
+                                data = "mailto:justkarol@icloud.com".toUri()
                                 putExtra(Intent.EXTRA_SUBJECT, subject)
                                 putExtra(Intent.EXTRA_TEXT, message)
                             }
