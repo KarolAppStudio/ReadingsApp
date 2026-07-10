@@ -127,29 +127,6 @@ fun SettingsScreen(
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth().padding(bottom = AdaptiveDimens.paddingMedium),
-        ) {
-            Text(
-                text = strings.appTitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.7f),
-                fontWeight = FontWeight.SemiBold,
-                fontSize = AdaptiveDimens.smallFontSize,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                text = strings.developedBy,
-                style = MaterialTheme.typography.bodySmall,
-                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
-                fontSize = 10.sp,
-                textAlign = TextAlign.Center,
-            )
-        }
     }
 }
 
@@ -188,29 +165,6 @@ fun SettingsTopBar(
                 modifier = Modifier
                     .size(18.dp)
                     .align(Alignment.Center),
-            )
-        }
-
-        Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth().padding(bottom = AdaptiveDimens.paddingMedium),
-        ) {
-            Text(
-                text = strings.appTitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.7f),
-                fontWeight = FontWeight.SemiBold,
-                fontSize = AdaptiveDimens.smallFontSize,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                text = strings.developedBy,
-                style = MaterialTheme.typography.bodySmall,
-                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
-                fontSize = 10.sp,
-                textAlign = TextAlign.Center,
             )
         }
     }
@@ -396,29 +350,6 @@ fun AppearanceSettings(
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(AdaptiveDimens.paddingLarge))
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth().padding(bottom = AdaptiveDimens.paddingMedium),
-        ) {
-            Text(
-                text = strings.appTitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.7f),
-                fontWeight = FontWeight.SemiBold,
-                fontSize = AdaptiveDimens.smallFontSize,
-                textAlign = TextAlign.Center,
-            )
-            Text(
-                text = strings.developedBy,
-                style = MaterialTheme.typography.bodySmall,
-                color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
-                fontSize = 10.sp,
-                textAlign = TextAlign.Center,
-            )
-        }
     }
 }
 
@@ -473,6 +404,33 @@ fun ContactSettings(
                         color = if (isGlass) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant,
                     ),
                     textAlign = TextAlign.Start,
+                )
+            }
+        }
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(if (isGlass) Modifier.glassEffect() else Modifier),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
+            ),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(if (isGlass) 0.dp else 2.dp),
+        ) {
+            Column(
+                modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = strings.credits,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = AdaptiveDimens.bodyFontSize,
+                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                    ),
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    textAlign = TextAlign.Center,
                 )
             }
         }
