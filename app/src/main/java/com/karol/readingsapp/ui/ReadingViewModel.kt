@@ -25,7 +25,7 @@ class ReadingViewModel(
     private val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
 
     private val _uiState = MutableStateFlow<Map<String, List<TargetReadingDetails>>>(emptyMap())
-    val uiState: StateFlow<Map<String, List<TargetReadingDetails>>> = _uiState
+    val uiState = _uiState.asStateFlow()
 
     private val _monthlyPlan = MutableStateFlow<Map<String, List<SimpleReading>>>(emptyMap())
     val monthlyPlan = _monthlyPlan.asStateFlow()
@@ -90,18 +90,7 @@ class ReadingViewModel(
         viewModelScope.launch {
             val translations =
                 repository.getAvailableTranslations().map {
-                    val lang = it.language.lowercase()
-                    val nativeName =
-                        when {
-                            (lang.contains("hindi") || (lang == "hi") || (lang == "hin")) -> "हिन्दी"
-                            (lang.contains("bangla") || lang.contains("bengali") || (lang == "bn") || (lang == "ban")) -> "বাংলা"
-                            (lang.contains("kannada") || (lang == "kn") || (lang == "kan")) -> "ಕನ್ನಡ"
-                            (lang.contains("malayalam") || (lang == "ml") || (lang == "mal")) -> "മലയാളം"
-                            (lang.contains("tamil") || (lang == "ta") || (lang == "tam")) -> "தமிழ்"
-                            (lang.contains("telugu") || (lang == "te") || (lang == "tel")) -> "తెలుగు"
-                            it.name == "English-ASV" -> "English"
-                            else -> it.name.removeSuffix(" Bible")
-                        }
+                    val nativeName = LanguageService.getNativeName(it.language, it.name)
                     val displayLanguage = if (it.language == "English-ASV") "English" else it.language
                     it.copy(name = nativeName, language = displayLanguage)
                 }

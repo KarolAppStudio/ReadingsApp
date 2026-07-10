@@ -14,11 +14,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.karol.readingsapp.ui.LocalizedStrings
+import com.karol.readingsapp.ui.theme.glassEffect
 
 @Composable
 fun DownloadProgressOverlay(
     progress: Float?,
     strings: LocalizedStrings,
+    isGlass: Boolean = false,
 ) {
     AnimatedVisibility(
         visible = progress != null,
@@ -28,16 +30,17 @@ fun DownloadProgressOverlay(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.4f)),
+                .background(Color.Black.copy(alpha = if (isGlass) 0.2f else 0.4f)),
             contentAlignment = Alignment.Center,
         ) {
             Surface(
                 shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 4.dp,
+                color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
+                tonalElevation = if (isGlass) 0.dp else 4.dp,
                 modifier = Modifier
                     .width(280.dp)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .then(if (isGlass) Modifier.glassEffect() else Modifier),
             ) {
                 Column(
                     modifier = Modifier.padding(24.dp),
@@ -47,7 +50,7 @@ fun DownloadProgressOverlay(
                         text = strings.downloadAll,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -58,6 +61,8 @@ fun DownloadProgressOverlay(
                             .fillMaxWidth()
                             .height(8.dp),
                         strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                        trackColor = if (isGlass) Color.White.copy(alpha = 0.3f) else MaterialTheme.colorScheme.surfaceVariant,
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -66,7 +71,7 @@ fun DownloadProgressOverlay(
                         text = "${((progress ?: 0f) * 100).toInt()}%",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = if (isGlass) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

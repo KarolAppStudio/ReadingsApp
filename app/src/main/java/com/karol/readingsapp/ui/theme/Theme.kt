@@ -70,6 +70,27 @@ private val SepiaColorScheme = lightColorScheme(
     onSurfaceVariant = Color(0xFF7A6652),
 )
 
+private val LiquidFrostedGlassColorScheme = lightColorScheme(
+    primary = Color(0xFFE6E6E6), // 90% white
+    onPrimary = Color(0xFF000000),
+    primaryContainer = Color(0x4DE6E6E6),
+    onPrimaryContainer = Color(0xFFE6E6E6),
+    secondary = Color(0xCCE6E6E6),
+    onSecondary = Color(0xFF000000),
+    secondaryContainer = Color(0x26E6E6E6),
+    onSecondaryContainer = Color(0xFFE6E6E6),
+    tertiary = Color(0xCCE6E6E6),
+    onTertiary = Color(0xFF000000),
+    tertiaryContainer = Color(0x26E6E6E6),
+    onTertiaryContainer = Color(0xFFE6E6E6),
+    background = Color(0xFF000000), // Background will be covered by gradient
+    surface = Color(0x33E6E6E6),
+    onBackground = Color(0xFFE6E6E6),
+    onSurface = Color(0xFFE6E6E6),
+    surfaceVariant = Color(0x4DE6E6E6),
+    onSurfaceVariant = Color(0xFFE6E6E6),
+)
+
 @Composable
 fun ReadingsAppTheme(
     appTheme: AppTheme = AppTheme.SKY_BLUE,
@@ -88,6 +109,8 @@ fun ReadingsAppTheme(
         AppTheme.SKY_BLUE -> BlueColorScheme
 
         AppTheme.SEPIA -> SepiaColorScheme
+
+        AppTheme.LIQUID_FROSTED_GLASS -> LiquidFrostedGlassColorScheme
     }
 
     MaterialTheme(

@@ -28,6 +28,32 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
 
     private val baseUrl = "https://raw.githubusercontent.com/KarolAppStudio/bible-data/main"
 
+    companion object {
+        fun getNativeName(language: String, translationName: String): String {
+            val lang = language.lowercase()
+            return when {
+                (lang.contains("hindi") || lang == "hi" || lang == "hin") -> "हिन्दी"
+                (lang.contains("bangla") || lang.contains("bengali") || lang == "bn" || lang == "ban") -> "বাংলা"
+                (lang.contains("kannada") || lang == "kn" || lang == "kan") -> "ಕನ್ನಡ"
+                (lang.contains("malayalam") || lang == "ml" || lang == "mal") -> "മലയാളം"
+                (lang.contains("tamil") || lang == "ta" || lang == "tam") -> "தமிழ்"
+                (lang.contains("telugu") || lang == "te" || lang == "tel") -> "తెలుగు"
+                translationName == "English-ASV" -> "English"
+                else -> translationName.removeSuffix(" Bible")
+            }
+        }
+
+        fun getLanguageCode(language: String): String = when (language) {
+            "Hindi" -> "HIN"
+            "Bangla" -> "BAN"
+            "Kannada" -> "KAN"
+            "Malayalam" -> "MAL"
+            "Tamil" -> "TAM"
+            "Telugu" -> "TEL"
+            else -> "ENG"
+        }
+    }
+
     init {
         // Load persisted download status
         val downloadedLanguages = prefs.all.keys.filter { prefs.getBoolean(it, false) }
@@ -77,15 +103,7 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
     }
 
     private suspend fun fetchAndStoreLanguage(language: String): Boolean = withContext(Dispatchers.IO) {
-        val code = when (language) {
-            "Hindi" -> "HIN"
-            "Bangla" -> "BAN"
-            "Kannada" -> "KAN"
-            "Malayalam" -> "MAL"
-            "Tamil" -> "TAM"
-            "Telugu" -> "TEL"
-            else -> "ENG"
-        }
+        val code = getLanguageCode(language)
 
         // Try reading from assets first (included in APK)
         val assetPath = "bibles/$code.json"

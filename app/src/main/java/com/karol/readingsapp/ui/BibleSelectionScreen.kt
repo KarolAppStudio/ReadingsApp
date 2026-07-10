@@ -17,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,8 @@ import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
+import com.karol.readingsapp.ui.theme.AppTheme
+import com.karol.readingsapp.ui.theme.glassEffect
 import java.text.NumberFormat
 
 enum class NavMode { Grid, List }
@@ -59,6 +62,9 @@ fun BibleSelectionScreen(
     var chapterCount by remember { mutableIntStateOf(0) }
     var verseCount by remember { mutableIntStateOf(0) }
 
+    val currentTheme by viewModel.appTheme.collectAsState()
+    val isGlass = currentTheme == AppTheme.LIQUID_FROSTED_GLASS
+
     LaunchedEffect(selectedBook) {
         selectedBook?.let {
             chapterCount = viewModel.getChapterCount(it.id)
@@ -81,6 +87,7 @@ fun BibleSelectionScreen(
                 strings = strings,
                 numberFormatter = numberFormatter,
                 onHomeClick = onHomeClick,
+                isGlass = isGlass,
                 onParallelClick = {
                     val bookId = selectedBook?.id ?: 0
                     val chapter = if (selectedChapter > 0) selectedChapter else 1
@@ -102,9 +109,10 @@ fun BibleSelectionScreen(
                 onCalendarClick = onCalendarClick,
                 onBibleClick = { },
                 onSettingsClick = onSettingsClick,
+                isGlass = isGlass,
             )
         },
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -119,12 +127,12 @@ fun BibleSelectionScreen(
             ) {
                 SecondaryTabRow(
                     selectedTabIndex = currentMode.ordinal,
-                    containerColor = MaterialTheme.colorScheme.background,
-                    contentColor = MaterialTheme.colorScheme.primary,
+                    containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+                    contentColor = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
                     indicator = {
                         TabRowDefaults.SecondaryIndicator(
                             Modifier.tabIndicatorOffset(currentMode.ordinal),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
                         )
                     },
                 ) {
@@ -132,7 +140,13 @@ fun BibleSelectionScreen(
                         Tab(
                             selected = currentMode == mode,
                             onClick = { currentMode = mode },
-                            text = { Text(mode.name, fontSize = AdaptiveDimens.smallFontSize) },
+                            text = {
+                                Text(
+                                    mode.name,
+                                    fontSize = AdaptiveDimens.smallFontSize,
+                                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                                )
+                            },
                         )
                     }
                 }
@@ -143,6 +157,7 @@ fun BibleSelectionScreen(
                             mode = currentMode,
                             books = allBooks,
                             strings = strings,
+                            isGlass = isGlass,
                         ) { selectedBook = it }
                     } else if (selectedChapter == 0) {
                         ChapterSelection(
@@ -150,6 +165,7 @@ fun BibleSelectionScreen(
                             chapterCount = chapterCount,
                             strings = strings,
                             numberFormatter = numberFormatter,
+                            isGlass = isGlass,
                         ) { chapter ->
                             selectedChapter = chapter
                         }
@@ -159,6 +175,7 @@ fun BibleSelectionScreen(
                             verseCount = verseCount,
                             strings = strings,
                             numberFormatter = numberFormatter,
+                            isGlass = isGlass,
                         ) { verse ->
                             onChapterClick(selectedBook!!.id, selectedChapter, verse)
                         }
@@ -177,6 +194,7 @@ fun SelectionTopBar(
     numberFormatter: NumberFormat,
     onHomeClick: () -> Unit,
     onParallelClick: () -> Unit,
+    isGlass: Boolean = false,
     onClearSelection: () -> Unit,
 ) {
     Surface(
@@ -184,7 +202,7 @@ fun SelectionTopBar(
             .fillMaxWidth()
             .statusBarsPadding()
             .height(48.dp),
-        color = MaterialTheme.colorScheme.background,
+        color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             IconButton(
@@ -194,7 +212,7 @@ fun SelectionTopBar(
                 Icon(
                     imageVector = Icons.Default.Home,
                     contentDescription = strings.home,
-                    tint = MaterialTheme.colorScheme.primary,
+                    tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
                 )
             }
@@ -205,7 +223,7 @@ fun SelectionTopBar(
                     selectedChapter == 0 -> strings.bookNames[selectedBook.id] ?: selectedBook.name
                     else -> "${strings.bookNames[selectedBook.id] ?: selectedBook.name} ${numberFormatter.format(selectedChapter)}"
                 },
-                color = MaterialTheme.colorScheme.primary,
+                color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,
                 fontSize = AdaptiveDimens.bodyFontSize,
                 modifier = Modifier.align(Alignment.Center),
@@ -225,12 +243,12 @@ fun SelectionTopBar(
                     Icon(
                         imageVector = Icons.Default.AutoStories,
                         contentDescription = strings.parallelReading,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp),
                     )
                     Text(
                         text = strings.parallelReading,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
                         fontSize = 10.sp,
                         maxLines = 1,
                     )
@@ -241,7 +259,7 @@ fun SelectionTopBar(
                         Icon(
                             Icons.Default.Close,
                             contentDescription = "Clear selection",
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
@@ -255,6 +273,7 @@ fun BookSelection(
     mode: NavMode,
     books: List<BookEntity>,
     strings: LocalizedStrings,
+    isGlass: Boolean = false,
     onBookClick: (BookEntity) -> Unit,
 ) {
     when (mode) {
@@ -266,7 +285,7 @@ fun BookSelection(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(books) { book ->
-                    BookCard(book, strings, onBookClick)
+                    BookCard(book, strings, isGlass, onBookClick)
                 }
             }
         }
@@ -277,7 +296,7 @@ fun BookSelection(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 items(books) { book ->
-                    BookListItem(book, strings, onBookClick)
+                    BookListItem(book, strings, isGlass, onBookClick)
                 }
             }
         }
@@ -290,6 +309,7 @@ fun ChapterSelection(
     chapterCount: Int,
     strings: LocalizedStrings,
     numberFormatter: NumberFormat,
+    isGlass: Boolean = false,
     onChapterClick: (Int) -> Unit,
 ) {
     GridOrListSelection(
@@ -297,6 +317,7 @@ fun ChapterSelection(
         items = (1..chapterCount).toList(),
         itemLabel = { "${strings.chapter} ${numberFormatter.format(it)}" },
         gridLabel = { numberFormatter.format(it) },
+        isGlass = isGlass,
         onItemClick = onChapterClick,
     )
 }
@@ -307,6 +328,7 @@ fun VerseSelection(
     verseCount: Int,
     strings: LocalizedStrings,
     numberFormatter: NumberFormat,
+    isGlass: Boolean = false,
     onVerseClick: (Int) -> Unit,
 ) {
     GridOrListSelection(
@@ -314,6 +336,7 @@ fun VerseSelection(
         items = (1..verseCount).toList(),
         itemLabel = { "${strings.verse} ${numberFormatter.format(it)}" },
         gridLabel = { numberFormatter.format(it) },
+        isGlass = isGlass,
         onItemClick = onVerseClick,
     )
 }
@@ -324,6 +347,7 @@ fun GridOrListSelection(
     items: List<Int>,
     itemLabel: (Int) -> String,
     gridLabel: (Int) -> String,
+    isGlass: Boolean = false,
     onItemClick: (Int) -> Unit,
 ) {
     when (mode) {
@@ -335,7 +359,7 @@ fun GridOrListSelection(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(items) { item ->
-                    ChapterCard(item, gridLabel(item), onItemClick)
+                    ChapterCard(item, gridLabel(item), isGlass, onItemClick)
                 }
             }
         }
@@ -348,14 +372,16 @@ fun GridOrListSelection(
                 items(items) { item ->
                     Surface(
                         onClick = { onItemClick(item) },
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .then(if (isGlass) Modifier.glassEffect() else Modifier),
+                        color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(8.dp),
                     ) {
                         Text(
                             text = itemLabel(item),
                             modifier = Modifier.padding(16.dp),
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
@@ -365,19 +391,20 @@ fun GridOrListSelection(
 }
 
 @Composable
-fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) -> Unit) {
+fun BookCard(book: BookEntity, strings: LocalizedStrings, isGlass: Boolean = false, onClick: (BookEntity) -> Unit) {
     Log.d("BookCard", "Book ID: ${book.id}, Name: ${book.name}, Localized: ${strings.bookNames[book.id]}")
 
     val (backgroundColor, textColor) = when (book.testament) {
-        "OT" -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
-        "NT" -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
-        else -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
+        "OT" -> (if (isGlass) Color.Transparent else MaterialTheme.colorScheme.tertiaryContainer) to (if (isGlass) Color.White else MaterialTheme.colorScheme.onTertiaryContainer)
+        "NT" -> (if (isGlass) Color.Transparent else MaterialTheme.colorScheme.primaryContainer) to (if (isGlass) Color.White else MaterialTheme.colorScheme.onPrimaryContainer)
+        else -> (if (isGlass) Color.Transparent else MaterialTheme.colorScheme.secondaryContainer) to (if (isGlass) Color.White else MaterialTheme.colorScheme.onSecondaryContainer)
     }
     Card(
         onClick = { onClick(book) },
+        modifier = if (isGlass) Modifier.glassEffect() else Modifier,
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(2.dp),
+        elevation = CardDefaults.cardElevation(if (isGlass) 0.dp else 2.dp),
     ) {
         Box(
             modifier = Modifier
@@ -400,30 +427,35 @@ fun BookCard(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) 
 }
 
 @Composable
-fun BookListItem(book: BookEntity, strings: LocalizedStrings, onClick: (BookEntity) -> Unit) {
+fun BookListItem(book: BookEntity, strings: LocalizedStrings, isGlass: Boolean = false, onClick: (BookEntity) -> Unit) {
     Surface(
         onClick = { onClick(book) },
-        modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (isGlass) Modifier.glassEffect() else Modifier),
+        color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(8.dp),
     ) {
         Text(
             text = strings.bookNames[book.id] ?: book.name,
             modifier = Modifier.padding(16.dp),
-            color = MaterialTheme.colorScheme.onSurface,
+            color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Medium,
         )
     }
 }
 
 @Composable
-fun ChapterCard(item: Int, label: String, onClick: (Int) -> Unit) {
+fun ChapterCard(item: Int, label: String, isGlass: Boolean = false, onClick: (Int) -> Unit) {
     Card(
         onClick = { onClick(item) },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        modifier = if (isGlass) Modifier.glassEffect() else Modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
+        ),
         shape = RoundedCornerShape(8.dp),
-        border = CardDefaults.outlinedCardBorder(),
-        elevation = CardDefaults.cardElevation(1.dp),
+        border = if (isGlass) null else CardDefaults.outlinedCardBorder(),
+        elevation = CardDefaults.cardElevation(if (isGlass) 0.dp else 1.dp),
     ) {
         Box(
             modifier = Modifier.aspectRatio(1f),
@@ -432,7 +464,7 @@ fun ChapterCard(item: Int, label: String, onClick: (Int) -> Unit) {
             Text(
                 text = label,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+                color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
             )
         }
     }
