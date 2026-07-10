@@ -280,7 +280,7 @@ fun BookSelection(
         NavMode.Grid -> {
             val otBooks = books.filter { it.testament == "OT" }
             val ntBooks = books.filter { it.testament == "NT" }
-            val otherBooks = books.filter { it.testament != "OT" && it.testament != "NT" }
+            val otherBooks = books.filter { (it.testament != "OT") && (it.testament != "NT") }
 
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(100.dp),

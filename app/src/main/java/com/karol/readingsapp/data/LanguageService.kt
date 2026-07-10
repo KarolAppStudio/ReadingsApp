@@ -32,12 +32,12 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
         fun getNativeName(language: String, translationName: String): String {
             val lang = language.lowercase()
             return when {
-                (lang.contains("hindi") || lang == "hi" || lang == "hin") -> "हिन्दी"
-                (lang.contains("bangla") || lang.contains("bengali") || lang == "bn" || lang == "ban") -> "বাংলা"
-                (lang.contains("kannada") || lang == "kn" || lang == "kan") -> "ಕನ್ನಡ"
-                (lang.contains("malayalam") || lang == "ml" || lang == "mal") -> "മലയാളം"
-                (lang.contains("tamil") || lang == "ta" || lang == "tam") -> "தமிழ்"
-                (lang.contains("telugu") || lang == "te" || lang == "tel") -> "తెలుగు"
+                (lang.contains("hindi")) || (lang == "hi") || (lang == "hin") -> "हिन्दी"
+                (lang.contains("bangla")) || (lang.contains("bengali")) || (lang == "bn") || (lang == "ban") -> "বাংলা"
+                (lang.contains("kannada")) || (lang == "kn") || (lang == "kan") -> "ಕನ್ನಡ"
+                (lang.contains("malayalam")) || (lang == "ml") || (lang == "mal") -> "മലയാളം"
+                (lang.contains("tamil")) || (lang == "ta") || (lang == "tam") -> "தமிழ்"
+                (lang.contains("telugu")) || (lang == "te") || (lang == "tel") -> "తెలుగు"
                 translationName == "English-ASV" -> "English"
                 else -> translationName.removeSuffix(" Bible")
             }

@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -135,28 +134,6 @@ fun HomeScreen(
                                 .background(if (isGlass) Color.DarkGray.copy(alpha = 0.9f) else MaterialTheme.colorScheme.surface)
                                 .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
                         ) {
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        strings.availableBibles,
-                                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
-                                        fontSize = AdaptiveDimens.smallFontSize,
-                                        fontWeight = FontWeight.Normal,
-                                    )
-                                },
-                                onClick = {
-                                    menuExpanded = false
-                                    onBibleClick()
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.AutoMirrored.Filled.MenuBook,
-                                        contentDescription = null,
-                                        tint = if (isGlass) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(18.dp),
-                                    )
-                                },
-                            )
                             DropdownMenuItem(
                                 text = {
                                     Text(
