@@ -124,15 +124,6 @@ fun SettingsScreen(
                         }
                     }
                 }
-
-                Text(
-                    text = strings.appTitle,
-                    color = (if (isGlass) Color.White else MaterialTheme.colorScheme.onBackground).copy(alpha = 0.6f),
-                    fontSize = AdaptiveDimens.smallFontSize,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = AdaptiveDimens.paddingMedium),
-                )
             }
         }
     }

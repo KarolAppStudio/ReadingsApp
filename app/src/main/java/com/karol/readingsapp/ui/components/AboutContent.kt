@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.LocalizedStrings
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
 
@@ -112,6 +113,7 @@ fun AboutContent(
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(bottom = AdaptiveDimens.paddingMedium),
         ) {
             Text(
                 text = strings.appTitle,
@@ -119,12 +121,14 @@ fun AboutContent(
                 color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.7f),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = AdaptiveDimens.smallFontSize,
+                textAlign = TextAlign.Center,
             )
             Text(
                 text = strings.developedBy,
                 style = MaterialTheme.typography.bodySmall,
                 color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
-                fontSize = AdaptiveDimens.smallFontSize * 0.8f,
+                fontSize = 10.sp,
+                textAlign = TextAlign.Center,
             )
         }
     }
