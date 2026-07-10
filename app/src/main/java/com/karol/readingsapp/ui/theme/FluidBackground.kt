@@ -14,10 +14,10 @@ import kotlin.math.sin
 fun FluidBackground(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier.fillMaxSize()) {
         val colors = listOf(
-            Color(0xFF5A70D6), // Darker 647DEE
-            Color(0xFF725176), // Darker 7F5A83
-            Color(0xFFCB8679), // Darker E29587
-            Color(0xFFBFC98B), // Darker D4E09B
+            Color(0xFF121212), // Very Dark Grey
+            Color(0xFF1E1E1E), // Dark Grey
+            Color(0xFF2C2C2C), // Slightly Lighter Dark Grey
+            Color(0xFF121212), // Back to Very Dark Grey
         )
 
         val angle = 0f

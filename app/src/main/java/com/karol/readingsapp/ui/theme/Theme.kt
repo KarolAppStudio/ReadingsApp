@@ -71,24 +71,24 @@ private val SepiaColorScheme = lightColorScheme(
 )
 
 private val LiquidFrostedGlassColorScheme = lightColorScheme(
-    primary = Color(0xFFE6E6E6), // 90% white
+    primary = Color(0xFFE0E0E0), // Light grey text/icons for contrast
     onPrimary = Color(0xFF000000),
-    primaryContainer = Color(0x4DE6E6E6),
-    onPrimaryContainer = Color(0xFFE6E6E6),
-    secondary = Color(0xCCE6E6E6),
+    primaryContainer = Color(0x33FFFFFF), // Subtle white frost
+    onPrimaryContainer = Color(0xFFE0E0E0),
+    secondary = Color(0xB3E0E0E0),
     onSecondary = Color(0xFF000000),
-    secondaryContainer = Color(0x26E6E6E6),
-    onSecondaryContainer = Color(0xFFE6E6E6),
-    tertiary = Color(0xCCE6E6E6),
+    secondaryContainer = Color(0x1AFFFFFF),
+    onSecondaryContainer = Color(0xFFE0E0E0),
+    tertiary = Color(0xB3E0E0E0),
     onTertiary = Color(0xFF000000),
-    tertiaryContainer = Color(0x26E6E6E6),
-    onTertiaryContainer = Color(0xFFE6E6E6),
-    background = Color(0xFF000000), // Background will be covered by gradient
-    surface = Color(0x33E6E6E6),
-    onBackground = Color(0xFFE6E6E6),
-    onSurface = Color(0xFFE6E6E6),
-    surfaceVariant = Color(0x4DE6E6E6),
-    onSurfaceVariant = Color(0xFFE6E6E6),
+    tertiaryContainer = Color(0x1AFFFFFF),
+    onTertiaryContainer = Color(0xFFE0E0E0),
+    background = Color(0xFF121212), // Dark background base
+    surface = Color(0x26FFFFFF),
+    onBackground = Color(0xFFE0E0E0),
+    onSurface = Color(0xFFE0E0E0),
+    surfaceVariant = Color(0x33FFFFFF),
+    onSurfaceVariant = Color(0xFFE0E0E0),
 )
 
 @Composable

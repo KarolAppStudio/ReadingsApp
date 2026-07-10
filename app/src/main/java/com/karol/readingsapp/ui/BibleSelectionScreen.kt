@@ -278,13 +278,37 @@ fun BookSelection(
 ) {
     when (mode) {
         NavMode.Grid -> {
+            val otBooks = books.filter { it.testament == "OT" }
+            val ntBooks = books.filter { it.testament == "NT" }
+            val otherBooks = books.filter { it.testament != "OT" && it.testament != "NT" }
+
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(100.dp),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(books) { book ->
+                items(otBooks) { book ->
+                    BookCard(book, strings, isGlass, onBookClick)
+                }
+
+                if (otBooks.isNotEmpty() && (ntBooks.isNotEmpty() || otherBooks.isNotEmpty())) {
+                    item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+                        Spacer(modifier = Modifier.height(32.dp))
+                    }
+                }
+
+                items(ntBooks) { book ->
+                    BookCard(book, strings, isGlass, onBookClick)
+                }
+
+                if (ntBooks.isNotEmpty() && otherBooks.isNotEmpty()) {
+                    item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+                        Spacer(modifier = Modifier.height(32.dp))
+                    }
+                }
+
+                items(otherBooks) { book ->
                     BookCard(book, strings, isGlass, onBookClick)
                 }
             }
