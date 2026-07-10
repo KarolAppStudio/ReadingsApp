@@ -401,7 +401,10 @@ fun ContactSettings(
                         fontSize = AdaptiveDimens.bodyFontSize,
                         color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
                     ),
-                    modifier = Modifier.padding(bottom = 12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    textAlign = TextAlign.Center,
                 )
 
                 Text(
@@ -494,7 +497,7 @@ private fun ScrollingCredits(isGlass: Boolean) {
                 scrollState.animateScrollTo(
                     value = scrollState.maxValue,
                     animationSpec = tween(
-                        durationMillis = (scrollState.maxValue * 35).toInt(),
+                        durationMillis = scrollState.maxValue * 35,
                         easing = LinearEasing,
                     ),
                 )
