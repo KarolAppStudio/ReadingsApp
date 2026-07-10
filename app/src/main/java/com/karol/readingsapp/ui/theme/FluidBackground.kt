@@ -11,14 +11,26 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
-fun FluidBackground(modifier: Modifier = Modifier) {
+fun FluidBackground(
+    modifier: Modifier = Modifier,
+    appTheme: AppTheme = AppTheme.DARK_FROSTED_GLASS,
+) {
     Canvas(modifier = modifier.fillMaxSize()) {
-        val colors = listOf(
-            Color(0xFF121212), // Very Dark Grey
-            Color(0xFF1E1E1E), // Dark Grey
-            Color(0xFF2C2C2C), // Slightly Lighter Dark Grey
-            Color(0xFF121212), // Back to Very Dark Grey
-        )
+        val colors = when (appTheme) {
+            AppTheme.DARK_FROSTED_GLASS -> listOf(
+                Color(0xFF1A1A1A), // Near Black Grey
+                Color(0xFF242424), // Very Dark Grey
+                Color(0xFF2E2E2E), // Dark Grey
+                Color(0xFF1A1A1A),
+            )
+
+            else -> listOf(
+                Color(0xFF1A1A1A),
+                Color(0xFF242424),
+                Color(0xFF2E2E2E),
+                Color(0xFF1A1A1A),
+            )
+        }
 
         val angle = 0f
         val startX = size.width * (0.5f + (0.5f * cos(angle)))

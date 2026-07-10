@@ -110,7 +110,7 @@ fun HomeScreen(
     }
 
     val currentTheme by viewModel.appTheme.collectAsState()
-    val isGlass = currentTheme == AppTheme.LIQUID_FROSTED_GLASS
+    val isGlass = currentTheme == AppTheme.DARK_FROSTED_GLASS
 
     Scaffold(
         topBar = {

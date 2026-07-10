@@ -93,13 +93,14 @@ class MainActivity : ComponentActivity() {
                 ReadingsAppTheme(appTheme = currentTheme) {
                     val navController = rememberNavController()
 
-                    if (currentTheme == AppTheme.LIQUID_FROSTED_GLASS) {
-                        FluidBackground()
+                    val isGlass = currentTheme == AppTheme.DARK_FROSTED_GLASS
+                    if (isGlass) {
+                        FluidBackground(appTheme = currentTheme)
                     }
 
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        color = if (currentTheme == AppTheme.LIQUID_FROSTED_GLASS) Color.Transparent else MaterialTheme.colorScheme.background,
+                        color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
                     ) {
                         Box(modifier = Modifier.fillMaxSize()) {
                             NavHost(navController = navController, startDestination = "home") {
@@ -233,7 +234,7 @@ class MainActivity : ComponentActivity() {
                             DownloadProgressOverlay(
                                 progress = batchProgress,
                                 strings = strings,
-                                isGlass = currentTheme == AppTheme.LIQUID_FROSTED_GLASS,
+                                isGlass = isGlass,
                             )
                         }
                     }

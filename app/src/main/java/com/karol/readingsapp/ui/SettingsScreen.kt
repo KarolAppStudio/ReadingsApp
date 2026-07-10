@@ -51,7 +51,7 @@ fun SettingsScreen(
     val tabs = remember(strings) { listOf(strings.appearance, strings.about, strings.contact) }
     var themeExpanded by remember { mutableStateOf(value = false) }
 
-    val isGlass = currentTheme == AppTheme.LIQUID_FROSTED_GLASS
+    val isGlass = currentTheme == AppTheme.DARK_FROSTED_GLASS
 
     Scaffold(
         topBar = {
