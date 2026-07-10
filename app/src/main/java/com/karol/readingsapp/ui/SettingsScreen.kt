@@ -23,8 +23,11 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -520,8 +523,22 @@ private fun ScrollingCredits(isGlass: Boolean) {
         ) {
             Spacer(modifier = Modifier.height(120.dp))
             credits.forEach { credit ->
+                val annotatedString = buildAnnotatedString {
+                    val dashIndex = credit.indexOf(" - ")
+                    if (dashIndex != -1) {
+                        append(credit.substring(0, dashIndex))
+                        append(" ")
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp)) {
+                            append("-")
+                        }
+                        append(" ")
+                        append(credit.substring(dashIndex + 3))
+                    } else {
+                        append(credit)
+                    }
+                }
                 Text(
-                    text = credit,
+                    text = annotatedString,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = 12.sp,
                         color = if (isGlass) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurfaceVariant,
