@@ -1,5 +1,7 @@
 package com.karol.readingsapp.ui
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -13,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -30,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import com.karol.readingsapp.ui.components.AboutContent
 import com.karol.readingsapp.ui.components.AppBottomNavBar
@@ -382,6 +387,33 @@ fun ContactSettings(
     strings: LocalizedStrings,
     isGlass: Boolean = false,
 ) {
+    var showFeedbackDialog by remember { mutableStateOf(false) }
+    var showMessageSentPopup by remember { mutableStateOf(false) }
+
+    if (showFeedbackDialog) {
+        FeedbackDialog(
+            isGlass = isGlass,
+            onDismiss = { showFeedbackDialog = false },
+            onSent = {
+                showFeedbackDialog = false
+                showMessageSentPopup = true
+            },
+        )
+    }
+
+    if (showMessageSentPopup) {
+        AlertDialog(
+            onDismissRequest = { showMessageSentPopup = false },
+            confirmButton = {
+                TextButton(onClick = { showMessageSentPopup = false }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("Success") },
+            text = { Text("Message Sent") },
+        )
+    }
+
     Column(verticalArrangement = Arrangement.spacedBy(AdaptiveDimens.paddingMedium)) {
         Card(
             modifier = Modifier
@@ -411,13 +443,27 @@ fun ContactSettings(
                 )
 
                 Text(
-                    text = "We’d love to hear from you! Send your questions, suggestions, or feedback to justkarol@icloud.com",
+                    text = "We’d love to hear from you! Send us your questions, suggestions, or feedback.",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = AdaptiveDimens.smallFontSize,
                         color = if (isGlass) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant,
                     ),
                     textAlign = TextAlign.Start,
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = { showFeedbackDialog = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isGlass) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primary,
+                        contentColor = if (isGlass) Color.White else MaterialTheme.colorScheme.onPrimary,
+                    ),
+                ) {
+                    Text("Click Here")
+                }
             }
         }
 
@@ -548,6 +594,125 @@ private fun ScrollingCredits(isGlass: Boolean) {
                 )
             }
             Spacer(modifier = Modifier.height(120.dp))
+        }
+    }
+}
+
+@Composable
+fun FeedbackDialog(
+    isGlass: Boolean,
+    onDismiss: () -> Unit,
+    onSent: () -> Unit,
+) {
+    var subject by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
+    var dropdownExpanded by remember { mutableStateOf(false) }
+    val subjects = listOf("Feedback", "Suggestion", "Report an Issue", "Request a feature")
+    val context = LocalContext.current
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .then(if (isGlass) Modifier.glassEffect() else Modifier),
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = if (isGlass) Color.DarkGray.copy(alpha = 0.9f) else MaterialTheme.colorScheme.surface,
+            ),
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Text(
+                    text = "Feedback",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold,
+                )
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = subject,
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Select Subject") },
+                        trailingIcon = {
+                            IconButton(onClick = { dropdownExpanded = true }) {
+                                Icon(
+                                    Icons.Default.MoreVert,
+                                    contentDescription = null,
+                                    tint = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                        ),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clickable { dropdownExpanded = true },
+                    )
+
+                    DropdownMenu(
+                        expanded = dropdownExpanded,
+                        onDismissRequest = { dropdownExpanded = false },
+                        modifier = Modifier.fillMaxWidth(0.6f),
+                    ) {
+                        subjects.forEach { item ->
+                            DropdownMenuItem(
+                                text = { Text(item) },
+                                onClick = {
+                                    subject = item
+                                    dropdownExpanded = false
+                                },
+                            )
+                        }
+                    }
+                }
+
+                if (subject.isNotEmpty()) {
+                    OutlinedTextField(
+                        value = message,
+                        onValueChange = { message = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp),
+                        placeholder = { Text("Type your message here...") },
+                        shape = androidx.compose.ui.graphics.RectangleShape,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                        ),
+                    )
+
+                    Button(
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                data = Uri.parse("mailto:justkarol@icloud.com")
+                                putExtra(Intent.EXTRA_SUBJECT, subject)
+                                putExtra(Intent.EXTRA_TEXT, message)
+                            }
+                            try {
+                                context.startActivity(Intent.createChooser(intent, "Send Email"))
+                                onSent()
+                            } catch (_: Exception) {}
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = androidx.compose.ui.graphics.RectangleShape,
+                    ) {
+                        Text("Send")
+                    }
+                }
+            }
         }
     }
 }
