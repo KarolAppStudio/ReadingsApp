@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -327,6 +328,13 @@ fun ReaderPagerPage(
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                val pageOffset = (pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction
+                layout(placeable.width, placeable.height) {
+                    placeable.place(0, 0, zIndex = 1f - pageOffset.absoluteValue)
+                }
+            }
             .graphicsLayer {
                 val pageOffset = (pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction
                 val absOffset = pageOffset.absoluteValue

@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
                                     HomeScreen(
                                         viewModel = viewModel,
                                         onReadingClick = { reading ->
-                                            navController.navigate("reader/${reading.bookId}/${reading.chapter}/1")
+                                            navController.navigate("reader/${reading.bookId}/${reading.chapter}/${reading.verseId}")
                                         },
                                         onCalendarClick = {
                                             navController.navigate("reading_plan")
