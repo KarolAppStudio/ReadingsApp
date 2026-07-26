@@ -1,6 +1,7 @@
 package com.karol.readingsapp.ui.components
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.DateRange
@@ -39,7 +40,7 @@ fun AppBottomNavBar(
     isGlass: Boolean = false,
 ) {
     NavigationBar(
-        modifier = if (isGlass) Modifier.glassEffect() else Modifier,
+        modifier = (if (isGlass) Modifier.glassEffect() else Modifier).navigationBarsPadding(),
         containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
         tonalElevation = if (isGlass) 0.dp else 8.dp,
     ) {

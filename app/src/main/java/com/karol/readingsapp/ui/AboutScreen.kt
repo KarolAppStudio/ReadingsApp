@@ -34,7 +34,8 @@ fun AboutScreen(viewModel: ReadingViewModel, strings: LocalizedStrings, onHomeCl
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Box(

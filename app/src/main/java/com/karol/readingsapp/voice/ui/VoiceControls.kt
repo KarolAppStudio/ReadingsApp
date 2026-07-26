@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karol.readingsapp.voice.domain.TTSState
@@ -23,73 +24,81 @@ fun VoiceControlBar(
 ) {
     val ttsState by viewModel.voiceService.ttsState.collectAsStateWithLifecycle()
     val isOfflineAvailable by viewModel.voiceService.isOfflineAvailable.collectAsStateWithLifecycle()
+    val density = LocalDensity.current
+    val targetWidth = with(density) { 600.toDp() }
 
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+    Box(
+        modifier = modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center,
     ) {
-        Row(
+        Card(
             modifier = Modifier
-                .padding(12.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
+                .width(targetWidth)
+                .height(40.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         ) {
-            // Play/Stop Button
-            IconButton(
-                onClick = {
-                    if (ttsState is TTSState.Speaking) {
-                        viewModel.onStopClicked()
-                    } else {
-                        viewModel.onPlayClicked(textToRead, locale)
-                    }
-                },
-            ) {
-                Icon(
-                    imageVector = if (ttsState is TTSState.Speaking) Icons.Default.Stop else Icons.Default.PlayArrow,
-                    contentDescription = if (ttsState is TTSState.Speaking) "Stop" else "Play",
-                )
-            }
-
-            // Status Text
-            Column(
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .clickable(enabled = ttsState is TTSState.Error) {
-                        if (ttsState is TTSState.Error) {
-                            viewModel.voiceService.checkAndInstallVoices()
+                    .padding(horizontal = 12.dp)
+                    .fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                // Play/Stop Button
+                IconButton(
+                    onClick = {
+                        if (ttsState is TTSState.Speaking) {
+                            viewModel.onStopClicked()
+                        } else {
+                            viewModel.onPlayClicked(textToRead, locale)
                         }
                     },
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                val statusText = when (val state = ttsState) {
-                    is TTSState.Speaking -> "Reading..."
-                    is TTSState.Initializing -> "Initializing..."
-                    is TTSState.Error -> state.message
-                    else -> ""
-                }
-                if (statusText.isNotEmpty()) {
-                    Text(
-                        text = statusText,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (ttsState is TTSState.Error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                ) {
+                    Icon(
+                        imageVector = if (ttsState is TTSState.Speaking) Icons.Default.Stop else Icons.Default.PlayArrow,
+                        contentDescription = if (ttsState is TTSState.Speaking) "Stop" else "Play",
                     )
                 }
-                if (isOfflineAvailable && (ttsState is TTSState.Idle)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(
-                            modifier = Modifier.size(8.dp),
-                            color = MaterialTheme.colorScheme.tertiary,
-                            shape = CircleShape,
-                        ) {}
-                        Spacer(modifier = Modifier.width(4.dp))
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Status Text
+                Column(
+                    modifier = Modifier
+                        .clickable(enabled = ttsState is TTSState.Error) {
+                            if (ttsState is TTSState.Error) {
+                                viewModel.voiceService.checkAndInstallVoices()
+                            }
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    val statusText = when (val state = ttsState) {
+                        is TTSState.Speaking -> "Reading..."
+                        is TTSState.Initializing -> "Initializing..."
+                        is TTSState.Error -> state.message
+                        else -> ""
+                    }
+                    if (statusText.isNotEmpty()) {
                         Text(
-                            text = "Voice Mode Enabled",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.tertiary,
+                            text = statusText,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (ttsState is TTSState.Error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                         )
+                    }
+                    if (isOfflineAvailable && (ttsState is TTSState.Idle)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Surface(
+                                modifier = Modifier.size(8.dp),
+                                color = MaterialTheme.colorScheme.tertiary,
+                                shape = CircleShape,
+                            ) {}
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "Voice Mode Enabled",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.tertiary,
+                            )
+                        }
                     }
                 }
             }

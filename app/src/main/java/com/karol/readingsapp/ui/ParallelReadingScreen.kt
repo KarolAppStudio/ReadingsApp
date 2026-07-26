@@ -93,9 +93,9 @@ fun ParallelReadingScreen(
     val isGlass = currentTheme == AppTheme.DARK_FROSTED_GLASS
 
     Scaffold(
-        modifier = Modifier.systemBarsPadding(),
         topBar = {
             TopAppBar(
+                modifier = Modifier.statusBarsPadding(),
                 title = {
                     val displayTitle = if ((bookId1 == bookId2) && (chapter1 == chapter2)) {
                         "$bookName1 ${numberFormatter1.format(chapter1)}"
@@ -132,13 +132,11 @@ fun ParallelReadingScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
                 ),
-                windowInsets = WindowInsets(0, 0, 0, 0),
             )
         },
         containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.TopCenter) {
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding).navigationBarsPadding(), contentAlignment = Alignment.TopCenter) {
             Column(modifier = Modifier.fillMaxHeight().widthIn(max = AdaptiveDimens.contentMaxWidth)) {
                 // Selection Area
                 Row(modifier = Modifier.fillMaxWidth().padding(4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {

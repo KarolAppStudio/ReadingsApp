@@ -175,7 +175,8 @@ fun BibleReaderScreen(
                 locale = strings.locale,
                 modifier = Modifier
                     .padding(horizontal = AdaptiveDimens.paddingMedium)
-                    .padding(bottom = 16.dp),
+                    .navigationBarsPadding()
+                    .padding(bottom = 8.dp),
             )
         },
     ) { innerPadding ->
