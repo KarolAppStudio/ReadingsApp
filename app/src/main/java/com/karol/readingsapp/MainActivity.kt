@@ -115,6 +115,10 @@ class MainActivity : ComponentActivity() {
             }
             val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
+            LaunchedEffect(strings.locale) {
+                voiceViewModel.filterVoices(strings.locale, autoSelect = true)
+            }
+
             ProvideWindowSizeClass(windowSizeClass) {
                 ReadingsAppTheme(appTheme = currentTheme) {
                     val navController = rememberNavController()

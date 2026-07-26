@@ -616,7 +616,7 @@ fun VoiceSettings(
     voiceViewModel: VoiceViewModel,
     isGlass: Boolean = false,
 ) {
-    val availableVoices by voiceViewModel.availableVoices.collectAsStateWithLifecycle()
+    val availableVoices by voiceViewModel.filteredVoices.collectAsStateWithLifecycle()
     val selectedVoice by voiceViewModel.selectedVoice.collectAsStateWithLifecycle()
     var expanded by remember { mutableStateOf(false) }
 
