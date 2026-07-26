@@ -64,8 +64,8 @@ class AndroidVoiceManager(
                 val filteredVoices = mutableListOf<VoiceInfo>()
 
                 // Group by language - Filter only priority languages
-                val languageGroups = allVoices
-                    .filter { priorityLanguages.contains(it.locale.language) }
+                val languageGroups = allVoices.asSequence()
+                    .filter { it.locale.language in priorityLanguages }
                     .groupBy { it.locale.language }
 
                 languageGroups.forEach { (_, voicesInLang) ->
@@ -118,9 +118,9 @@ class AndroidVoiceManager(
                 } else if (_selectedVoice.value == null) {
                     // Pick a sensible default for current locale or English
                     val systemLang = Locale.getDefault().language
-                    val defaultVoice = filteredVoices.find { it.locale.language == systemLang && it.isOffline }
+                    val defaultVoice = filteredVoices.find { (it.locale.language == systemLang) && it.isOffline }
                         ?: filteredVoices.find { it.locale.language == systemLang }
-                        ?: filteredVoices.find { it.locale.language == "en" && it.isOffline }
+                        ?: filteredVoices.find { (it.locale.language == "en") && it.isOffline }
                         ?: filteredVoices.firstOrNull()
 
                     _selectedVoice.value = defaultVoice
@@ -242,7 +242,8 @@ class AndroidVoiceManager(
         audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
     }
 
-    private fun splitIntoChunks(text: String, maxLimit: Int = 500): List<String> {
+    private fun splitIntoChunks(text: String): List<String> {
+        val maxLimit = 500
         if (text.length <= maxLimit) return listOf(text)
 
         val chunks = mutableListOf<String>()
@@ -329,7 +330,7 @@ class AndroidVoiceManager(
                     _ttsState.value = TTSState.Error("Language not supported")
                     return
                 }
-                Log.d("AndroidVoiceManager", "TTS language set to: ${ttsEngine.voice?.locale ?: ttsEngine.language}")
+                Log.d("AndroidVoiceManager", "TTS language set to: ${ttsEngine.voice?.locale ?: ttsEngine.defaultVoice.locale}")
 
                 // Try to find and set the voice
                 try {
@@ -358,8 +359,7 @@ class AndroidVoiceManager(
                         val langVoices = allVoices?.filter { it.locale.language == actualLanguage.language } ?: emptyList()
 
                         // Prioritize offline voices
-                        val bestVoice = langVoices.sortedByDescending { !it.isNetworkConnectionRequired }
-                            .firstOrNull()
+                        val bestVoice = langVoices.maxByOrNull { !it.isNetworkConnectionRequired }
 
                         if (bestVoice != null) {
                             Log.d("AndroidVoiceManager", "Setting voice to best fallback: ${bestVoice.name} (offline: ${!bestVoice.isNetworkConnectionRequired})")
@@ -377,7 +377,7 @@ class AndroidVoiceManager(
 
                 // Chunking text to handle 4000 character limit
                 // Using 500 for better resume granularity
-                val allChunks = splitIntoChunks(actualText, 500)
+                val allChunks = splitIntoChunks(actualText)
                 val chunksToSpeak = if (startIndex < allChunks.size) allChunks.drop(startIndex).toMutableList() else mutableListOf()
 
                 if (chunksToSpeak.isNotEmpty() && charOffset > 0 && charOffset < chunksToSpeak[0].length) {
@@ -425,7 +425,7 @@ class AndroidVoiceManager(
 
     override fun resume() {
         if (lastSpokenText.isNotEmpty()) {
-            val chunks = splitIntoChunks(lastSpokenText, 500)
+            val chunks = splitIntoChunks(lastSpokenText)
             var targetChunkIndex = currentChunkIndex
             var targetOffset = nextWordOffsetInCurrentChunk
 

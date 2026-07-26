@@ -54,13 +54,13 @@ fun VoiceControlBar(
                         viewModel.onStopClicked()
                         lastPlayedText = ""
                     },
-                    enabled = ttsState is TTSState.Speaking || ttsState is TTSState.Paused,
+                    enabled = (ttsState is TTSState.Speaking) || (ttsState is TTSState.Paused),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Stop,
                         contentDescription = "Stop",
                         modifier = Modifier.size(24.dp),
-                        tint = if (ttsState is TTSState.Speaking || ttsState is TTSState.Paused) {
+                        tint = if ((ttsState is TTSState.Speaking) || (ttsState is TTSState.Paused)) {
                             MaterialTheme.colorScheme.primary
                         } else {
                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
