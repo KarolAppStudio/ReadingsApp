@@ -134,7 +134,7 @@ class AndroidVoiceManager(
         audioFocusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
     }
 
-    private fun splitIntoChunks(text: String, maxLimit: Int): List<String> {
+    private fun splitIntoChunks(text: String, maxLimit: Int = 3900): List<String> {
         if (text.length <= maxLimit) return listOf(text)
 
         val chunks = mutableListOf<String>()
@@ -152,7 +152,7 @@ class AndroidVoiceManager(
             if (splitIndex == -1) splitIndex = remainingText.lastIndexOf(", ", maxLimit)
             if (splitIndex == -1) splitIndex = remainingText.lastIndexOf(" ", maxLimit)
 
-            if (splitIndex == -1 || splitIndex < maxLimit / 2) {
+            if (splitIndex == -1 || (splitIndex < maxLimit / 2)) {
                 // If no good split point found, just hard cut at maxLimit
                 splitIndex = maxLimit
             } else {
@@ -188,7 +188,7 @@ class AndroidVoiceManager(
                 Log.d("AndroidVoiceManager", "Initial setLanguage($actualLanguage) result: $langResult")
 
                 if (langResult < TextToSpeech.LANG_AVAILABLE) {
-                    val fallbackLocale = Locale(actualLanguage.language)
+                    val fallbackLocale = Locale.forLanguageTag(actualLanguage.language)
                     Log.w("AndroidVoiceManager", "Full locale not available, trying fallback: $fallbackLocale")
                     langResult = ttsEngine.setLanguage(fallbackLocale)
                 }
@@ -198,7 +198,7 @@ class AndroidVoiceManager(
                     _ttsState.value = TTSState.Error("Language not supported")
                     return
                 }
-                Log.d("AndroidVoiceManager", "TTS language set to: ${ttsEngine.language}")
+                Log.d("AndroidVoiceManager", "TTS language set to: ${ttsEngine.voice?.locale ?: ttsEngine.language}")
 
                 // Try to find and set an offline voice for the requested language
                 try {

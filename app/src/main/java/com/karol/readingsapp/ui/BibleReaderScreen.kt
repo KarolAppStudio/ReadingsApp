@@ -195,15 +195,15 @@ fun BibleReaderScreen(
                 chapter = chapter,
                 initialVerse = initialVerse,
                 readingType = readingType,
-                selectedVerseId = if (displayIndex == pageIndex % totalChapters) selectedVerseId else null,
+                selectedVerseId = if (displayIndex == (pageIndex % totalChapters)) selectedVerseId else null,
                 onVerseClick = { vId ->
-                    if (displayIndex == pageIndex % totalChapters) {
+                    if (displayIndex == (pageIndex % totalChapters)) {
                         selectedVerseId = if (selectedVerseId == vId) null else vId
                     }
                 },
-                currentVerses = if (displayIndex == pageIndex % totalChapters) currentVerses else emptyList(),
+                currentVerses = if (displayIndex == (pageIndex % totalChapters)) currentVerses else emptyList(),
                 onVersesLoaded = { loadedVerses ->
-                    if (displayIndex == pageIndex % totalChapters) {
+                    if (displayIndex == (pageIndex % totalChapters)) {
                         currentVerses = loadedVerses
                     }
                 },
@@ -470,11 +470,7 @@ fun ChapterPage(
     }
 
     LaunchedEffect(bookId, chapter, selectedCode, providedVerses) {
-        verses = if (providedVerses != null) {
-            providedVerses
-        } else {
-            viewModel.getChapterVerses(bookId, chapter)
-        }
+        verses = providedVerses ?: viewModel.getChapterVerses(bookId, chapter)
     }
 
     LaunchedEffect(verses) {
