@@ -44,7 +44,6 @@ class AndroidVoiceManager(
     private var lastSpokenText: String = ""
     private var lastSpokenLocale: Locale = Locale.getDefault()
     private var currentChunkIndex: Int = 0
-    private var offsetInCurrentChunk: Int = 0
     private var nextWordOffsetInCurrentChunk: Int = 0
 
     private val priorityLanguages = setOf("en", "hi", "bn", "kn", "ml", "ta", "te")
@@ -169,14 +168,12 @@ class AndroidVoiceManager(
                     // Extract chunk index from utteranceId if possible
                     utteranceId?.substringAfterLast("_")?.toIntOrNull()?.let { index ->
                         currentChunkIndex = index
-                        offsetInCurrentChunk = 0
                         nextWordOffsetInCurrentChunk = 0
                         Log.d("AndroidVoiceManager", "Updated currentChunkIndex to $index")
                     }
                 }
 
                 override fun onRangeStart(utteranceId: String?, start: Int, end: Int, frame: Int) {
-                    offsetInCurrentChunk = start
                     nextWordOffsetInCurrentChunk = end
                     Log.d("AndroidVoiceManager", "onRangeStart: start=$start, end=$end, utteranceId=$utteranceId")
                 }
@@ -298,7 +295,6 @@ class AndroidVoiceManager(
             lastSpokenText = actualText
             lastSpokenLocale = actualLanguage
             currentChunkIndex = 0
-            offsetInCurrentChunk = 0
             nextWordOffsetInCurrentChunk = 0
         }
 
@@ -453,7 +449,6 @@ class AndroidVoiceManager(
         tts?.stop()
         lastUtteranceId = null
         currentChunkIndex = 0
-        offsetInCurrentChunk = 0
         nextWordOffsetInCurrentChunk = 0
         lastSpokenText = ""
         _ttsState.value = TTSState.Idle

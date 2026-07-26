@@ -82,6 +82,7 @@ fun VoiceControlBar(
                 ) {
                     val statusText = when (val state = ttsState) {
                         is TTSState.Speaking -> "Reading..."
+                        is TTSState.Paused -> "Paused"
                         is TTSState.Initializing -> "Initializing..."
                         is TTSState.Error -> state.message
                         else -> ""
