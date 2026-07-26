@@ -1,5 +1,6 @@
 package com.karol.readingsapp.voice.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -53,15 +54,29 @@ fun VoiceControlBar(
             }
 
             // Status Text
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = when (ttsState) {
-                        is TTSState.Speaking -> "Reading..."
-                        is TTSState.Initializing -> "Initializing..."
-                        else -> "Voice Ready"
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(enabled = ttsState is TTSState.Error) {
+                        if (ttsState is TTSState.Error) {
+                            viewModel.voiceService.checkAndInstallVoices()
+                        }
                     },
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                val statusText = when (val state = ttsState) {
+                    is TTSState.Speaking -> "Reading..."
+                    is TTSState.Initializing -> "Initializing..."
+                    is TTSState.Error -> state.message
+                    else -> ""
+                }
+                if (statusText.isNotEmpty()) {
+                    Text(
+                        text = statusText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (ttsState is TTSState.Error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                    )
+                }
                 if (isOfflineAvailable && (ttsState is TTSState.Idle)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
@@ -71,7 +86,7 @@ fun VoiceControlBar(
                         ) {}
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Offline Mode Enabled",
+                            text = "Voice Mode Enabled",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.tertiary,
                         )

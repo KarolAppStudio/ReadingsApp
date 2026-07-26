@@ -22,5 +22,6 @@ interface VoiceService {
     fun setPitch(pitch: Float)
     fun setRate(rate: Float)
 
+    fun checkAndInstallVoices()
     fun shutdown()
 }
