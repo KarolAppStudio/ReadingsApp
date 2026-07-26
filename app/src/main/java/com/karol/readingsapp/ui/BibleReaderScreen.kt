@@ -34,6 +34,8 @@ import com.karol.readingsapp.ui.components.SelectionButton
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.AppTheme
 import com.karol.readingsapp.ui.theme.glassEffect
+import com.karol.readingsapp.voice.ui.VoiceControlBar
+import com.karol.readingsapp.voice.ui.VoiceViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
@@ -45,11 +47,13 @@ fun BibleReaderScreen(
     bookId: Int,
     chapter: Int,
     initialVerse: Int = 1,
+    readingType: String? = null,
     viewModel: ReadingViewModel,
+    voiceViewModel: VoiceViewModel,
     onHomeClick: () -> Unit,
     onBackClick: () -> Unit,
     onParallelClick: (Int, Int) -> Unit,
-    onChapterChange: (Int, Int) -> Unit,
+    onChapterChange: (Int, Int, String?) -> Unit,
 ) {
     val allChapters by viewModel.allChapters.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
@@ -91,7 +95,7 @@ fun BibleReaderScreen(
             val actualIndex = pagerState.settledPage % totalChapters
             val currentRef = allChapters[actualIndex]
             if ((currentRef.bookId != bookId) || (currentRef.chapter != chapter)) {
-                onChapterChange(currentRef.bookId, currentRef.chapter)
+                onChapterChange(currentRef.bookId, currentRef.chapter, readingType)
             }
         }
     }
@@ -123,8 +127,27 @@ fun BibleReaderScreen(
 
     val scope = rememberCoroutineScope()
 
+    var currentVerses by remember { mutableStateOf<List<TargetReadingDetails>>(emptyList()) }
+    var selectedVerseId by remember { mutableStateOf<Int?>(null) }
+
+    LaunchedEffect(displayBookId, displayChapter, selectedCode) {
+        currentVerses = emptyList()
+        selectedVerseId = null
+    }
+
     val currentTheme by viewModel.appTheme.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val isGlass = currentTheme == AppTheme.DARK_FROSTED_GLASS
+
+    val textToRead = remember(currentVerses, selectedVerseId, readingType, uiState) {
+        if (selectedVerseId != null) {
+            currentVerses.find { it.verseId == selectedVerseId }?.text ?: ""
+        } else if (readingType != null && uiState.containsKey(readingType)) {
+            uiState[readingType]?.joinToString(" ") { it.text } ?: ""
+        } else {
+            currentVerses.joinToString(" ") { it.text }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -145,6 +168,16 @@ fun BibleReaderScreen(
             )
         },
         containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+        bottomBar = {
+            VoiceControlBar(
+                viewModel = voiceViewModel,
+                textToRead = textToRead,
+                locale = strings.locale,
+                modifier = Modifier
+                    .padding(horizontal = AdaptiveDimens.paddingMedium)
+                    .padding(bottom = 16.dp),
+            )
+        },
     ) { innerPadding ->
         HorizontalPager(
             state = pagerState,
@@ -161,9 +194,23 @@ fun BibleReaderScreen(
                 bookId = bookId,
                 chapter = chapter,
                 initialVerse = initialVerse,
+                readingType = readingType,
+                selectedVerseId = if (displayIndex == pageIndex % totalChapters) selectedVerseId else null,
+                onVerseClick = { vId ->
+                    if (displayIndex == pageIndex % totalChapters) {
+                        selectedVerseId = if (selectedVerseId == vId) null else vId
+                    }
+                },
+                currentVerses = if (displayIndex == pageIndex % totalChapters) currentVerses else emptyList(),
+                onVersesLoaded = { loadedVerses ->
+                    if (displayIndex == pageIndex % totalChapters) {
+                        currentVerses = loadedVerses
+                    }
+                },
                 viewModel = viewModel,
                 numberFormatter = numberFormatter,
                 strings = strings,
+                onChapterChange = onChapterChange,
                 scope = scope,
                 isGlass = isGlass,
             )
@@ -185,7 +232,7 @@ fun ReaderTopBar(
     onHomeClick: () -> Unit,
     onBackClick: () -> Unit,
     onParallelClick: () -> Unit,
-    onChapterChange: (Int, Int) -> Unit,
+    onChapterChange: (Int, Int, String?) -> Unit,
     isGlass: Boolean = false,
 ) {
     Surface(
@@ -282,7 +329,7 @@ fun ReaderTopBar(
                             text = strings.book,
                             options = bookOptions,
                             onOptionSelected = { index ->
-                                onChapterChange(allBooks[index].id, 1)
+                                onChapterChange(allBooks[index].id, 1, null)
                             },
                             modifier = Modifier.weight(1f),
                             height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
@@ -294,7 +341,7 @@ fun ReaderTopBar(
                             text = strings.chapter,
                             options = (1..chapterCount).map { numberFormatter.format(it) },
                             onOptionSelected = { index ->
-                                onChapterChange(displayBookId, index + 1)
+                                onChapterChange(displayBookId, index + 1, null)
                             },
                             modifier = Modifier.weight(1f),
                             height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
@@ -319,9 +366,15 @@ fun ReaderPagerPage(
     bookId: Int,
     chapter: Int,
     initialVerse: Int,
+    readingType: String?,
+    selectedVerseId: Int?,
+    onVerseClick: (Int) -> Unit,
+    onVersesLoaded: (List<TargetReadingDetails>) -> Unit,
+    currentVerses: List<TargetReadingDetails>,
     viewModel: ReadingViewModel,
     numberFormatter: NumberFormat,
     strings: LocalizedStrings,
+    onChapterChange: (Int, Int, String?) -> Unit,
     scope: CoroutineScope,
     isGlass: Boolean = false,
 ) {
@@ -363,6 +416,11 @@ fun ReaderPagerPage(
                 bookId = ref.bookId,
                 chapter = ref.chapter,
                 initialVerse = if ((ref.bookId == bookId) && (ref.chapter == chapter)) initialVerse else 1,
+                readingType = if ((ref.bookId == bookId) && (ref.chapter == chapter)) readingType else null,
+                selectedVerseId = selectedVerseId,
+                onVerseClick = onVerseClick,
+                onVersesLoaded = onVersesLoaded,
+                providedVerses = if (currentVerses.isNotEmpty()) currentVerses else null,
                 viewModel = viewModel,
                 numberFormatter = numberFormatter,
                 strings = strings,
@@ -377,6 +435,7 @@ fun ReaderPagerPage(
                     }
                 },
                 nextBookName = nextBookName,
+                onChapterChange = onChapterChange,
                 isGlass = isGlass,
             )
         }
@@ -388,20 +447,40 @@ fun ChapterPage(
     bookId: Int,
     chapter: Int,
     initialVerse: Int,
+    readingType: String?,
+    selectedVerseId: Int?,
+    onVerseClick: (Int) -> Unit,
+    onVersesLoaded: (List<TargetReadingDetails>) -> Unit = {},
+    providedVerses: List<TargetReadingDetails>? = null,
     viewModel: ReadingViewModel,
     numberFormatter: NumberFormat,
     strings: LocalizedStrings,
     onNextChapter: (() -> Unit)? = null,
     onPreviousChapter: (() -> Unit)? = null,
     nextBookName: String? = null,
+    onChapterChange: (Int, Int, String?) -> Unit,
     isGlass: Boolean = false,
 ) {
     var verses by remember { mutableStateOf<List<TargetReadingDetails>>(emptyList()) }
     val listState = rememberLazyListState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
 
-    LaunchedEffect(bookId, chapter, selectedCode) {
-        verses = viewModel.getChapterVerses(bookId, chapter)
+    val nextPortion = remember(readingType, bookId, chapter) {
+        viewModel.getNextPortion(readingType)
+    }
+
+    LaunchedEffect(bookId, chapter, selectedCode, providedVerses) {
+        if (providedVerses != null) {
+            verses = providedVerses
+        } else {
+            verses = viewModel.getChapterVerses(bookId, chapter)
+        }
+    }
+
+    LaunchedEffect(verses) {
+        if (verses.isNotEmpty()) {
+            onVersesLoaded(verses)
+        }
     }
 
     LaunchedEffect(verses, initialVerse) {
@@ -438,9 +517,19 @@ fun ChapterPage(
                 }
             } else {
                 items(verses, key = { "${it.translationCode}_${it.bookId}_${it.chapter}_${it.verseId}" }) { verse ->
+                    val isSelected = verse.verseId == selectedVerseId
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .clickable { onVerseClick(verse.verseId) }
+                            .background(
+                                color = if (isSelected) {
+                                    if (isGlass) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                                } else {
+                                    Color.Transparent
+                                },
+                                shape = RoundedCornerShape(8.dp),
+                            )
                             .padding(vertical = 4.dp, horizontal = 8.dp),
                     ) {
                         Text(
@@ -494,18 +583,28 @@ fun ChapterPage(
                             } ?: Spacer(modifier = Modifier.width(1.dp))
 
                             onNextChapter?.let { action ->
+                                val showNextPortion = nextPortion != null
                                 Button(
-                                    onClick = action,
+                                    onClick = {
+                                        if (showNextPortion && nextPortion != null) {
+                                            viewModel.loadChapterVerses(nextPortion.bookId, nextPortion.chapter)
+                                            onChapterChange(nextPortion.bookId, nextPortion.chapter, nextPortion.readingType)
+                                        } else {
+                                            action()
+                                        }
+                                    },
                                     shape = RoundedCornerShape(26.dp),
                                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                                     colors = if (isGlass) ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.2f), contentColor = Color.White) else ButtonDefaults.buttonColors(),
                                     modifier = if (isGlass) Modifier.glassEffect() else Modifier,
                                 ) {
+                                    val nextPortionName = if (nextPortion != null) strings.bookNames[nextPortion.bookId] ?: nextPortion.bookName else null
                                     Text(
-                                        text = if (nextBookName != null) {
-                                            "${strings.nextReading}: $nextBookName"
-                                        } else {
-                                            strings.nextReading
+                                        text = when {
+                                            showNextPortion && nextPortionName != null -> "${strings.nextPortion}: $nextPortionName"
+                                            showNextPortion -> strings.nextPortion
+                                            nextBookName != null -> "${strings.nextReading}: $nextBookName"
+                                            else -> strings.nextReading
                                         },
                                         fontSize = AdaptiveDimens.smallFontSize,
                                     )

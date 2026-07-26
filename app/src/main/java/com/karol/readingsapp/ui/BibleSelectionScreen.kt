@@ -339,6 +339,7 @@ fun ChapterSelection(
     GridOrListSelection(
         mode = mode,
         items = (1..chapterCount).toList(),
+        header = strings.chapter,
         itemLabel = { "${strings.chapter} ${numberFormatter.format(it)}" },
         gridLabel = { numberFormatter.format(it) },
         isGlass = isGlass,
@@ -358,6 +359,7 @@ fun VerseSelection(
     GridOrListSelection(
         mode = mode,
         items = (1..verseCount).toList(),
+        header = strings.verse,
         itemLabel = { "${strings.verse} ${numberFormatter.format(it)}" },
         gridLabel = { numberFormatter.format(it) },
         isGlass = isGlass,
@@ -369,6 +371,7 @@ fun VerseSelection(
 fun GridOrListSelection(
     mode: NavMode,
     items: List<Int>,
+    header: String,
     itemLabel: (Int) -> String,
     gridLabel: (Int) -> String,
     isGlass: Boolean = false,
@@ -383,7 +386,7 @@ fun GridOrListSelection(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(items) { item ->
-                    ChapterCard(item, gridLabel(item), isGlass, onItemClick)
+                    ChapterCard(item, header, gridLabel(item), isGlass, onItemClick)
                 }
             }
         }
@@ -470,7 +473,7 @@ fun BookListItem(book: BookEntity, strings: LocalizedStrings, isGlass: Boolean =
 }
 
 @Composable
-fun ChapterCard(item: Int, label: String, isGlass: Boolean = false, onClick: (Int) -> Unit) {
+fun ChapterCard(item: Int, header: String, label: String, isGlass: Boolean = false, onClick: (Int) -> Unit) {
     Card(
         onClick = { onClick(item) },
         modifier = if (isGlass) Modifier.glassEffect() else Modifier,
@@ -481,10 +484,16 @@ fun ChapterCard(item: Int, label: String, isGlass: Boolean = false, onClick: (In
         border = if (isGlass) null else CardDefaults.outlinedCardBorder(),
         elevation = CardDefaults.cardElevation(if (isGlass) 0.dp else 1.dp),
     ) {
-        Box(
+        Column(
             modifier = Modifier.aspectRatio(1f),
-            contentAlignment = Alignment.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
+            Text(
+                text = header,
+                fontSize = 10.sp,
+                color = if (isGlass) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+            )
             Text(
                 text = label,
                 fontWeight = FontWeight.Bold,

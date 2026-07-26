@@ -43,6 +43,7 @@ import com.karol.readingsapp.ui.theme.AppTheme
 import com.karol.readingsapp.ui.theme.FluidBackground
 import com.karol.readingsapp.ui.theme.ProvideWindowSizeClass
 import com.karol.readingsapp.ui.theme.ReadingsAppTheme
+import com.karol.readingsapp.voice.ui.VoiceViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
@@ -78,6 +79,7 @@ class MainActivity : ComponentActivity() {
                         override fun <T : ViewModel> create(modelClass: Class<T>): T = ReadingViewModel(repository, languageService, applicationContext) as T
                     },
                 )
+            val voiceViewModel: VoiceViewModel = viewModel()
 
             val currentTheme by viewModel.appTheme.collectAsState()
             val batchProgress by viewModel.batchProgress.collectAsState()
@@ -108,7 +110,7 @@ class MainActivity : ComponentActivity() {
                                     HomeScreen(
                                         viewModel = viewModel,
                                         onReadingClick = { reading ->
-                                            navController.navigate("reader/${reading.bookId}/${reading.chapter}/${reading.verseId}")
+                                            navController.navigate("reader/${reading.bookId}/${reading.chapter}/${reading.verseId}/${reading.readingType}")
                                         },
                                         onCalendarClick = {
                                             navController.navigate("reading_plan")
@@ -172,7 +174,7 @@ class MainActivity : ComponentActivity() {
                                             navController.navigate("settings")
                                         },
                                         onChapterClick = { bookId, chapter, verseId ->
-                                            navController.navigate("reader/$bookId/$chapter/$verseId")
+                                            navController.navigate("reader/$bookId/$chapter/$verseId/null")
                                         },
                                     ) { bookId, chapter ->
                                         navController.navigate("parallel_reader/$bookId/$chapter")
@@ -197,22 +199,31 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                                 composable(
-                                    route = "reader/{bookId}/{chapter}/{verseId}",
+                                    route = "reader/{bookId}/{chapter}/{verseId}/{readingType}",
                                     arguments =
                                     listOf(
                                         navArgument("bookId") { type = NavType.IntType },
                                         navArgument("chapter") { type = NavType.IntType },
                                         navArgument("verseId") { type = NavType.IntType },
+                                        navArgument("readingType") {
+                                            type = NavType.StringType
+                                            nullable = true
+                                        },
                                     ),
                                 ) { backStackEntry ->
                                     val bookId = backStackEntry.arguments?.getInt("bookId") ?: 0
                                     val chapter = backStackEntry.arguments?.getInt("chapter") ?: 0
                                     val verseId = backStackEntry.arguments?.getInt("verseId") ?: 1
+                                    val readingType = backStackEntry.arguments?.getString("readingType").let {
+                                        if (it == "null") null else it
+                                    }
                                     BibleReaderScreen(
                                         bookId = bookId,
                                         chapter = chapter,
                                         initialVerse = verseId,
+                                        readingType = readingType,
                                         viewModel = viewModel,
+                                        voiceViewModel = voiceViewModel,
                                         onHomeClick = {
                                             navController.popBackStack("home", inclusive = false)
                                         },
@@ -223,8 +234,9 @@ class MainActivity : ComponentActivity() {
                                             viewModel.loadSecondChapterVerses(bId, chap, "ENG")
                                             navController.navigate("parallel_reader/$bId/$chap")
                                         },
-                                    ) { bId, chap ->
-                                        navController.navigate("reader/$bId/$chap/1") {
+                                    ) { bId, chap, type ->
+                                        val typePath = type ?: "null"
+                                        navController.navigate("reader/$bId/$chap/1/$typePath") {
                                             launchSingleTop = true
                                         }
                                     }

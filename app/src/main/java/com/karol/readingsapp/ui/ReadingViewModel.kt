@@ -186,4 +186,20 @@ class ReadingViewModel(
             _secondChapterVerses.value = repository.getChapterVerses(bookId, chapter, "ENG")
         }
     }
+
+    fun getNextPortion(currentType: String?): TargetReadingDetails? {
+        if (currentType == null) return null
+        val readings = _uiState.value
+        val types = listOf("First Reading", "Second Reading", "Third Reading")
+        val currentIndex = types.indexOf(currentType)
+        if (currentIndex != -1 && currentIndex < types.size - 1) {
+            for (i in (currentIndex + 1) until types.size) {
+                val nextReadings = readings[types[i]]
+                if (!nextReadings.isNullOrEmpty()) {
+                    return nextReadings.first()
+                }
+            }
+        }
+        return null
+    }
 }
