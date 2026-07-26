@@ -25,7 +25,7 @@ class AndroidVoiceManager(
     private val _ttsState = MutableStateFlow<TTSState>(TTSState.Idle)
     override val ttsState = _ttsState.asStateFlow()
 
-    private val _isOfflineAvailable = MutableStateFlow(false)
+    private val _isOfflineAvailable = MutableStateFlow(value = false)
     override val isOfflineAvailable = _isOfflineAvailable.asStateFlow()
 
     private var currentPitch = 1.0f
@@ -57,21 +57,24 @@ class AndroidVoiceManager(
     }
 
     private fun setupTTSListeners() {
-        tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-            override fun onStart(utteranceId: String?) {
-                _ttsState.value = TTSState.Speaking("Reading...")
-            }
+        tts?.setOnUtteranceProgressListener(
+            object : UtteranceProgressListener() {
+                override fun onStart(utteranceId: String?) {
+                    _ttsState.value = TTSState.Speaking("Reading...")
+                }
 
-            override fun onDone(utteranceId: String?) {
-                _ttsState.value = TTSState.Idle
-                abandonAudioFocus()
-            }
+                override fun onDone(utteranceId: String?) {
+                    _ttsState.value = TTSState.Idle
+                    abandonAudioFocus()
+                }
 
-            override fun onError(utteranceId: String?) {
-                _ttsState.value = TTSState.Error("Playback Error")
-                abandonAudioFocus()
-            }
-        })
+                @Deprecated("Deprecated in Java")
+                override fun onError(utteranceId: String?) {
+                    _ttsState.value = TTSState.Error("Playback Error")
+                    abandonAudioFocus()
+                }
+            },
+        )
     }
 
     private fun requestAudioFocus(): Boolean {
@@ -114,10 +117,9 @@ class AndroidVoiceManager(
 
                 // Try to find and set an offline voice for the requested language
                 try {
-                    val offlineVoice = it.voices?.find { voice ->
-                        voice.locale.language == language.language && !voice.isNetworkConnectionRequired
-                    }
-                    if (offlineVoice != null) {
+                    it.voices?.find { voice ->
+                        (voice.locale.language == language.language) && !voice.isNetworkConnectionRequired
+                    }?.let { offlineVoice ->
                         it.voice = offlineVoice
                     }
                 } catch (_: Exception) {

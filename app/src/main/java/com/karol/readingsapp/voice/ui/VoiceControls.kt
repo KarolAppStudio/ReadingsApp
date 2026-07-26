@@ -1,6 +1,7 @@
 package com.karol.readingsapp.voice.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
@@ -8,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karol.readingsapp.voice.domain.TTSState
@@ -55,9 +55,9 @@ fun VoiceControlBar(
             // Status Text
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = when {
-                        ttsState is TTSState.Speaking -> "Reading..."
-                        ttsState is TTSState.Initializing -> "Initializing..."
+                    text = when (ttsState) {
+                        is TTSState.Speaking -> "Reading..."
+                        is TTSState.Initializing -> "Initializing..."
                         else -> "Voice Ready"
                     },
                     style = MaterialTheme.typography.bodyMedium,
@@ -67,7 +67,7 @@ fun VoiceControlBar(
                         Surface(
                             modifier = Modifier.size(8.dp),
                             color = MaterialTheme.colorScheme.tertiary,
-                            shape = androidx.compose.foundation.shape.CircleShape,
+                            shape = CircleShape,
                         ) {}
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
