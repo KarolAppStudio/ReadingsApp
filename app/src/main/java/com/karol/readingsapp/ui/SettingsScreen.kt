@@ -44,7 +44,6 @@ import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.AppTheme
 import com.karol.readingsapp.ui.theme.glassEffect
 import com.karol.readingsapp.voice.domain.VoiceGender
-import com.karol.readingsapp.voice.domain.VoiceInfo
 import com.karol.readingsapp.voice.ui.VoiceViewModel
 
 @Composable
@@ -129,8 +128,7 @@ fun SettingsScreen(
                                     themeExpanded = themeExpanded,
                                     onThemeExpandedChange = { themeExpanded = it },
                                     isGlass = isGlass,
-                                    onThemeSelected = { viewModel.setTheme(it) },
-                                )
+                                ) { viewModel.setTheme(it) }
                                 Spacer(modifier = Modifier.height(AdaptiveDimens.paddingMedium))
                                 VoiceSettings(
                                     voiceViewModel = voiceViewModel,
@@ -618,7 +616,7 @@ fun VoiceSettings(
 ) {
     val availableVoices by voiceViewModel.filteredVoices.collectAsStateWithLifecycle()
     val selectedVoice by voiceViewModel.selectedVoice.collectAsStateWithLifecycle()
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(value = false) }
 
     val selectedVoiceName = selectedVoice?.let { voice ->
         val genderLabel = when (voice.gender) {

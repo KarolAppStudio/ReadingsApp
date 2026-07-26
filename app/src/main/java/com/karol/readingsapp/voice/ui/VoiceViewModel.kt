@@ -62,7 +62,7 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
         voiceService.resume()
     }
 
-    fun onVoiceSelected(voice: com.karol.readingsapp.voice.domain.VoiceInfo) {
+    fun onVoiceSelected(voice: VoiceInfo) {
         voiceService.setVoice(voice)
     }
 
