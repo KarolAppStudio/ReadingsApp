@@ -21,6 +21,5 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
 
     override fun onCleared() {
         voiceService.shutdown()
-        super.onCleared()
     }
 }

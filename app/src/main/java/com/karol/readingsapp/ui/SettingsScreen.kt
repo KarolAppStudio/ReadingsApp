@@ -387,18 +387,17 @@ fun ContactSettings(
     strings: LocalizedStrings,
     isGlass: Boolean = false,
 ) {
-    var showFeedbackDialog by remember { mutableStateOf(false) }
-    var showMessageSentPopup by remember { mutableStateOf(false) }
+    var showFeedbackDialog by remember { mutableStateOf(value = false) }
+    var showMessageSentPopup by remember { mutableStateOf(value = false) }
 
     if (showFeedbackDialog) {
         FeedbackDialog(
             isGlass = isGlass,
             onDismiss = { showFeedbackDialog = false },
-            onSent = {
-                showFeedbackDialog = false
-                showMessageSentPopup = true
-            },
-        )
+        ) {
+            showFeedbackDialog = false
+            showMessageSentPopup = true
+        }
     }
 
     if (showMessageSentPopup) {

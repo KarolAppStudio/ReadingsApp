@@ -192,7 +192,9 @@ class ReadingViewModel(
         val readings = _uiState.value
         val types = listOf("First Reading", "Second Reading", "Third Reading")
         val currentIndex = types.indexOf(currentType)
-        if (currentIndex != -1 && currentIndex < types.size - 1) {
+        val hasValidIndex = currentIndex != -1
+        val isNotLast = currentIndex < (types.size - 1)
+        if (hasValidIndex && isNotLast) {
             for (i in (currentIndex + 1) until types.size) {
                 val nextReadings = readings[types[i]]
                 if (!nextReadings.isNullOrEmpty()) {

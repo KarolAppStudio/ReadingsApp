@@ -142,7 +142,7 @@ fun BibleReaderScreen(
     val textToRead = remember(currentVerses, selectedVerseId, readingType, uiState) {
         if (selectedVerseId != null) {
             currentVerses.find { it.verseId == selectedVerseId }?.text ?: ""
-        } else if (readingType != null && uiState.containsKey(readingType)) {
+        } else if ((readingType != null) && uiState.containsKey(readingType)) {
             uiState[readingType]?.joinToString(" ") { it.text } ?: ""
         } else {
             currentVerses.joinToString(" ") { it.text }
@@ -420,7 +420,7 @@ fun ReaderPagerPage(
                 selectedVerseId = selectedVerseId,
                 onVerseClick = onVerseClick,
                 onVersesLoaded = onVersesLoaded,
-                providedVerses = if (currentVerses.isNotEmpty()) currentVerses else null,
+                providedVerses = currentVerses.ifEmpty { null },
                 viewModel = viewModel,
                 numberFormatter = numberFormatter,
                 strings = strings,
@@ -470,10 +470,10 @@ fun ChapterPage(
     }
 
     LaunchedEffect(bookId, chapter, selectedCode, providedVerses) {
-        if (providedVerses != null) {
-            verses = providedVerses
+        verses = if (providedVerses != null) {
+            providedVerses
         } else {
-            verses = viewModel.getChapterVerses(bookId, chapter)
+            viewModel.getChapterVerses(bookId, chapter)
         }
     }
 
@@ -586,7 +586,7 @@ fun ChapterPage(
                                 val showNextPortion = nextPortion != null
                                 Button(
                                     onClick = {
-                                        if (showNextPortion && nextPortion != null) {
+                                        if (showNextPortion) {
                                             viewModel.loadChapterVerses(nextPortion.bookId, nextPortion.chapter)
                                             onChapterChange(nextPortion.bookId, nextPortion.chapter, nextPortion.readingType)
                                         } else {
@@ -598,11 +598,10 @@ fun ChapterPage(
                                     colors = if (isGlass) ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.2f), contentColor = Color.White) else ButtonDefaults.buttonColors(),
                                     modifier = if (isGlass) Modifier.glassEffect() else Modifier,
                                 ) {
-                                    val nextPortionName = if (nextPortion != null) strings.bookNames[nextPortion.bookId] ?: nextPortion.bookName else null
+                                    val nextPortionName = nextPortion?.let { strings.bookNames[it.bookId] ?: it.bookName }
                                     Text(
                                         text = when {
-                                            showNextPortion && nextPortionName != null -> "${strings.nextPortion}: $nextPortionName"
-                                            showNextPortion -> strings.nextPortion
+                                            nextPortionName != null -> "${strings.nextPortion}: $nextPortionName"
                                             nextBookName != null -> "${strings.nextReading}: $nextBookName"
                                             else -> strings.nextReading
                                         },
