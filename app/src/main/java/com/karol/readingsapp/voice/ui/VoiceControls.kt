@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
@@ -25,7 +26,9 @@ fun VoiceControlBar(
     val ttsState by viewModel.voiceService.ttsState.collectAsStateWithLifecycle()
     val isOfflineAvailable by viewModel.voiceService.isOfflineAvailable.collectAsStateWithLifecycle()
     val density = LocalDensity.current
-    val targetWidth = with(density) { 600.toDp() }
+    val targetWidth = remember(density) { with(density) { 600.toDp() } }
+
+    var lastPlayedText by remember { mutableStateOf("") }
 
     Box(
         modifier = modifier.fillMaxWidth(),
@@ -44,19 +47,24 @@ fun VoiceControlBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
             ) {
-                // Play/Stop Button
+                // Stop Button
                 IconButton(
+                    modifier = Modifier.size(36.dp),
                     onClick = {
-                        if (ttsState is TTSState.Speaking) {
-                            viewModel.onStopClicked()
-                        } else {
-                            viewModel.onPlayClicked(textToRead, locale)
-                        }
+                        viewModel.onStopClicked()
+                        lastPlayedText = ""
                     },
+                    enabled = ttsState is TTSState.Speaking || ttsState is TTSState.Paused,
                 ) {
                     Icon(
-                        imageVector = if (ttsState is TTSState.Speaking) Icons.Default.Stop else Icons.Default.PlayArrow,
-                        contentDescription = if (ttsState is TTSState.Speaking) "Stop" else "Play",
+                        imageVector = Icons.Default.Stop,
+                        contentDescription = "Stop",
+                        modifier = Modifier.size(24.dp),
+                        tint = if (ttsState is TTSState.Speaking || ttsState is TTSState.Paused) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        },
                     )
                 }
 
@@ -94,12 +102,46 @@ fun VoiceControlBar(
                             ) {}
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Voice Mode Enabled",
+                                text = "Voice Mode",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.tertiary,
                             )
                         }
                     }
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Play/Pause Button
+                IconButton(
+                    modifier = Modifier.size(36.dp),
+                    onClick = {
+                        when (ttsState) {
+                            is TTSState.Speaking -> viewModel.onPauseClicked()
+
+                            is TTSState.Paused -> {
+                                if (textToRead == lastPlayedText) {
+                                    viewModel.onResumeClicked()
+                                } else {
+                                    lastPlayedText = textToRead
+                                    viewModel.onPlayClicked(textToRead, locale)
+                                }
+                            }
+
+                            else -> {
+                                lastPlayedText = textToRead
+                                viewModel.onPlayClicked(textToRead, locale)
+                            }
+                        }
+                    },
+                ) {
+                    val icon = if (ttsState is TTSState.Speaking) Icons.Default.Pause else Icons.Default.PlayArrow
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = if (ttsState is TTSState.Speaking) "Pause" else "Play",
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
                 }
             }
         }

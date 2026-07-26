@@ -2,6 +2,7 @@ package com.karol.readingsapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -82,6 +84,28 @@ class MainActivity : ComponentActivity() {
             val voiceViewModel: VoiceViewModel = viewModel()
 
             val currentTheme by viewModel.appTheme.collectAsState()
+
+            LaunchedEffect(currentTheme) {
+                val isDark = currentTheme == AppTheme.DARK_FROSTED_GLASS
+                if (isDark) {
+                    enableEdgeToEdge(
+                        statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+                        navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+                    )
+                } else {
+                    enableEdgeToEdge(
+                        statusBarStyle = SystemBarStyle.light(
+                            android.graphics.Color.TRANSPARENT,
+                            android.graphics.Color.TRANSPARENT,
+                        ),
+                        navigationBarStyle = SystemBarStyle.light(
+                            android.graphics.Color.TRANSPARENT,
+                            android.graphics.Color.TRANSPARENT,
+                        ),
+                    )
+                }
+            }
+
             val batchProgress by viewModel.batchProgress.collectAsState()
             val translations by viewModel.availableTranslations.collectAsState()
             val selectedCode by viewModel.selectedTranslationCode.collectAsState()
@@ -133,6 +157,7 @@ class MainActivity : ComponentActivity() {
                                 composable("settings") {
                                     SettingsScreen(
                                         viewModel = viewModel,
+                                        voiceViewModel = voiceViewModel,
                                         onHomeClick = {
                                             navController.popBackStack("home", inclusive = false)
                                         },

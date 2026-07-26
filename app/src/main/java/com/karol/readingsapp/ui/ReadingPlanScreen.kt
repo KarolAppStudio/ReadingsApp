@@ -121,7 +121,8 @@ fun ReadingPlanScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .navigationBarsPadding(),
             contentAlignment = Alignment.TopCenter,
         ) {
             LazyColumn(

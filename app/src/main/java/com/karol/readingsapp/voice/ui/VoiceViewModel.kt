@@ -8,6 +8,8 @@ import com.karol.readingsapp.voice.domain.VoiceService
 class VoiceViewModel(application: Application) : AndroidViewModel(application) {
 
     val voiceService: VoiceService = AndroidVoiceManager(application)
+    val availableVoices = voiceService.availableVoices
+    val selectedVoice = voiceService.selectedVoice
 
     fun onPlayClicked(textToRead: String, locale: java.util.Locale = java.util.Locale.getDefault()) {
         if (textToRead.isNotBlank()) {
@@ -17,6 +19,18 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onStopClicked() {
         voiceService.stop()
+    }
+
+    fun onPauseClicked() {
+        voiceService.pause()
+    }
+
+    fun onResumeClicked() {
+        voiceService.resume()
+    }
+
+    fun onVoiceSelected(voice: com.karol.readingsapp.voice.domain.VoiceInfo) {
+        voiceService.setVoice(voice)
     }
 
     override fun onCleared() {

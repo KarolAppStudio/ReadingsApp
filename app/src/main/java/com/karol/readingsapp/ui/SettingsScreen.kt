@@ -36,16 +36,21 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karol.readingsapp.ui.components.AboutContent
 import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.AppTheme
 import com.karol.readingsapp.ui.theme.glassEffect
+import com.karol.readingsapp.voice.domain.VoiceGender
+import com.karol.readingsapp.voice.domain.VoiceInfo
+import com.karol.readingsapp.voice.ui.VoiceViewModel
 
 @Composable
 fun SettingsScreen(
     viewModel: ReadingViewModel,
+    voiceViewModel: VoiceViewModel,
     onHomeClick: () -> Unit,
     onCalendarClick: () -> Unit,
     onBibleClick: () -> Unit,
@@ -89,7 +94,8 @@ fun SettingsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .navigationBarsPadding(),
         ) {
             Column(
                 modifier = Modifier
@@ -116,13 +122,21 @@ fun SettingsScreen(
                             .verticalScroll(rememberScrollState()),
                     ) {
                         when (selectedTabIndex) {
-                            0 -> AppearanceSettings(
-                                strings = strings,
-                                currentTheme = currentTheme,
-                                themeExpanded = themeExpanded,
-                                onThemeExpandedChange = { themeExpanded = it },
-                                isGlass = isGlass,
-                            ) { viewModel.setTheme(it) }
+                            0 -> {
+                                AppearanceSettings(
+                                    strings = strings,
+                                    currentTheme = currentTheme,
+                                    themeExpanded = themeExpanded,
+                                    onThemeExpandedChange = { themeExpanded = it },
+                                    isGlass = isGlass,
+                                    onThemeSelected = { viewModel.setTheme(it) },
+                                )
+                                Spacer(modifier = Modifier.height(AdaptiveDimens.paddingMedium))
+                                VoiceSettings(
+                                    voiceViewModel = voiceViewModel,
+                                    isGlass = isGlass,
+                                )
+                            }
 
                             1 -> AboutSettings(
                                 strings = strings,
@@ -593,6 +607,143 @@ private fun ScrollingCredits(isGlass: Boolean) {
                 )
             }
             Spacer(modifier = Modifier.height(120.dp))
+        }
+    }
+}
+
+@Composable
+fun VoiceSettings(
+    voiceViewModel: VoiceViewModel,
+    isGlass: Boolean = false,
+) {
+    val availableVoices by voiceViewModel.availableVoices.collectAsStateWithLifecycle()
+    val selectedVoice by voiceViewModel.selectedVoice.collectAsStateWithLifecycle()
+    var expanded by remember { mutableStateOf(false) }
+
+    val selectedVoiceName = selectedVoice?.let { voice ->
+        val genderLabel = when (voice.gender) {
+            VoiceGender.MALE -> "Male"
+            VoiceGender.FEMALE -> "Female"
+            VoiceGender.UNKNOWN -> "Voice"
+        }
+        "${voice.locale.displayLanguage} ($genderLabel)"
+    } ?: "Default"
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (isGlass) Modifier.glassEffect() else Modifier),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(if (isGlass) 0.dp else 2.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
+        ) {
+            Text(
+                text = "Voice Selection",
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = AdaptiveDimens.bodyFontSize,
+                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                ),
+                modifier = Modifier.padding(bottom = 12.dp),
+            )
+
+            Box {
+                OutlinedButton(
+                    onClick = { expanded = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                    ),
+                    border = if (isGlass) {
+                        ButtonDefaults.outlinedButtonBorder().copy(
+                            brush = Brush.linearGradient(
+                                listOf(
+                                    Color.White.copy(0.6f),
+                                    Color.White.copy(0.2f),
+                                ),
+                            ),
+                        )
+                    } else {
+                        ButtonDefaults.outlinedButtonBorder()
+                    },
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = selectedVoiceName,
+                            fontSize = AdaptiveDimens.smallFontSize,
+                        )
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                    }
+                }
+
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .background(if (isGlass) Color.DarkGray.copy(alpha = 0.9f) else MaterialTheme.colorScheme.surface)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
+                ) {
+                    if (availableVoices.isEmpty()) {
+                        DropdownMenuItem(
+                            text = { Text("No voices available", fontSize = AdaptiveDimens.smallFontSize) },
+                            onClick = { expanded = false },
+                        )
+                    } else {
+                        val grouped = availableVoices.groupBy { it.locale.displayLanguage }
+                        grouped.forEach { (lang, voices) ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        lang,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = AdaptiveDimens.smallFontSize,
+                                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                                    )
+                                },
+                                onClick = {},
+                                enabled = false,
+                            )
+                            voices.forEach { voice ->
+                                val genderLabel = when (voice.gender) {
+                                    VoiceGender.MALE -> "Male"
+                                    VoiceGender.FEMALE -> "Female"
+                                    VoiceGender.UNKNOWN -> "Voice"
+                                }
+                                // Find index within same gender/lang to distinguish
+                                val sameGenderVoices = voices.filter { it.gender == voice.gender }
+                                val index = sameGenderVoices.indexOf(voice) + 1
+                                val indexLabel = if (sameGenderVoices.size > 1) " $index" else ""
+
+                                val displayName = "  $genderLabel$indexLabel${if (voice.isOffline) " [Offline]" else ""}"
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            displayName,
+                                            fontSize = AdaptiveDimens.smallFontSize,
+                                            color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                                        )
+                                    },
+                                    onClick = {
+                                        voiceViewModel.onVoiceSelected(voice)
+                                        expanded = false
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
