@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.karol.readingsapp.data.bible.TranslationEntity
-import com.karol.readingsapp.ui.theme.glassEffect
 
 @Composable
 fun AnimatedDropdownMenu(
@@ -32,7 +31,6 @@ fun AnimatedDropdownMenu(
     modifier: Modifier = Modifier,
     offset: DpOffset = DpOffset(0.dp, 0.dp),
     backgroundColor: Color = Color.White,
-    isGlass: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val expandedState = remember { MutableTransitionState(initialState = false) }
@@ -55,11 +53,11 @@ fun AnimatedDropdownMenu(
             ) {
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = if (isGlass) Color.DarkGray.copy(alpha = 0.9f) else backgroundColor,
-                    contentColor = if (isGlass) Color.White else (if (backgroundColor == Color.White) Color.Black else contentColorFor(backgroundColor)),
-                    tonalElevation = if (isGlass) 0.dp else 3.dp,
-                    shadowElevation = if (isGlass) 0.dp else 8.dp,
-                    modifier = modifier.then(if (isGlass) Modifier.glassEffect() else Modifier),
+                    color = backgroundColor,
+                    contentColor = if (backgroundColor == Color.White) Color.Black else contentColorFor(backgroundColor),
+                    tonalElevation = 3.dp,
+                    shadowElevation = 8.dp,
+                    modifier = modifier,
                 ) {
                     Column(
                         modifier = Modifier
@@ -79,7 +77,6 @@ fun TranslationSelector(
     translations: List<TranslationEntity>,
     onTranslationSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
-    isGlass: Boolean = false,
     placeholder: String = "",
 ) {
     var expanded by remember { mutableStateOf(value = false) }
@@ -88,9 +85,9 @@ fun TranslationSelector(
     Box(modifier = modifier) {
         Surface(
             onClick = { expanded = true },
-            color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.secondaryContainer,
+            color = MaterialTheme.colorScheme.secondaryContainer,
             shape = RoundedCornerShape(4.dp),
-            modifier = Modifier.fillMaxWidth().then(if (isGlass) Modifier.glassEffect() else Modifier),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Row(
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -99,7 +96,7 @@ fun TranslationSelector(
             ) {
                 Text(
                     text = transName,
-                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSecondaryContainer,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
                     modifier = Modifier.weight(1f),
@@ -108,7 +105,7 @@ fun TranslationSelector(
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
-                    tint = if (isGlass) Color.White else MaterialTheme.colorScheme.onSecondaryContainer,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.size(16.dp),
                 )
             }
@@ -118,7 +115,6 @@ fun TranslationSelector(
             onDismissRequest = { expanded = false },
             offset = DpOffset(0.dp, 36.dp),
             backgroundColor = Color.White,
-            isGlass = isGlass,
             modifier = Modifier
                 .heightIn(max = 500.dp)
                 .widthIn(min = 1.dp)
@@ -130,7 +126,7 @@ fun TranslationSelector(
                         Text(
                             text = translation.name,
                             fontSize = 12.sp,
-                            color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                            color = MaterialTheme.colorScheme.onSurface,
                             softWrap = false,
                         )
                     },
@@ -150,7 +146,6 @@ fun SelectionButton(
     options: List<String>,
     onOptionSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    isGlass: Boolean = false,
     fontSize: androidx.compose.ui.unit.TextUnit = 10.sp,
     height: androidx.compose.ui.unit.Dp = 20.dp,
     cornerRadius: androidx.compose.ui.unit.Dp? = null,
@@ -162,17 +157,8 @@ fun SelectionButton(
             onClick = { expanded = true },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(height)
-                .then(if (isGlass) Modifier.glassEffect() else Modifier),
+                .height(height),
             contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
-            colors = if (isGlass) {
-                ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent,
-                    contentColor = Color.White,
-                )
-            } else {
-                ButtonDefaults.buttonColors()
-            },
             shape = cornerRadius?.let { RoundedCornerShape(it) }
                 ?: RoundedCornerShape(2.dp),
         ) {
@@ -186,13 +172,13 @@ fun SelectionButton(
                     fontSize = fontSize,
                     maxLines = 1,
                     textAlign = TextAlign.Center,
-                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.weight(1f, fill = false),
                 )
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = null,
-                    tint = if (isGlass) Color.White else MaterialTheme.colorScheme.onPrimary,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size((fontSize.value * 1.4f).dp),
                 )
             }
@@ -201,7 +187,6 @@ fun SelectionButton(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             offset = DpOffset(0.dp, height),
-            isGlass = isGlass,
             modifier = Modifier
                 .heightIn(max = 500.dp)
                 .widthIn(min = 1.dp)
@@ -214,7 +199,7 @@ fun SelectionButton(
                             text = option,
                             fontSize = 12.sp,
                             textAlign = TextAlign.Start,
-                            color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                            color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.fillMaxWidth(),
                             softWrap = false,
                         )

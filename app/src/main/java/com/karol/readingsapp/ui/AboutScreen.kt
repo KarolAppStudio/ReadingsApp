@@ -6,30 +6,22 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.components.AboutContent
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import com.karol.readingsapp.ui.theme.AppTheme
-import com.karol.readingsapp.ui.theme.glassEffect
 
 @Composable
-fun AboutScreen(viewModel: ReadingViewModel, strings: LocalizedStrings, onHomeClick: () -> Unit) {
-    val currentTheme by viewModel.appTheme.collectAsState()
-    val isGlass = currentTheme == AppTheme.DARK_FROSTED_GLASS
-
+fun AboutScreen(strings: LocalizedStrings, onHomeClick: () -> Unit) {
     Scaffold(
         topBar = {
-            AboutTopBar(strings = strings, onHomeClick = onHomeClick, isGlass = isGlass)
+            AboutTopBar(strings = strings, onHomeClick = onHomeClick)
         },
-        containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -46,12 +38,10 @@ fun AboutScreen(viewModel: ReadingViewModel, strings: LocalizedStrings, onHomeCl
             ) {
                 AboutContent(
                     strings = strings,
-                    isGlass = isGlass,
                     modifier = Modifier
                         .fillMaxHeight()
                         .widthIn(max = AdaptiveDimens.contentMaxWidth)
-                        .padding(AdaptiveDimens.paddingLarge)
-                        .then(if (isGlass) Modifier.glassEffect() else Modifier),
+                        .padding(AdaptiveDimens.paddingLarge),
                 )
             }
 
@@ -64,7 +54,7 @@ fun AboutScreen(viewModel: ReadingViewModel, strings: LocalizedStrings, onHomeCl
                 Text(
                     text = strings.appTitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.7f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = AdaptiveDimens.smallFontSize,
                     textAlign = TextAlign.Center,
@@ -72,7 +62,7 @@ fun AboutScreen(viewModel: ReadingViewModel, strings: LocalizedStrings, onHomeCl
                 Text(
                     text = strings.developedBy,
                     style = MaterialTheme.typography.bodySmall,
-                    color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                     fontSize = 10.sp,
                     textAlign = TextAlign.Center,
                 )
@@ -82,13 +72,13 @@ fun AboutScreen(viewModel: ReadingViewModel, strings: LocalizedStrings, onHomeCl
 }
 
 @Composable
-fun AboutTopBar(strings: LocalizedStrings, onHomeClick: () -> Unit, isGlass: Boolean = false) {
+fun AboutTopBar(strings: LocalizedStrings, onHomeClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
             .height(40.dp),
-        color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+        color = MaterialTheme.colorScheme.background,
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -100,7 +90,7 @@ fun AboutTopBar(strings: LocalizedStrings, onHomeClick: () -> Unit, isGlass: Boo
                 Icon(
                     imageVector = Icons.Default.Home,
                     contentDescription = strings.home,
-                    tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
                 )
             }
@@ -108,7 +98,7 @@ fun AboutTopBar(strings: LocalizedStrings, onHomeClick: () -> Unit, isGlass: Boo
             Icon(
                 imageVector = Icons.Default.Info,
                 contentDescription = null,
-                tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(18.dp)
                     .align(Alignment.Center),

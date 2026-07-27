@@ -2,25 +2,19 @@ package com.karol.readingsapp.ui.components
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.ui.LocalizedStrings
-import com.karol.readingsapp.ui.theme.glassEffect
+import com.karol.readingsapp.ui.theme.AdaptiveDimens
 
 enum class NavItem {
     Home,
@@ -37,40 +31,35 @@ fun AppBottomNavBar(
     onCalendarClick: () -> Unit,
     onBibleClick: () -> Unit,
     onSettingsClick: () -> Unit,
-    isGlass: Boolean = false,
 ) {
     NavigationBar(
-        modifier = (if (isGlass) Modifier.glassEffect() else Modifier).navigationBarsPadding(),
-        containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
-        tonalElevation = if (isGlass) 0.dp else 8.dp,
+        modifier = Modifier.navigationBarsPadding(),
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 8.dp,
     ) {
         AppNavigationBarItem(
             selected = selectedItem == NavItem.Home,
             icon = Icons.Default.Home,
             label = strings.home,
             onClick = onHomeClick,
-            isGlass = isGlass,
         )
         AppNavigationBarItem(
             selected = selectedItem == NavItem.Calendar,
             icon = Icons.Default.DateRange,
             label = strings.calendar,
             onClick = onCalendarClick,
-            isGlass = isGlass,
         )
         AppNavigationBarItem(
             selected = selectedItem == NavItem.Bible,
-            icon = Icons.AutoMirrored.Filled.MenuBook,
+            icon = Icons.AutoMirrored.Filled.List,
             label = strings.bible,
             onClick = onBibleClick,
-            isGlass = isGlass,
         )
         AppNavigationBarItem(
             selected = selectedItem == NavItem.Settings,
             icon = Icons.Default.Settings,
-            label = strings.settings,
+            label = strings.theme,
             onClick = onSettingsClick,
-            isGlass = isGlass,
         )
     }
 }
@@ -81,43 +70,29 @@ private fun RowScope.AppNavigationBarItem(
     icon: ImageVector,
     label: String,
     onClick: () -> Unit,
-    isGlass: Boolean = false,
 ) {
     NavigationBarItem(
-        icon = { Icon(icon, contentDescription = label) },
-        label = {
-            AutoResizingText(
-                text = label,
-                fontSize = 12.sp,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                minFontSize = 8.sp,
-            )
-        },
         selected = selected,
-        alwaysShowLabel = true,
-        onClick = if (selected) ({}) else onClick,
-        colors = if (isGlass) {
-            NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                selectedTextColor = Color.White,
-                unselectedIconColor = Color.White.copy(alpha = 0.5f),
-                unselectedTextColor = Color.White.copy(alpha = 0.5f),
-                indicatorColor = Color.White.copy(alpha = 0.2f),
-            )
-        } else if (selected) {
-            NavigationBarItemDefaults.colors(
-                selectedIconColor = MaterialTheme.colorScheme.primary,
-                selectedTextColor = MaterialTheme.colorScheme.primary,
-                unselectedIconColor = Color.Gray,
-                unselectedTextColor = Color.Gray,
-                indicatorColor = MaterialTheme.colorScheme.secondary,
-            )
-        } else {
-            NavigationBarItemDefaults.colors(
-                unselectedIconColor = MaterialTheme.colorScheme.primary,
-                unselectedTextColor = MaterialTheme.colorScheme.primary,
+        onClick = onClick,
+        icon = {
+            Icon(
+                icon,
+                contentDescription = label,
+                modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 30.dp else 24.dp),
             )
         },
+        label = {
+            Text(
+                label,
+                fontSize = AdaptiveDimens.smallFontSize,
+            )
+        },
+        colors = NavigationBarItemDefaults.colors(
+            selectedIconColor = MaterialTheme.colorScheme.primary,
+            selectedTextColor = MaterialTheme.colorScheme.primary,
+            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
+        ),
     )
 }

@@ -28,8 +28,6 @@ import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import com.karol.readingsapp.ui.theme.AppTheme
-import com.karol.readingsapp.ui.theme.glassEffect
 import kotlinx.coroutines.flow.first
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -61,9 +59,6 @@ fun ReadingPlanScreen(
     }
 
     val listState = rememberLazyListState()
-
-    val currentTheme by viewModel.appTheme.collectAsState()
-    val isGlass = currentTheme == AppTheme.DARK_FROSTED_GLASS
 
     LaunchedEffect(currentMonth) {
         val monthStr = String.format(Locale.US, "%04d-%02d", currentMonth.year, currentMonth.monthValue)
@@ -101,9 +96,7 @@ fun ReadingPlanScreen(
                 strings = strings,
                 onHomeClick = onHomeClick,
                 onPreviousMonthClick = { currentMonth = currentMonth.minusMonths(1) },
-                isGlass = isGlass,
-                onNextMonthClick = { currentMonth = currentMonth.plusMonths(1) },
-            )
+            ) { currentMonth = currentMonth.plusMonths(1) }
         },
         bottomBar = {
             AppBottomNavBar(
@@ -113,10 +106,9 @@ fun ReadingPlanScreen(
                 onCalendarClick = { },
                 onBibleClick = onBibleClick,
                 onSettingsClick = onSettingsClick,
-                isGlass = isGlass,
             )
         },
-        containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -142,7 +134,6 @@ fun ReadingPlanScreen(
                         strings = strings,
                         numberFormatter = numberFormatter,
                         isToday = date == today.toString(),
-                        isGlass = isGlass,
                     ) { onDateClick(date) }
                 }
             }
@@ -157,7 +148,6 @@ fun ReadingPlanTopBar(
     onHomeClick: () -> Unit,
     onPreviousMonthClick: () -> Unit,
     onNextMonthClick: () -> Unit,
-    isGlass: Boolean = false,
 ) {
     Column(modifier = Modifier.statusBarsPadding()) {
         // Custom 40dp Navigation Bar with centered icon and Home button
@@ -165,7 +155,7 @@ fun ReadingPlanTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(40.dp),
-            color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+            color = MaterialTheme.colorScheme.background,
         ) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -177,7 +167,7 @@ fun ReadingPlanTopBar(
                     Icon(
                         imageVector = Icons.Default.Home,
                         contentDescription = strings.home,
-                        tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
                     )
                 }
@@ -185,7 +175,7 @@ fun ReadingPlanTopBar(
                 Icon(
                     imageVector = Icons.Default.DateRange,
                     contentDescription = null,
-                    tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(18.dp)
                         .align(Alignment.Center),
@@ -198,7 +188,7 @@ fun ReadingPlanTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+            color = MaterialTheme.colorScheme.background,
         ) {
             Row(
                 modifier = Modifier
@@ -214,14 +204,14 @@ fun ReadingPlanTopBar(
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = strings.previousMonth,
-                        tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp),
                     )
                 }
 
                 AutoResizingText(
                     text = currentMonth.format(DateTimeFormatter.ofPattern("MMMM", strings.locale)),
-                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = AdaptiveDimens.bodyFontSize,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
@@ -235,7 +225,7 @@ fun ReadingPlanTopBar(
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = strings.nextMonth,
-                        tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp),
                     )
                 }
@@ -251,7 +241,6 @@ fun ReadingDayItem(
     strings: LocalizedStrings,
     numberFormatter: NumberFormat,
     isToday: Boolean,
-    isGlass: Boolean = false,
     onClick: () -> Unit,
 ) {
     val parsedDate = try {
@@ -264,12 +253,10 @@ fun ReadingDayItem(
     val dayOfMonth = parsedDate?.dayOfMonth?.let { numberFormatter.format(it) } ?: "--"
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(if (isGlass) Modifier.glassEffect() else Modifier),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         onClick = onClick,
@@ -298,12 +285,12 @@ fun ReadingDayItem(
                     text = dayOfMonth,
                     fontSize = AdaptiveDimens.titleFontSize,
                     fontWeight = FontWeight.Bold,
-                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.primary,
                 )
                 AutoResizingText(
                     text = dayOfWeek,
                     fontSize = AdaptiveDimens.smallFontSize,
-                    color = if (isGlass) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     textAlign = TextAlign.Center,
                     minFontSize = AdaptiveDimens.smallFontSize * 0.5f,
@@ -321,7 +308,7 @@ fun ReadingDayItem(
                     Text(
                         text = strings.noReadingsShort,
                         fontSize = AdaptiveDimens.smallFontSize,
-                        color = if (isGlass) Color.White.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                     )
                 } else {
@@ -332,7 +319,7 @@ fun ReadingDayItem(
                             text = "$bookName $chapters",
                             fontSize = AdaptiveDimens.smallFontSize,
                             fontWeight = FontWeight.Medium,
-                            color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }

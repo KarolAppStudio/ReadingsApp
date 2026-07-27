@@ -28,7 +28,6 @@ import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.SelectionButton
 import com.karol.readingsapp.ui.components.TranslationSelector
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import com.karol.readingsapp.ui.theme.AppTheme
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 
@@ -89,9 +88,6 @@ fun ParallelReadingScreen(
         }
     }
 
-    val currentTheme by viewModel.appTheme.collectAsState()
-    val isGlass = currentTheme == AppTheme.DARK_FROSTED_GLASS
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -104,7 +100,7 @@ fun ParallelReadingScreen(
                     }
                     AutoResizingText(
                         text = displayTitle,
-                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = AdaptiveDimens.bodyFontSize,
                         maxLines = 1,
@@ -112,12 +108,12 @@ fun ParallelReadingScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, strings1.back, tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, strings1.back, tint = MaterialTheme.colorScheme.primary)
                     }
                 },
                 actions = {
-                    SyncToggleButton(isSyncEnabled, strings1.sync, isGlass) { isSyncEnabled = !isSyncEnabled }
-                    ResetButton(strings1.reset, isGlass) {
+                    SyncToggleButton(isSyncEnabled, strings1.sync) { isSyncEnabled = !isSyncEnabled }
+                    ResetButton(strings1.reset) {
                         bookId1 = bookId
                         chapter1 = chapter
                         bookId2 = bookId
@@ -130,11 +126,11 @@ fun ParallelReadingScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+                    containerColor = MaterialTheme.colorScheme.background,
                 ),
             )
         },
-        containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding).navigationBarsPadding(), contentAlignment = Alignment.TopCenter) {
             Column(modifier = Modifier.fillMaxHeight().widthIn(max = AdaptiveDimens.contentMaxWidth)) {
@@ -149,7 +145,6 @@ fun ParallelReadingScreen(
                         numberFormatter = numberFormatter1,
                         chapterCount = chapterCount1,
                         onTranslationSelected = { viewModel.setTranslation(it) },
-                        isGlass = isGlass,
                     ) { b, c ->
                         if (b != -1) bookId1 = b
                         chapter1 = c
@@ -167,7 +162,6 @@ fun ParallelReadingScreen(
                         numberFormatter = numberFormatter2,
                         chapterCount = chapterCount2,
                         onTranslationSelected = { viewModel.loadSecondChapterVerses(bookId2, chapter2, it) },
-                        isGlass = isGlass,
                     ) { b, c ->
                         if (b != -1) bookId2 = b
                         chapter2 = c
@@ -180,9 +174,9 @@ fun ParallelReadingScreen(
 
                 // Content Area
                 if (isSyncEnabled) {
-                    SyncedVersesList(listState1, verses1, verses2, numberFormatter1, numberFormatter2, isGlass)
+                    SyncedVersesList(listState1, verses1, verses2, numberFormatter1, numberFormatter2)
                 } else {
-                    IndependentVersesList(listState1, listState2, verses1, verses2, numberFormatter1, numberFormatter2, isGlass)
+                    IndependentVersesList(listState1, listState2, verses1, verses2, numberFormatter1, numberFormatter2)
                 }
             }
         }
@@ -207,7 +201,6 @@ private fun ReadingSideSelector(
     numberFormatter: NumberFormat,
     chapterCount: Int,
     onTranslationSelected: (String) -> Unit,
-    isGlass: Boolean = false,
     onLocationSelected: (Int, Int) -> Unit,
 ) {
     Column(modifier = modifier) {
@@ -217,7 +210,6 @@ private fun ReadingSideSelector(
             onTranslationSelected = onTranslationSelected,
             modifier = Modifier.fillMaxWidth(),
             placeholder = strings.selectBible,
-            isGlass = isGlass,
         )
         Row(modifier = Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             SelectionButton(
@@ -228,7 +220,6 @@ private fun ReadingSideSelector(
                 height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
                 fontSize = AdaptiveDimens.smallFontSize,
                 cornerRadius = 26.dp,
-                isGlass = isGlass,
             )
             SelectionButton(
                 text = strings.chapter,
@@ -238,7 +229,6 @@ private fun ReadingSideSelector(
                 height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
                 fontSize = AdaptiveDimens.smallFontSize,
                 cornerRadius = 26.dp,
-                isGlass = isGlass,
             )
         }
     }
@@ -251,22 +241,21 @@ private fun SyncedVersesList(
     verses2: List<TargetReadingDetails>,
     formatter1: NumberFormat,
     formatter2: NumberFormat,
-    isGlass: Boolean = false,
 ) {
     val maxVerses = maxOf(verses1.size, verses2.size)
     LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
         items(maxVerses) { index ->
             Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max)) {
                 Box(modifier = Modifier.weight(1f).padding(horizontal = 4.dp)) {
-                    verses1.getOrNull(index)?.let { VerseItem(it, formatter1, isGlass) }
+                    verses1.getOrNull(index)?.let { VerseItem(it, formatter1) }
                 }
                 VerticalDivider(
                     modifier = Modifier.fillMaxHeight(),
                     thickness = 1.dp,
-                    color = if (isGlass) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                 )
                 Box(modifier = Modifier.weight(1f).padding(horizontal = 4.dp)) {
-                    verses2.getOrNull(index)?.let { VerseItem(it, formatter2, isGlass) }
+                    verses2.getOrNull(index)?.let { VerseItem(it, formatter2) }
                 }
             }
         }
@@ -281,24 +270,23 @@ private fun IndependentVersesList(
     verses2: List<TargetReadingDetails>,
     formatter1: NumberFormat,
     formatter2: NumberFormat,
-    isGlass: Boolean = false,
 ) {
     Row(modifier = Modifier.fillMaxSize()) {
         LazyColumn(state = listState1, modifier = Modifier.weight(1f).fillMaxHeight().padding(horizontal = 4.dp)) {
-            items(verses1) { VerseItem(it, formatter1, isGlass) }
+            items(verses1) { VerseItem(it, formatter1) }
         }
         VerticalDivider(
             thickness = 1.dp,
-            color = if (isGlass) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
         )
         LazyColumn(state = listState2, modifier = Modifier.weight(1f).fillMaxHeight().padding(horizontal = 4.dp)) {
-            items(verses2) { VerseItem(it, formatter2, isGlass) }
+            items(verses2) { VerseItem(it, formatter2) }
         }
     }
 }
 
 @Composable
-private fun SyncToggleButton(isEnabled: Boolean, contentDescription: String, isGlass: Boolean, onClick: () -> Unit) {
+private fun SyncToggleButton(isEnabled: Boolean, contentDescription: String, onClick: () -> Unit) {
     val infiniteTransition = rememberInfiniteTransition(label = "ledTransition")
     val ledAlpha by infiniteTransition.animateFloat(
         initialValue = 0.2f,
@@ -313,9 +301,9 @@ private fun SyncToggleButton(isEnabled: Boolean, contentDescription: String, isG
                 imageVector = if (isEnabled) Icons.Default.Lock else Icons.Default.LockOpen,
                 contentDescription = contentDescription,
                 tint = if (isEnabled) {
-                    if (isGlass) Color.White else MaterialTheme.colorScheme.tertiary
+                    MaterialTheme.colorScheme.tertiary
                 } else {
-                    if (isGlass) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.primary
                 },
                 modifier = Modifier.size(24.dp),
             )
@@ -328,42 +316,42 @@ private fun SyncToggleButton(isEnabled: Boolean, contentDescription: String, isG
         }
         Text(
             text = contentDescription,
-            color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 10.sp,
         )
     }
 }
 
 @Composable
-private fun ResetButton(contentDescription: String, isGlass: Boolean, onClick: () -> Unit) {
+private fun ResetButton(contentDescription: String, onClick: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable(onClick = onClick).padding(horizontal = 8.dp)) {
         Icon(
             Icons.Default.RestartAlt,
             contentDescription,
-            tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(24.dp),
         )
         Text(
             text = contentDescription,
-            color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 10.sp,
         )
     }
 }
 
 @Composable
-fun VerseItem(verse: TargetReadingDetails, numberFormatter: NumberFormat, isGlass: Boolean = false) {
+fun VerseItem(verse: TargetReadingDetails, numberFormatter: NumberFormat) {
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
         Text(
             text = numberFormatter.format(verse.verseId),
             fontSize = AdaptiveDimens.smallFontSize * 0.8f,
-            color = if (isGlass) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
         )
         Text(
             text = verse.text,
             fontSize = AdaptiveDimens.bodyFontSize,
-            color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.primary,
             lineHeight = AdaptiveDimens.bodyFontSize * 1.4f,
         )
     }

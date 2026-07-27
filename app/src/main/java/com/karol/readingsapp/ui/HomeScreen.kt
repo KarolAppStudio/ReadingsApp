@@ -47,7 +47,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.karol.readingsapp.data.LanguageStatus
@@ -57,8 +56,6 @@ import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import com.karol.readingsapp.ui.theme.AppTheme
-import com.karol.readingsapp.ui.theme.glassEffect
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -110,9 +107,6 @@ fun HomeScreen(
         }
     }
 
-    val currentTheme by viewModel.appTheme.collectAsState()
-    val isGlass = currentTheme == AppTheme.DARK_FROSTED_GLASS
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -120,7 +114,7 @@ fun HomeScreen(
                 title = {
                     AutoResizingText(
                         strings.appTitle,
-                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = AdaptiveDimens.bodyFontSize,
                         fontWeight = FontWeight.Bold,
                     )
@@ -128,20 +122,20 @@ fun HomeScreen(
                 navigationIcon = {
                     Box {
                         IconButton(onClick = { menuExpanded = true }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary)
+                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = MaterialTheme.colorScheme.primary)
                         }
                         DropdownMenu(
                             expanded = menuExpanded,
                             onDismissRequest = { menuExpanded = false },
                             modifier = Modifier
-                                .background(if (isGlass) Color.DarkGray.copy(alpha = 0.9f) else MaterialTheme.colorScheme.surface)
+                                .background(MaterialTheme.colorScheme.surface)
                                 .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
                         ) {
                             DropdownMenuItem(
                                 text = {
                                     Text(
                                         strings.about,
-                                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         fontSize = AdaptiveDimens.smallFontSize,
                                         fontWeight = FontWeight.Normal,
                                     )
@@ -154,7 +148,7 @@ fun HomeScreen(
                                     Icon(
                                         Icons.Default.Info,
                                         contentDescription = null,
-                                        tint = if (isGlass) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(18.dp),
                                     )
                                 },
@@ -163,7 +157,7 @@ fun HomeScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+                    containerColor = MaterialTheme.colorScheme.background,
                 ),
             )
         },
@@ -175,10 +169,9 @@ fun HomeScreen(
                 onCalendarClick = onCalendarClick,
                 onBibleClick = onBibleClick,
                 onSettingsClick = onSettingsClick,
-                isGlass = isGlass,
             )
         },
-        containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -202,7 +195,6 @@ fun HomeScreen(
                         strings = strings,
                         displayDate = displayDate,
                         translations = translations,
-                        isGlass = isGlass,
                     ) { viewModel.setTranslation(it) }
                 }
 
@@ -227,7 +219,6 @@ fun HomeScreen(
                         numberFormatter = numberFormatter,
                         noReadingsText = strings.noReadings,
                         onItemClick = onReadingClick,
-                        isGlass = isGlass,
                     )
                     Spacer(modifier = Modifier.height(AdaptiveDimens.paddingSmall))
                 }
@@ -244,7 +235,6 @@ fun HomeHeader(
     strings: LocalizedStrings,
     displayDate: String,
     translations: List<TranslationEntity>,
-    isGlass: Boolean = false,
     onTranslationSelected: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(value = false) }
@@ -258,7 +248,7 @@ fun HomeHeader(
         Icon(
             Icons.Default.Home,
             contentDescription = null,
-            tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
         )
 
@@ -270,9 +260,8 @@ fun HomeHeader(
             Box(modifier = Modifier.align(Alignment.CenterEnd)) {
                 Surface(
                     onClick = { expanded = true },
-                    color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.secondaryContainer,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
                     shape = RoundedCornerShape(8.dp),
-                    modifier = if (isGlass) Modifier.glassEffect() else Modifier,
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -282,20 +271,20 @@ fun HomeHeader(
                             CircularProgressIndicator(
                                 modifier = Modifier.size(16.dp),
                                 strokeWidth = 2.dp,
-                                color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                                color = MaterialTheme.colorScheme.primary,
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                         }
                         Text(
                             text = selectedName,
-                            color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSecondaryContainer,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
                             fontWeight = FontWeight.Bold,
                             fontSize = AdaptiveDimens.smallFontSize,
                         )
                         Icon(
                             Icons.Default.ArrowDropDown,
                             contentDescription = null,
-                            tint = if (isGlass) Color.White else MaterialTheme.colorScheme.onSecondaryContainer,
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
                         )
                     }
                 }
@@ -303,7 +292,7 @@ fun HomeHeader(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
                     modifier = Modifier
-                        .background(if (isGlass) Color.DarkGray.copy(alpha = 0.9f) else MaterialTheme.colorScheme.surface)
+                        .background(MaterialTheme.colorScheme.surface)
                         .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
                 ) {
                     translations.forEach { translation ->
@@ -311,7 +300,7 @@ fun HomeHeader(
                             text = {
                                 Text(
                                     translation.name,
-                                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontSize = AdaptiveDimens.smallFontSize,
                                     fontWeight = FontWeight.Normal,
                                 )
@@ -332,13 +321,13 @@ fun HomeHeader(
     Column(modifier = Modifier.fillMaxWidth()) {
         AutoResizingText(
             text = if (isToday) strings.todaysReadings else strings.selectedReadings,
-            color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
             fontSize = AdaptiveDimens.bodyFontSize,
         )
         AutoResizingText(
             text = displayDate,
-            color = if (isGlass) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = AdaptiveDimens.smallFontSize,
         )
     }
@@ -353,7 +342,6 @@ fun ReadingSection(
     numberFormatter: NumberFormat,
     noReadingsText: String,
     onItemClick: (TargetReadingDetails) -> Unit,
-    isGlass: Boolean = false,
 ) {
     val distinctReadings = remember(items) { items.distinctBy { "${it.bookId} ${it.chapter}" } }
 
@@ -364,11 +352,9 @@ fun ReadingSection(
     val itemSpacing = 4.dp
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(if (isGlass) Modifier.glassEffect() else Modifier),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.secondaryContainer,
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
         ),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -379,7 +365,7 @@ fun ReadingSection(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     title,
-                    color = (if (isGlass) Color.White else MaterialTheme.colorScheme.onSecondaryContainer).copy(alpha = 0.8f),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
                     fontWeight = FontWeight.Bold,
                     fontSize = titleSize,
                 )
@@ -389,7 +375,7 @@ fun ReadingSection(
             if (items.isEmpty()) {
                 Text(
                     noReadingsText,
-                    color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                     fontSize = AdaptiveDimens.smallFontSize,
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
@@ -399,7 +385,6 @@ fun ReadingSection(
                         item = item,
                         strings = strings,
                         numberFormatter = numberFormatter,
-                        isGlass = isGlass,
                     ) { onItemClick(item) }
                     if (index < (distinctReadings.size - 1)) {
                         Spacer(modifier = Modifier.height(itemSpacing))
@@ -415,7 +400,6 @@ fun ReadingItemRow(
     item: TargetReadingDetails,
     strings: LocalizedStrings,
     numberFormatter: NumberFormat,
-    isGlass: Boolean = false,
     onClick: () -> Unit,
 ) {
     val bookName = strings.bookNames[item.bookId] ?: item.bookName
@@ -427,18 +411,16 @@ fun ReadingItemRow(
 
     Surface(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(if (isGlass) Modifier.glassEffect(alpha = 0.3f) else Modifier),
-        color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
+        modifier = Modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(8.dp),
-        shadowElevation = if (isGlass) 0.dp else 1.dp,
+        shadowElevation = 1.dp,
     ) {
         AutoResizingText(
             text = text,
             modifier = Modifier.padding(horizontal = horizontalPadding, vertical = verticalPadding),
             fontWeight = FontWeight.Bold,
-            color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = fontSize,
             maxLines = 1,
         )

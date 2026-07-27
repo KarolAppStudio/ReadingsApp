@@ -22,8 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
@@ -42,7 +40,6 @@ import com.karol.readingsapp.ui.components.AppBottomNavBar
 import com.karol.readingsapp.ui.components.NavItem
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
 import com.karol.readingsapp.ui.theme.AppTheme
-import com.karol.readingsapp.ui.theme.glassEffect
 import com.karol.readingsapp.voice.domain.VoiceGender
 import com.karol.readingsapp.voice.ui.VoiceViewModel
 
@@ -64,17 +61,14 @@ fun SettingsScreen(
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = remember(strings) { listOf(strings.appearance, strings.about, strings.contact) }
+    val tabs = remember(strings) { listOf(strings.theme, strings.about, strings.contact) }
     var themeExpanded by remember { mutableStateOf(value = false) }
-
-    val isGlass = currentTheme == AppTheme.DARK_FROSTED_GLASS
 
     Scaffold(
         topBar = {
             SettingsTopBar(
                 strings = strings,
                 onHomeClick = onHomeClick,
-                isGlass = isGlass,
             )
         },
         bottomBar = {
@@ -85,10 +79,9 @@ fun SettingsScreen(
                 onCalendarClick = onCalendarClick,
                 onBibleClick = onBibleClick,
                 onSettingsClick = {},
-                isGlass = isGlass,
             )
         },
-        containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -109,7 +102,6 @@ fun SettingsScreen(
                 SettingsTabs(
                     tabs = tabs,
                     selectedTabIndex = selectedTabIndex,
-                    isGlass = isGlass,
                 ) { selectedTabIndex = it }
 
                 Spacer(modifier = Modifier.height(AdaptiveDimens.paddingMedium))
@@ -127,30 +119,26 @@ fun SettingsScreen(
                                     currentTheme = currentTheme,
                                     themeExpanded = themeExpanded,
                                     onThemeExpandedChange = { themeExpanded = it },
-                                    isGlass = isGlass,
                                 ) { viewModel.setTheme(it) }
                                 Spacer(modifier = Modifier.height(AdaptiveDimens.paddingMedium))
                                 VoiceSettings(
                                     voiceViewModel = voiceViewModel,
-                                    isGlass = isGlass,
                                 )
                             }
 
                             1 -> AboutSettings(
                                 strings = strings,
-                                isGlass = isGlass,
                             )
 
                             2 -> ContactSettings(
                                 strings = strings,
-                                isGlass = isGlass,
                             )
                         }
                     }
                 }
 
                 if (selectedTabIndex != 0) {
-                    SettingsFooter(strings = strings, isGlass = isGlass)
+                    SettingsFooter(strings = strings)
                 }
             }
         }
@@ -161,14 +149,13 @@ fun SettingsScreen(
 fun SettingsTopBar(
     strings: LocalizedStrings,
     onHomeClick: () -> Unit,
-    isGlass: Boolean = false,
 ) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
             .height(40.dp),
-        color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+        color = MaterialTheme.colorScheme.background,
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -180,7 +167,7 @@ fun SettingsTopBar(
                 Icon(
                     imageVector = Icons.Default.Home,
                     contentDescription = strings.home,
-                    tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
                 )
             }
@@ -188,7 +175,7 @@ fun SettingsTopBar(
             Icon(
                 imageVector = Icons.Default.Settings,
                 contentDescription = null,
-                tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .size(18.dp)
                     .align(Alignment.Center),
@@ -201,7 +188,6 @@ fun SettingsTopBar(
 fun SettingsTabs(
     tabs: List<String>,
     selectedTabIndex: Int,
-    isGlass: Boolean = false,
     onTabSelected: (Int) -> Unit,
 ) {
     val r = with(LocalDensity.current) { 10.dp.toPx() }
@@ -244,18 +230,9 @@ fun SettingsTabs(
                         )
                         .background(
                             if (selected) {
-                                if (isGlass) Color.White.copy(alpha = 0.4f) else MaterialTheme.colorScheme.primary
+                                MaterialTheme.colorScheme.primary
                             } else {
-                                if (isGlass) Color.White.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
-                            },
-                        )
-                        .then(
-                            if (isGlass && selected) {
-                                Modifier.glassEffect(alpha = 0.4f)
-                            } else if (isGlass) {
-                                Modifier.glassEffect(alpha = 0.1f)
-                            } else {
-                                Modifier
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)
                             },
                         )
                         .clickable { onTabSelected(index) }
@@ -265,9 +242,9 @@ fun SettingsTabs(
                     Text(
                         text = title,
                         color = if (selected) {
-                            if (isGlass) Color.White else MaterialTheme.colorScheme.onPrimary
+                            MaterialTheme.colorScheme.onPrimary
                         } else {
-                            if (isGlass) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
+                            MaterialTheme.colorScheme.onSurfaceVariant
                         },
                         fontSize = AdaptiveDimens.smallFontSize,
                         fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
@@ -280,7 +257,7 @@ fun SettingsTabs(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(2.dp)
-                .background(if (isGlass) Color.White.copy(alpha = 0.5f) else MaterialTheme.colorScheme.primary),
+                .background(MaterialTheme.colorScheme.primary),
         )
     }
 }
@@ -291,28 +268,25 @@ fun AppearanceSettings(
     currentTheme: AppTheme,
     themeExpanded: Boolean,
     onThemeExpandedChange: (Boolean) -> Unit,
-    isGlass: Boolean = false,
     onThemeSelected: (AppTheme) -> Unit,
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(if (isGlass) Modifier.glassEffect() else Modifier),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(if (isGlass) 0.dp else 2.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
     ) {
         Column(
             modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
         ) {
             Text(
-                text = strings.appearance,
+                text = strings.theme,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = AdaptiveDimens.bodyFontSize,
-                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                 ),
                 modifier = Modifier.padding(bottom = 12.dp),
             )
@@ -323,20 +297,9 @@ fun AppearanceSettings(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.primary,
                     ),
-                    border = if (isGlass) {
-                        ButtonDefaults.outlinedButtonBorder().copy(
-                            brush = Brush.linearGradient(
-                                listOf(
-                                    Color.White.copy(0.6f),
-                                    Color.White.copy(0.2f),
-                                ),
-                            ),
-                        )
-                    } else {
-                        ButtonDefaults.outlinedButtonBorder()
-                    },
+                    border = ButtonDefaults.outlinedButtonBorder(),
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -356,7 +319,7 @@ fun AppearanceSettings(
                     onDismissRequest = { onThemeExpandedChange(false) },
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
-                        .background(if (isGlass) Color.DarkGray.copy(alpha = 0.9f) else MaterialTheme.colorScheme.surface)
+                        .background(MaterialTheme.colorScheme.surface)
                         .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
                 ) {
                     AppTheme.entries.forEach { theme ->
@@ -365,7 +328,7 @@ fun AppearanceSettings(
                                 Text(
                                     theme.getDisplayName(strings),
                                     fontSize = AdaptiveDimens.smallFontSize,
-                                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                 )
                             },
                             onClick = {
@@ -383,28 +346,19 @@ fun AppearanceSettings(
 @Composable
 fun AboutSettings(
     strings: LocalizedStrings,
-    isGlass: Boolean = false,
 ) {
-    if (isGlass) {
-        Box(modifier = Modifier.glassEffect()) {
-            AboutContent(strings = strings, isGlass = true)
-        }
-    } else {
-        AboutContent(strings = strings)
-    }
+    AboutContent(strings = strings)
 }
 
 @Composable
 fun ContactSettings(
     strings: LocalizedStrings,
-    isGlass: Boolean = false,
 ) {
     var showFeedbackDialog by remember { mutableStateOf(value = false) }
     var showMessageSentPopup by remember { mutableStateOf(value = false) }
 
     if (showFeedbackDialog) {
         FeedbackDialog(
-            isGlass = isGlass,
             onDismiss = { showFeedbackDialog = false },
         ) {
             showFeedbackDialog = false
@@ -427,14 +381,12 @@ fun ContactSettings(
 
     Column(verticalArrangement = Arrangement.spacedBy(AdaptiveDimens.paddingMedium)) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .then(if (isGlass) Modifier.glassEffect() else Modifier),
+            modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.surface,
             ),
             shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(if (isGlass) 0.dp else 2.dp),
+            elevation = CardDefaults.cardElevation(2.dp),
         ) {
             Column(
                 modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
@@ -445,7 +397,7 @@ fun ContactSettings(
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = AdaptiveDimens.bodyFontSize,
-                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                        color = MaterialTheme.colorScheme.onSurface,
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -457,7 +409,7 @@ fun ContactSettings(
                     text = "We’d love to hear from you! Send us your questions, suggestions, or feedback.",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = AdaptiveDimens.smallFontSize,
-                        color = if (isGlass) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     ),
                     textAlign = TextAlign.Start,
                 )
@@ -469,8 +421,8 @@ fun ContactSettings(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isGlass) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primary,
-                        contentColor = if (isGlass) Color.White else MaterialTheme.colorScheme.onPrimary,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 ) {
                     Text("Click Here")
@@ -479,14 +431,12 @@ fun ContactSettings(
         }
 
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .then(if (isGlass) Modifier.glassEffect() else Modifier),
+            modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.surface,
             ),
             shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(if (isGlass) 0.dp else 2.dp),
+            elevation = CardDefaults.cardElevation(2.dp),
         ) {
             Column(
                 modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
@@ -497,20 +447,20 @@ fun ContactSettings(
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = AdaptiveDimens.bodyFontSize,
-                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                        color = MaterialTheme.colorScheme.onSurface,
                     ),
                     modifier = Modifier.padding(bottom = 8.dp),
                     textAlign = TextAlign.Center,
                 )
 
-                ScrollingCredits(isGlass = isGlass)
+                ScrollingCredits()
             }
         }
     }
 }
 
 @Composable
-private fun SettingsFooter(strings: LocalizedStrings, isGlass: Boolean) {
+private fun SettingsFooter(strings: LocalizedStrings) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -520,7 +470,7 @@ private fun SettingsFooter(strings: LocalizedStrings, isGlass: Boolean) {
         Text(
             text = strings.appTitle,
             style = MaterialTheme.typography.bodyMedium,
-            color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.7f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
             fontWeight = FontWeight.SemiBold,
             fontSize = AdaptiveDimens.smallFontSize,
             textAlign = TextAlign.Center,
@@ -528,7 +478,7 @@ private fun SettingsFooter(strings: LocalizedStrings, isGlass: Boolean) {
         Text(
             text = strings.developedBy,
             style = MaterialTheme.typography.bodySmall,
-            color = (if (isGlass) Color.White else MaterialTheme.colorScheme.primary).copy(alpha = 0.5f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
             fontSize = 10.sp,
             textAlign = TextAlign.Center,
         )
@@ -536,7 +486,7 @@ private fun SettingsFooter(strings: LocalizedStrings, isGlass: Boolean) {
 }
 
 @Composable
-private fun ScrollingCredits(isGlass: Boolean) {
+private fun ScrollingCredits() {
     val credits = listOf(
         "Diana B - Kannada Linguistic QA",
         "Jayachandran M R - Malayalam Linguistic QA",
@@ -598,7 +548,7 @@ private fun ScrollingCredits(isGlass: Boolean) {
                     text = annotatedString,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontSize = 12.sp,
-                        color = if (isGlass) Color.White.copy(alpha = 0.9f) else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     ),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(vertical = 4.dp),
@@ -612,7 +562,6 @@ private fun ScrollingCredits(isGlass: Boolean) {
 @Composable
 fun VoiceSettings(
     voiceViewModel: VoiceViewModel,
-    isGlass: Boolean = false,
 ) {
     val availableVoices by voiceViewModel.filteredVoices.collectAsStateWithLifecycle()
     val selectedVoice by voiceViewModel.selectedVoice.collectAsStateWithLifecycle()
@@ -628,14 +577,12 @@ fun VoiceSettings(
     } ?: "Default"
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(if (isGlass) Modifier.glassEffect() else Modifier),
+        modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.surface,
         ),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(if (isGlass) 0.dp else 2.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
     ) {
         Column(
             modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
@@ -645,7 +592,7 @@ fun VoiceSettings(
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = AdaptiveDimens.bodyFontSize,
-                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                 ),
                 modifier = Modifier.padding(bottom = 12.dp),
             )
@@ -656,20 +603,9 @@ fun VoiceSettings(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.primary,
                     ),
-                    border = if (isGlass) {
-                        ButtonDefaults.outlinedButtonBorder().copy(
-                            brush = Brush.linearGradient(
-                                listOf(
-                                    Color.White.copy(0.6f),
-                                    Color.White.copy(0.2f),
-                                ),
-                            ),
-                        )
-                    } else {
-                        ButtonDefaults.outlinedButtonBorder()
-                    },
+                    border = ButtonDefaults.outlinedButtonBorder(),
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -689,7 +625,7 @@ fun VoiceSettings(
                     onDismissRequest = { expanded = false },
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
-                        .background(if (isGlass) Color.DarkGray.copy(alpha = 0.9f) else MaterialTheme.colorScheme.surface)
+                        .background(MaterialTheme.colorScheme.surface)
                         .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
                 ) {
                     if (availableVoices.isEmpty()) {
@@ -706,7 +642,7 @@ fun VoiceSettings(
                                         lang,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = AdaptiveDimens.smallFontSize,
-                                        color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                                        color = MaterialTheme.colorScheme.primary,
                                     )
                                 },
                                 onClick = {},
@@ -729,7 +665,7 @@ fun VoiceSettings(
                                         Text(
                                             displayName,
                                             fontSize = AdaptiveDimens.smallFontSize,
-                                            color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                         )
                                     },
                                     onClick = {
@@ -748,7 +684,6 @@ fun VoiceSettings(
 
 @Composable
 fun FeedbackDialog(
-    isGlass: Boolean,
     onDismiss: () -> Unit,
     onSent: () -> Unit,
 ) {
@@ -762,11 +697,10 @@ fun FeedbackDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
-                .then(if (isGlass) Modifier.glassEffect() else Modifier),
+                .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = if (isGlass) Color.DarkGray.copy(alpha = 0.9f) else MaterialTheme.colorScheme.surface,
+                containerColor = MaterialTheme.colorScheme.surface,
             ),
         ) {
             Column(
@@ -779,7 +713,7 @@ fun FeedbackDialog(
                 Text(
                     text = "Feedback",
                     style = MaterialTheme.typography.titleLarge,
-                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                 )
 
@@ -795,13 +729,13 @@ fun FeedbackDialog(
                                 Icon(
                                     Icons.Default.MoreVert,
                                     contentDescription = null,
-                                    tint = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                                    tint = MaterialTheme.colorScheme.onSurface,
                                 )
                             }
                         },
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
-                            unfocusedTextColor = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                         ),
                     )
                     Box(
@@ -837,8 +771,8 @@ fun FeedbackDialog(
                         placeholder = { Text("Type your message here...") },
                         shape = androidx.compose.ui.graphics.RectangleShape,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
-                            unfocusedTextColor = if (isGlass) Color.White else MaterialTheme.colorScheme.onSurface,
+                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                         ),
                     )
 

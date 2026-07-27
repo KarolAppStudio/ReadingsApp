@@ -71,7 +71,7 @@ class AndroidVoiceManager(
                 languageGroups.forEach { (_, voicesInLang) ->
                     val limitPerGender = 5 // Use consistent limit for allowed languages
 
-                    val detectedVoices = voicesInLang.map { voice ->
+                    val detectedVoices = voicesInLang.asSequence().map { voice ->
                         val gender = when {
                             voice.name.contains("female", ignoreCase = true) -> VoiceGender.FEMALE
                             voice.name.contains("male", ignoreCase = true) -> VoiceGender.MALE
@@ -89,11 +89,11 @@ class AndroidVoiceManager(
                     }.sortedWith(
                         compareByDescending<VoiceInfo> { it.isOffline }
                             .thenBy { it.name },
-                    )
+                    ).toList()
 
                     // Limit per language to keep the list manageable but flexible
-                    val females = detectedVoices.filter { it.gender == VoiceGender.FEMALE }.take(limitPerGender)
-                    val males = detectedVoices.filter { it.gender == VoiceGender.MALE }.take(limitPerGender)
+                    val females = detectedVoices.asSequence().filter { it.gender == VoiceGender.FEMALE }.take(limitPerGender).toList()
+                    val males = detectedVoices.asSequence().filter { it.gender == VoiceGender.MALE }.take(limitPerGender).toList()
 
                     filteredVoices.addAll(females)
                     filteredVoices.addAll(males)
@@ -270,7 +270,7 @@ class AndroidVoiceManager(
             // Fallback to space
             if (splitIndex == -1) splitIndex = remainingText.lastIndexOf(" ", maxLimit)
 
-            if (splitIndex == -1 || (splitIndex < maxLimit / 4)) {
+            if ((splitIndex == -1) || (splitIndex < (maxLimit / 4))) {
                 // If no good split point found or it's too early, just hard cut at maxLimit
                 splitIndex = maxLimit
             } else {
@@ -292,7 +292,7 @@ class AndroidVoiceManager(
         val actualText = if (text.startsWith("DEBUG_TEST")) "This is a test of the Android Text to Speech system." else text
         val actualLanguage = if (text.startsWith("DEBUG_TEST")) Locale.US else language
 
-        if (startIndex == 0 && charOffset == 0) {
+        if ((startIndex == 0) && (charOffset == 0)) {
             lastSpokenText = actualText
             lastSpokenLocale = actualLanguage
             currentChunkIndex = 0
@@ -378,9 +378,9 @@ class AndroidVoiceManager(
                 // Chunking text to handle 4000 character limit
                 // Using 500 for better resume granularity
                 val allChunks = splitIntoChunks(actualText)
-                val chunksToSpeak = if (startIndex < allChunks.size) allChunks.drop(startIndex).toMutableList() else mutableListOf()
+                val chunksToSpeak = if (startIndex < allChunks.size) allChunks.asSequence().drop(startIndex).toMutableList() else mutableListOf()
 
-                if (chunksToSpeak.isNotEmpty() && charOffset > 0 && charOffset < chunksToSpeak[0].length) {
+                if (chunksToSpeak.isNotEmpty() && (charOffset > 0) && (charOffset < chunksToSpeak[0].length)) {
                     chunksToSpeak[0] = chunksToSpeak[0].substring(charOffset)
                 }
 
@@ -396,7 +396,7 @@ class AndroidVoiceManager(
                 chunksToSpeak.forEachIndexed { indexInRemaining, chunk ->
                     val absoluteIndex = startIndex + indexInRemaining
                     val utteranceId = "${UUID.randomUUID()}_$absoluteIndex"
-                    if (absoluteIndex == allChunks.size - 1) {
+                    if (absoluteIndex == (allChunks.size - 1)) {
                         lastUtteranceId = utteranceId
                     }
                     val params = Bundle().apply {
@@ -432,7 +432,7 @@ class AndroidVoiceManager(
             if (targetChunkIndex < chunks.size) {
                 val currentChunk = chunks[targetChunkIndex]
                 // Skip any leading whitespace at the new offset
-                while (targetOffset < currentChunk.length && currentChunk[targetOffset].isWhitespace()) {
+                while ((targetOffset < currentChunk.length) && currentChunk[targetOffset].isWhitespace()) {
                     targetOffset++
                 }
                 // If we hit the end of the chunk, move to next chunk

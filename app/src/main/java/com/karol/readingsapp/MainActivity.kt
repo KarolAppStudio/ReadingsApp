@@ -16,7 +16,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -41,8 +40,6 @@ import com.karol.readingsapp.ui.ReadingPlanScreen
 import com.karol.readingsapp.ui.ReadingViewModel
 import com.karol.readingsapp.ui.SettingsScreen
 import com.karol.readingsapp.ui.components.DownloadProgressOverlay
-import com.karol.readingsapp.ui.theme.AppTheme
-import com.karol.readingsapp.ui.theme.FluidBackground
 import com.karol.readingsapp.ui.theme.ProvideWindowSizeClass
 import com.karol.readingsapp.ui.theme.ReadingsAppTheme
 import com.karol.readingsapp.voice.ui.VoiceViewModel
@@ -86,24 +83,16 @@ class MainActivity : ComponentActivity() {
             val currentTheme by viewModel.appTheme.collectAsState()
 
             LaunchedEffect(currentTheme) {
-                val isDark = currentTheme == AppTheme.DARK_FROSTED_GLASS
-                if (isDark) {
-                    enableEdgeToEdge(
-                        statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
-                        navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
-                    )
-                } else {
-                    enableEdgeToEdge(
-                        statusBarStyle = SystemBarStyle.light(
-                            android.graphics.Color.TRANSPARENT,
-                            android.graphics.Color.TRANSPARENT,
-                        ),
-                        navigationBarStyle = SystemBarStyle.light(
-                            android.graphics.Color.TRANSPARENT,
-                            android.graphics.Color.TRANSPARENT,
-                        ),
-                    )
-                }
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.light(
+                        android.graphics.Color.TRANSPARENT,
+                        android.graphics.Color.TRANSPARENT,
+                    ),
+                    navigationBarStyle = SystemBarStyle.light(
+                        android.graphics.Color.TRANSPARENT,
+                        android.graphics.Color.TRANSPARENT,
+                    ),
+                )
             }
 
             val batchProgress by viewModel.batchProgress.collectAsState()
@@ -123,14 +112,9 @@ class MainActivity : ComponentActivity() {
                 ReadingsAppTheme(appTheme = currentTheme) {
                     val navController = rememberNavController()
 
-                    val isGlass = currentTheme == AppTheme.DARK_FROSTED_GLASS
-                    if (isGlass) {
-                        FluidBackground(appTheme = currentTheme)
-                    }
-
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+                        color = MaterialTheme.colorScheme.background,
                     ) {
                         Box(modifier = Modifier.fillMaxSize()) {
                             NavHost(navController = navController, startDestination = "home") {
@@ -154,7 +138,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                                 composable("about") {
-                                    AboutScreen(viewModel = viewModel, strings = strings) {
+                                    AboutScreen(strings = strings) {
                                         navController.popBackStack("home", inclusive = false)
                                     }
                                 }
@@ -275,7 +259,6 @@ class MainActivity : ComponentActivity() {
                             DownloadProgressOverlay(
                                 progress = batchProgress,
                                 strings = strings,
-                                isGlass = isGlass,
                             )
                         }
                     }

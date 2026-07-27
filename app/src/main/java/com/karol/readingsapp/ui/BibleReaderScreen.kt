@@ -32,8 +32,6 @@ import com.karol.readingsapp.data.bible.TargetReadingDetails
 import com.karol.readingsapp.ui.components.AutoResizingText
 import com.karol.readingsapp.ui.components.SelectionButton
 import com.karol.readingsapp.ui.theme.AdaptiveDimens
-import com.karol.readingsapp.ui.theme.AppTheme
-import com.karol.readingsapp.ui.theme.glassEffect
 import com.karol.readingsapp.voice.ui.VoiceControlBar
 import com.karol.readingsapp.voice.ui.VoiceViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -135,9 +133,7 @@ fun BibleReaderScreen(
         selectedVerseId = null
     }
 
-    val currentTheme by viewModel.appTheme.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
-    val isGlass = currentTheme == AppTheme.DARK_FROSTED_GLASS
 
     val textToRead = remember(currentVerses, selectedVerseId, readingType, uiState) {
         if (selectedVerseId != null) {
@@ -164,10 +160,9 @@ fun BibleReaderScreen(
                 onBackClick = onBackClick,
                 onParallelClick = { onParallelClick(displayBookId, displayChapter) },
                 onChapterChange = onChapterChange,
-                isGlass = isGlass,
             )
         },
-        containerColor = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
             VoiceControlBar(
                 viewModel = voiceViewModel,
@@ -213,7 +208,6 @@ fun BibleReaderScreen(
                 strings = strings,
                 onChapterChange = onChapterChange,
                 scope = scope,
-                isGlass = isGlass,
             )
         }
     }
@@ -234,14 +228,13 @@ fun ReaderTopBar(
     onBackClick: () -> Unit,
     onParallelClick: () -> Unit,
     onChapterChange: (Int, Int, String?) -> Unit,
-    isGlass: Boolean = false,
 ) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding(),
-        color = if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background,
-        tonalElevation = if (isGlass) 0.dp else 4.dp,
+        color = MaterialTheme.colorScheme.background,
+        tonalElevation = 4.dp,
     ) {
         Column(
             modifier = Modifier.padding(bottom = 8.dp),
@@ -260,13 +253,13 @@ fun ReaderTopBar(
                                 Icon(
                                     Icons.AutoMirrored.Filled.MenuBook,
                                     contentDescription = null,
-                                    tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                                    tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(24.dp),
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 AutoResizingText(
                                     text = "$bookName ${numberFormatter.format(displayChapter)}",
-                                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                                    color = MaterialTheme.colorScheme.primary,
                                     fontSize = AdaptiveDimens.bodyFontSize,
                                     fontWeight = FontWeight.Bold,
                                     maxLines = 1,
@@ -282,7 +275,7 @@ fun ReaderTopBar(
                                     Icon(
                                         imageVector = Icons.Default.Home,
                                         contentDescription = strings.home,
-                                        tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
                                     )
                                 }
@@ -290,7 +283,7 @@ fun ReaderTopBar(
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = strings.back,
-                                        tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                                        tint = MaterialTheme.colorScheme.primary,
                                     )
                                 }
                             }
@@ -305,12 +298,12 @@ fun ReaderTopBar(
                                 Icon(
                                     imageVector = Icons.Default.AutoStories,
                                     contentDescription = strings.parallelReading,
-                                    tint = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                                    tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(24.dp),
                                 )
                                 Text(
                                     text = strings.parallelReading,
-                                    color = if (isGlass) Color.White else MaterialTheme.colorScheme.primary,
+                                    color = MaterialTheme.colorScheme.primary,
                                     fontSize = 10.sp,
                                     maxLines = 1,
                                 )
@@ -336,7 +329,6 @@ fun ReaderTopBar(
                             height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
                             fontSize = AdaptiveDimens.smallFontSize,
                             cornerRadius = 26.dp,
-                            isGlass = isGlass,
                         )
                         SelectionButton(
                             text = strings.chapter,
@@ -348,7 +340,6 @@ fun ReaderTopBar(
                             height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
                             fontSize = AdaptiveDimens.smallFontSize,
                             cornerRadius = 26.dp,
-                            isGlass = isGlass,
                         )
                     }
                 }
@@ -377,7 +368,6 @@ fun ReaderPagerPage(
     strings: LocalizedStrings,
     onChapterChange: (Int, Int, String?) -> Unit,
     scope: CoroutineScope,
-    isGlass: Boolean = false,
 ) {
     Box(
         modifier = Modifier
@@ -397,7 +387,7 @@ fun ReaderPagerPage(
                 scaleX = 1f
                 scaleY = 1f
             }
-            .background(if (isGlass) Color.Transparent else MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.background)
             .padding(
                 top = innerPadding.calculateTopPadding(),
                 bottom = innerPadding.calculateBottomPadding(),
@@ -437,7 +427,6 @@ fun ReaderPagerPage(
                 },
                 nextBookName = nextBookName,
                 onChapterChange = onChapterChange,
-                isGlass = isGlass,
             )
         }
     }
@@ -460,7 +449,6 @@ fun ChapterPage(
     onPreviousChapter: (() -> Unit)? = null,
     nextBookName: String? = null,
     onChapterChange: (Int, Int, String?) -> Unit,
-    isGlass: Boolean = false,
 ) {
     var verses by remember { mutableStateOf<List<TargetReadingDetails>>(emptyList()) }
     val listState = rememberLazyListState()
@@ -508,7 +496,7 @@ fun ChapterPage(
                 item {
                     Text(
                         text = strings.loadingReading,
-                        color = if (isGlass) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                         fontSize = AdaptiveDimens.bodyFontSize,
                     )
                 }
@@ -521,7 +509,7 @@ fun ChapterPage(
                             .clickable { onVerseClick(verse.verseId) }
                             .background(
                                 color = if (isSelected) {
-                                    if (isGlass) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                                 } else {
                                     Color.Transparent
                                 },
@@ -532,14 +520,14 @@ fun ChapterPage(
                         Text(
                             text = numberFormatter.format(verse.verseId),
                             fontSize = AdaptiveDimens.smallFontSize * 0.85f,
-                            color = if (isGlass) Color.White.copy(alpha = 0.8f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 2.dp, end = 8.dp),
                         )
                         Text(
                             text = verse.text,
                             fontSize = AdaptiveDimens.bodyFontSize,
-                            color = if (isGlass) Color.White else MaterialTheme.colorScheme.onBackground,
+                            color = MaterialTheme.colorScheme.onBackground,
                             lineHeight = AdaptiveDimens.bodyFontSize * 1.5f,
                             modifier = Modifier.weight(1f),
                         )
@@ -554,7 +542,7 @@ fun ChapterPage(
                     ) {
                         HorizontalDivider(
                             modifier = Modifier.padding(bottom = AdaptiveDimens.paddingMedium),
-                            color = if (isGlass) Color.White.copy(alpha = 0.3f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                         )
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -564,7 +552,7 @@ fun ChapterPage(
                             onPreviousChapter?.let { action ->
                                 TextButton(
                                     onClick = action,
-                                    colors = if (isGlass) ButtonDefaults.textButtonColors(contentColor = Color.White) else ButtonDefaults.textButtonColors(),
+                                    colors = ButtonDefaults.textButtonColors(),
                                 ) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -592,8 +580,7 @@ fun ChapterPage(
                                     },
                                     shape = RoundedCornerShape(26.dp),
                                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                                    colors = if (isGlass) ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.2f), contentColor = Color.White) else ButtonDefaults.buttonColors(),
-                                    modifier = if (isGlass) Modifier.glassEffect() else Modifier,
+                                    colors = ButtonDefaults.buttonColors(),
                                 ) {
                                     val nextPortionName = nextPortion?.let { strings.bookNames[it.bookId] ?: it.bookName }
                                     Text(
