@@ -21,7 +21,7 @@
         android:theme="@style/Theme.ReadingsApp">
 
         <service
-            android:name=".voice.service.VoicePlaybackService"
+            android:name=".feature.voice.data.VoicePlaybackService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
