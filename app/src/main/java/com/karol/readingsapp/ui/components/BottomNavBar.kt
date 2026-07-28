@@ -58,7 +58,7 @@ fun AppBottomNavBar(
         AppNavigationBarItem(
             selected = selectedItem == NavItem.Settings,
             icon = Icons.Default.Settings,
-            label = strings.theme,
+            label = strings.settings,
             onClick = onSettingsClick,
         )
     }

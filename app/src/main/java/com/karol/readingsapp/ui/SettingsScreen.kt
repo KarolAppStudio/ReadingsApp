@@ -61,7 +61,7 @@ fun SettingsScreen(
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = remember(strings) { listOf(strings.theme, strings.about, strings.contact) }
+    val tabs = remember(strings) { listOf(strings.settings, strings.about, strings.contact) }
     var themeExpanded by remember { mutableStateOf(value = false) }
 
     Scaffold(

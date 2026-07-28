@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.karol.readingsapp.ui.LocalizedStrings
@@ -19,7 +20,9 @@ fun AboutContent(
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(AdaptiveDimens.paddingMedium),
     ) {
+        // App Description Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -39,6 +42,68 @@ fun AboutContent(
                     .padding(AdaptiveDimens.paddingMedium)
                     .fillMaxWidth(),
             )
+        }
+
+        // Developer Note Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(2.dp),
+        ) {
+            Column(
+                modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
+            ) {
+                Text(
+                    text = strings.developerNoteTitle,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = AdaptiveDimens.bodyFontSize,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    ),
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+                Text(
+                    text = strings.developerNoteContent,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = AdaptiveDimens.smallFontSize,
+                    lineHeight = AdaptiveDimens.smallFontSize * 1.5f,
+                )
+            }
+        }
+
+        // Copyright Information Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(2.dp),
+        ) {
+            Column(
+                modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
+            ) {
+                Text(
+                    text = strings.copyrightTitle,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = AdaptiveDimens.bodyFontSize,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    ),
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+                Text(
+                    text = strings.copyrightNotice,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = AdaptiveDimens.smallFontSize,
+                    lineHeight = AdaptiveDimens.smallFontSize * 1.5f,
+                )
+            }
         }
     }
 }
