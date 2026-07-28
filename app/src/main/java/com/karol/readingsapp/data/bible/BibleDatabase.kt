@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [TranslationEntity::class, BookEntity::class, Verse::class],
-    version = 7,
+    version = 9,
     exportSchema = false,
 )
 abstract class BibleDatabase : RoomDatabase() {
@@ -18,7 +18,7 @@ abstract class BibleDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: BibleDatabase? = null
-        private const val ASSET_VERSION = 7
+        private const val ASSET_VERSION = 9
 
         fun getDatabase(context: Context): BibleDatabase = INSTANCE ?: synchronized(this) {
 // ... (omitting middle part for brevity, will use full block in tool)
@@ -27,6 +27,7 @@ abstract class BibleDatabase : RoomDatabase() {
             val lastVersion = prefs.getInt("version", 0)
 
             if (!dbFile.exists() || (lastVersion < ASSET_VERSION)) {
+                context.deleteDatabase("bibles.db")
                 dbFile.parentFile?.mkdirs()
                 context.assets.open("bibles.db").use { input ->
                     dbFile.outputStream().use { output ->
