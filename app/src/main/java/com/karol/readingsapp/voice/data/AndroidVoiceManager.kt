@@ -22,7 +22,7 @@ class AndroidVoiceManager(
 ) : VoiceService {
 
     private var tts: TextToSpeech? = null
-    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private val audioManager = context.getSystemService(AudioManager::class.java)
     private var audioFocusRequest: AudioFocusRequest? = null
     private val prefs = context.getSharedPreferences("voice_prefs", Context.MODE_PRIVATE)
 
@@ -32,10 +32,10 @@ class AndroidVoiceManager(
     private val _isOfflineAvailable = MutableStateFlow(value = false)
     override val isOfflineAvailable = _isOfflineAvailable.asStateFlow()
 
-    private val _availableVoices = MutableStateFlow<List<VoiceInfo>>(emptyList())
+    private val _availableVoices = MutableStateFlow<List<VoiceInfo>>(value = emptyList())
     override val availableVoices = _availableVoices.asStateFlow()
 
-    private val _selectedVoice = MutableStateFlow<VoiceInfo?>(null)
+    private val _selectedVoice = MutableStateFlow<VoiceInfo?>(value = null)
     override val selectedVoice = _selectedVoice.asStateFlow()
 
     private var currentPitch = 1.0f

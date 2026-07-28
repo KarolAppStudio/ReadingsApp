@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karol.readingsapp.voice.domain.TTSState
@@ -29,6 +30,16 @@ fun VoiceControlBar(
     val targetWidth = remember(density) { with(density) { 600.toDp() } }
 
     var lastPlayedText by remember { mutableStateOf("") }
+
+    // Disable system sound effects (beeps) when interacting with this bar
+    val view = LocalView.current
+    DisposableEffect(view) {
+        val original = view.isSoundEffectsEnabled
+        view.isSoundEffectsEnabled = false
+        onDispose {
+            view.isSoundEffectsEnabled = original
+        }
+    }
 
     Box(
         modifier = modifier.fillMaxWidth(),

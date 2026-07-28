@@ -161,7 +161,7 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
                 false
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            android.util.Log.e("LanguageService", "Error fetching from network for $code", e)
             false
         }
     }

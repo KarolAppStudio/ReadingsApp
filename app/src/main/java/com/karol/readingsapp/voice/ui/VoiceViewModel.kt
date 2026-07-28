@@ -3,9 +3,9 @@ package com.karol.readingsapp.voice.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.karol.readingsapp.voice.data.AndroidVoiceManager
 import com.karol.readingsapp.voice.domain.VoiceInfo
 import com.karol.readingsapp.voice.domain.VoiceService
+import com.karol.readingsapp.voice.service.VoiceServiceProxy
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +17,7 @@ import java.util.Locale
 
 class VoiceViewModel(application: Application) : AndroidViewModel(application) {
 
-    val voiceService: VoiceService = AndroidVoiceManager(application)
+    val voiceService: VoiceService = VoiceServiceProxy(application)
     val availableVoices = voiceService.availableVoices
     val selectedVoice = voiceService.selectedVoice
 
