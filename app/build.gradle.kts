@@ -7,7 +7,7 @@ plugins {
 
 spotless {
     kotlin {
-        target("**/*.kt")
+        target("src/**/*.kt")
         ktlint().editorConfigOverride(
             mapOf(
                 "ktlint_standard_no-wildcard-imports" to "disabled",
@@ -87,8 +87,3 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
 
-tasks.configureEach {
-    if (name.startsWith("assemble")) {
-        finalizedBy("spotlessApply")
-    }
-}

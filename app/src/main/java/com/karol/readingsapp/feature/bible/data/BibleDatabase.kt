@@ -56,8 +56,10 @@ abstract class BibleDatabase : RoomDatabase() {
         }
 
         private fun validateDatabase(db: SupportSQLiteDatabase) {
-            // Remove Polish translations if they exist
+            // Remove Polish and Khmer translations if they exist
             db.execSQL("DELETE FROM translations WHERE language LIKE 'Polish' OR language = 'pl' OR code = 'POL'")
+            db.execSQL("DELETE FROM translations WHERE language LIKE 'Khmer' OR language = 'km' OR code = 'KHM'")
+            db.execSQL("DELETE FROM verses WHERE translation_code = 'KHM'")
 
             val integrityCursor = db.query("PRAGMA integrity_check")
             if (integrityCursor.moveToFirst()) {
