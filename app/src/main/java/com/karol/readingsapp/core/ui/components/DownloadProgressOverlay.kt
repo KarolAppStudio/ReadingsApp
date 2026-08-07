@@ -44,7 +44,7 @@ fun DownloadProgressOverlay(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = strings.downloadAll,
+                        text = strings.downloadingSelected,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,

@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
@@ -42,6 +44,8 @@ import com.karol.readingsapp.core.theme.AppTheme
 import com.karol.readingsapp.core.ui.components.AboutContent
 import com.karol.readingsapp.core.ui.components.AppBottomNavBar
 import com.karol.readingsapp.core.ui.components.NavItem
+import com.karol.readingsapp.feature.bible.data.LanguageStatus
+import com.karol.readingsapp.feature.bible.data.TranslationEntity
 import com.karol.readingsapp.feature.shared.ui.ReadingViewModel
 import com.karol.readingsapp.feature.voice.data.VoiceGender
 import com.karol.readingsapp.feature.voice.ui.VoiceViewModel
@@ -56,7 +60,11 @@ fun SettingsScreen(
 ) {
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
+    val remoteTranslations by viewModel.remoteTranslations.collectAsState()
+    val downloadStatus by viewModel.downloadStatus.collectAsState()
+    val individualProgress by viewModel.individualProgress.collectAsState()
     val currentTheme by viewModel.appTheme.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     val selectedLanguage = remember(selectedCode, translations) {
         translations.find { it.code == selectedCode }?.language ?: "English"
@@ -64,7 +72,7 @@ fun SettingsScreen(
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = remember(strings) { listOf(strings.settings, strings.about, strings.contact) }
+    val tabs = remember(strings) { listOf(strings.settings, strings.download, strings.about, strings.contact) }
     var themeExpanded by remember { mutableStateOf(value = false) }
 
     Scaffold(
@@ -129,11 +137,21 @@ fun SettingsScreen(
                                 )
                             }
 
-                            1 -> AboutSettings(
+                            1 -> DownloadSettings(
+                                strings = strings,
+                                translations = if (remoteTranslations.isNotEmpty()) remoteTranslations else translations,
+                                downloadStatus = downloadStatus,
+                                individualProgress = individualProgress,
+                                isRefreshing = isRefreshing,
+                                onDownloadClick = { language, code -> viewModel.startBatchDownload(listOf(language), listOf(code)) },
+                                onRefreshClick = { viewModel.refreshRemoteTranslations(updateDb = true) }
+                            )
+
+                            2 -> AboutSettings(
                                 strings = strings,
                             )
 
-                            2 -> ContactSettings(
+                            3 -> ContactSettings(
                                 strings = strings,
                             )
                         }
@@ -262,6 +280,240 @@ fun SettingsTabs(
                 .height(2.dp)
                 .background(MaterialTheme.colorScheme.primary),
         )
+    }
+}
+
+@Composable
+fun DownloadSettings(
+    strings: LocalizedStrings,
+    translations: List<TranslationEntity>,
+    downloadStatus: Map<String, LanguageStatus>,
+    individualProgress: Map<String, Float>,
+    isRefreshing: Boolean,
+    onDownloadClick: (String, String) -> Unit,
+    onRefreshClick: () -> Unit,
+) {
+    val rotation = remember { androidx.compose.animation.core.Animatable(0f) }
+
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            rotation.animateTo(
+                targetValue = rotation.value + 360f,
+                animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                    animation = androidx.compose.animation.core.tween(1000, easing = androidx.compose.animation.core.LinearEasing),
+                    repeatMode = androidx.compose.animation.core.RepeatMode.Restart
+                )
+            )
+        } else {
+            rotation.stop()
+        }
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = strings.availableBibles,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = AdaptiveDimens.bodyFontSize,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    ),
+                )
+                TextButton(
+                    onClick = onRefreshClick,
+                    enabled = !isRefreshing,
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(16.dp)
+                                .rotate(rotation.value)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = strings.refresh,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            translations.forEach { translation ->
+                val status = downloadStatus[translation.language] ?: LanguageStatus.FAILED // Fallback or default
+                val progress = individualProgress[translation.language] ?: 0f
+
+                // English and Malayalam are pre-installed and marked as DOWNLOADED in LanguageService init.
+                // We keep a hardcoded check here as a safety measure.
+                val effectiveStatus = if (translation.language == "English" || translation.language == "Malayalam") {
+                    LanguageStatus.DOWNLOADED
+                } else {
+                    status
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = translation.name,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = AdaptiveDimens.smallFontSize,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            ),
+                        )
+                        Text(
+                            text = translation.language,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                        )
+                    }
+
+                    if (effectiveStatus == LanguageStatus.DOWNLOADING) {
+                        Column(
+                            modifier = Modifier
+                                .weight(0.6f)
+                                .padding(horizontal = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            LinearProgressIndicator(
+                                progress = progress,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(4.dp)
+                                    .clip(RoundedCornerShape(2.dp)),
+                                color = MaterialTheme.colorScheme.primary,
+                                trackColor = MaterialTheme.colorScheme.primaryContainer,
+                            )
+                            val statusText = when {
+                                progress < 0.5f -> "Downloading..."
+                                progress < 0.9f -> "Installing..."
+                                else -> "Finalizing..."
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = statusText,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontSize = 10.sp
+                                )
+                                Text(
+                                    text = "${(progress * 100).toInt()}%",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontSize = 10.sp
+                                )
+                            }
+                        }
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = translation.code,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                            ),
+                            modifier = Modifier
+                                .background(
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    shape = RoundedCornerShape(4.dp),
+                                )
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Box(
+                            modifier = Modifier.width(120.dp),
+                            contentAlignment = Alignment.CenterEnd
+                        ) {
+                            when (effectiveStatus) {
+                                LanguageStatus.DOWNLOADED -> {
+                                    Text(
+                                        text = strings.installed,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(end = 8.dp),
+                                        textAlign = TextAlign.End
+                                    )
+                                }
+
+                                LanguageStatus.DOWNLOADING -> {
+                                    // Handled by the progress bar Column above
+                                }
+
+                                else -> {
+                                    TextButton(
+                                        onClick = {
+                                            onDownloadClick(
+                                                translation.language,
+                                                translation.code
+                                            )
+                                        },
+                                        contentPadding = PaddingValues(
+                                            horizontal = 8.dp,
+                                            vertical = 4.dp
+                                        ),
+                                        modifier = Modifier
+                                            .height(32.dp)
+                                            .fillMaxWidth()
+                                    ) {
+                                        Text(
+                                            text = strings.download,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            textAlign = TextAlign.End
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (translation != translations.last()) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
+            }
+        }
     }
 }
 

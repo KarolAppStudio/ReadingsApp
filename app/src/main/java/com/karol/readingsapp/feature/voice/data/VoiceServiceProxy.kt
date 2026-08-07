@@ -124,6 +124,10 @@ class VoiceServiceProxy(private val context: Context) : VoiceService {
         voiceService?.getVoiceService()?.checkAndInstallVoices()
     }
 
+    override fun ensureLanguageInstalled(locale: Locale) {
+        voiceService?.getVoiceService()?.ensureLanguageInstalled(locale)
+    }
+
     override fun shutdown() {
         stopCollecting()
         if (isBound) {

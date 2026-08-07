@@ -39,5 +39,6 @@ interface VoiceService {
     fun setVoice(voice: VoiceInfo)
 
     fun checkAndInstallVoices()
+    fun ensureLanguageInstalled(locale: Locale)
     fun shutdown()
 }

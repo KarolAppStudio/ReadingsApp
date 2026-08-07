@@ -48,6 +48,7 @@ import com.karol.readingsapp.feature.plan.data.ReadingPlanDatabase
 import com.karol.readingsapp.feature.plan.ui.ReadingPlanScreen
 import com.karol.readingsapp.feature.settings.ui.SettingsScreen
 import com.karol.readingsapp.feature.shared.ui.ReadingViewModel
+import com.karol.readingsapp.feature.voice.data.VoiceServiceProxy
 import com.karol.readingsapp.feature.voice.ui.VoiceViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -98,12 +99,13 @@ class MainActivity : ComponentActivity() {
                     planDatabase.readingPlanDao(),
                 )
             val languageService = LanguageService(applicationContext, bibleDatabase.bibleDao())
+            val voiceService: VoiceServiceProxy = remember { VoiceServiceProxy(applicationContext) }
             val viewModel: ReadingViewModel =
                 viewModel(
                     factory =
                     object : ViewModelProvider.Factory {
                         @Suppress("UNCHECKED_CAST")
-                        override fun <T : ViewModel> create(modelClass: Class<T>): T = ReadingViewModel(repository, languageService, applicationContext) as T
+                        override fun <T : ViewModel> create(modelClass: Class<T>): T = ReadingViewModel(repository, languageService, voiceService, applicationContext) as T
                     },
                 )
             val voiceViewModel: VoiceViewModel = viewModel()

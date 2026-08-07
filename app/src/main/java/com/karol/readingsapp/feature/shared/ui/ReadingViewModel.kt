@@ -8,18 +8,22 @@ import com.karol.readingsapp.core.theme.AppTheme
 import com.karol.readingsapp.feature.bible.data.BookEntity
 import com.karol.readingsapp.feature.bible.data.ChapterReference
 import com.karol.readingsapp.feature.bible.data.LanguageService
+import com.karol.readingsapp.feature.bible.data.LanguageStatus
 import com.karol.readingsapp.feature.bible.data.ReadingRepository
 import com.karol.readingsapp.feature.bible.data.TargetReadingDetails
 import com.karol.readingsapp.feature.bible.data.TranslationEntity
 import com.karol.readingsapp.feature.plan.data.SimpleReading
+import com.karol.readingsapp.feature.voice.data.VoiceService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class ReadingViewModel(
     private val repository: ReadingRepository,
     private val languageService: LanguageService,
+    private val voiceService: VoiceService,
     context: Context,
 ) : ViewModel() {
     private val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
@@ -33,6 +37,15 @@ class ReadingViewModel(
     private val _availableTranslations = MutableStateFlow<List<TranslationEntity>>(emptyList())
     val availableTranslations = _availableTranslations.asStateFlow()
 
+    private val _downloadedTranslations = MutableStateFlow<List<TranslationEntity>>(emptyList())
+    val downloadedTranslations = _downloadedTranslations.asStateFlow()
+
+    private val _remoteTranslations = MutableStateFlow<List<TranslationEntity>>(emptyList())
+    val remoteTranslations = _remoteTranslations.asStateFlow()
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
+
     private val _allBooks = MutableStateFlow<List<BookEntity>>(emptyList())
     val allBooks = _allBooks.asStateFlow()
 
@@ -41,6 +54,9 @@ class ReadingViewModel(
 
     private val _chapterVerses = MutableStateFlow<List<TargetReadingDetails>>(emptyList())
     val chapterVerses = _chapterVerses.asStateFlow()
+
+    private val _isCurrentTranslationComplete = MutableStateFlow(true)
+    val isCurrentTranslationComplete = _isCurrentTranslationComplete.asStateFlow()
 
     private val _secondChapterVerses = MutableStateFlow<List<TargetReadingDetails>>(emptyList())
     val secondChapterVerses = _secondChapterVerses.asStateFlow()
@@ -62,6 +78,7 @@ class ReadingViewModel(
     val appTheme = _appTheme.asStateFlow()
 
     val downloadStatus = languageService.downloadStatus
+    val individualProgress = languageService.individualProgress
     val batchProgress = languageService.batchProgress
 
     private val _currentDate = MutableStateFlow("")
@@ -70,6 +87,63 @@ class ReadingViewModel(
     init {
         loadTranslations()
         loadAllBooks()
+        refreshRemoteTranslations(updateDb = false)
+
+        // Observe download status to refresh translations list and check for TTS
+        viewModelScope.launch {
+            var previousStatus = languageService.downloadStatus.value
+            languageService.downloadStatus.collect { currentStatus ->
+                loadTranslations()
+
+                // Check for newly downloaded languages to ensure TTS data is also available
+                var newlyDownloadedDetected = false
+                currentStatus.forEach { (lang, status) ->
+                    if (status == LanguageStatus.DOWNLOADED && previousStatus[lang] != LanguageStatus.DOWNLOADED) {
+                        checkTTSForLanguage(lang)
+                        newlyDownloadedDetected = true
+                    }
+                }
+                
+                if (newlyDownloadedDetected) {
+                    loadAllBooks()
+                }
+
+                previousStatus = currentStatus
+            }
+        }
+    }
+
+    private fun checkTTSForLanguage(languageName: String) {
+        val locale = when (languageName) {
+            "English" -> Locale.ENGLISH
+            "Hindi" -> Locale.forLanguageTag("hi-IN")
+            "Bangla" -> Locale.forLanguageTag("bn-IN")
+            "Kannada" -> Locale.forLanguageTag("kn-IN")
+            "Malayalam" -> Locale.forLanguageTag("ml-IN")
+            "Tamil" -> Locale.forLanguageTag("ta-IN")
+            "Telugu" -> Locale.forLanguageTag("te-IN")
+            else -> null
+        }
+        locale?.let {
+            voiceService.ensureLanguageInstalled(it)
+        }
+    }
+
+    fun refreshRemoteTranslations(updateDb: Boolean = true) {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            val remote = languageService.getRemoteTranslations(updateDb = updateDb).map {
+                val nativeName = LanguageService.getNativeName(it.language, it.name)
+                it.copy(name = nativeName)
+            }
+            if (remote.isNotEmpty()) {
+                _remoteTranslations.value = remote
+            }
+            if (updateDb) {
+                loadTranslations()
+            }
+            _isRefreshing.value = false
+        }
     }
 
     private fun loadAllBooks() {
@@ -88,24 +162,78 @@ class ReadingViewModel(
 
     private fun loadTranslations() {
         viewModelScope.launch {
-            val translations =
+            val currentCode = _selectedTranslationCode.value
+            _isCurrentTranslationComplete.value = repository.isTranslationComplete(currentCode)
+
+            val allTranslations =
                 repository.getAvailableTranslations().map {
                     val nativeName = LanguageService.getNativeName(it.language, it.name)
                     val displayLanguage = if (it.language == "English-ASV") "English" else it.language
                     it.copy(name = nativeName, language = displayLanguage)
                 }
-            _availableTranslations.value = translations
+            _availableTranslations.value = allTranslations
+
+            val downloadedFromDb = repository.getDownloadedTranslations().map {
+                val nativeName = LanguageService.getNativeName(it.language, it.name)
+                val displayLanguage = if (it.language == "English-ASV" || it.name == "English-ASV") "English" else it.language
+                it.copy(name = nativeName, language = displayLanguage)
+            }
+
+            val statusMap = languageService.downloadStatus.value
+            val downloadedByStatus = allTranslations.filter {
+                statusMap[it.language] == LanguageStatus.DOWNLOADED
+            }
+
+            _downloadedTranslations.value = (downloadedFromDb + downloadedByStatus).distinctBy { it.code }
 
             val isFirstRun = prefs.getBoolean("is_first_run", true)
             if (isFirstRun) {
-                val allLanguages = translations.asSequence().map { it.language }.distinct().toList()
-                startBatchDownload(allLanguages)
+                val defaultLanguages = listOf("English", "Malayalam")
+                // Check if assets are available for default languages
+                val allAssetsPresent = defaultLanguages.all { languageService.hasAsset(it) }
+                
+                // If assets are missing, we MUST allow network even on first run to have a working app
+                startBatchDownload(defaultLanguages, allowNetwork = allAssetsPresent.not())
+                
                 setTheme(AppTheme.SKY_BLUE)
                 prefs.edit { putBoolean("is_first_run", false) }
+
+                // Ensure TTS is checked for default languages on first run
+                defaultLanguages.forEach { checkTTSForLanguage(it) }
+            } else {
+                // Check if default translations are actually complete
+                val defaultCodes = listOf("ENG", "MAL")
+                val incompleteDefaults = defaultCodes.filter { code ->
+                    !repository.isTranslationComplete(code)
+                }.map { code -> if (code == "ENG") "English" else "Malayalam" }
+
+                // Only trigger repair if not already downloading
+                val currentStatus = languageService.downloadStatus.value
+                val actuallyIncomplete = incompleteDefaults.filter { lang ->
+                    currentStatus[lang] != LanguageStatus.DOWNLOADING
+                }
+
+                if (actuallyIncomplete.isNotEmpty()) {
+                    // If they are missing or incomplete after first run, we can try to repair them (allowing network now if necessary)
+                    startBatchDownload(actuallyIncomplete, force = true)
+                } else {
+                    // Ensure default languages are eventually marked as downloaded if they weren't finished
+                    val defaultLanguages = listOf("English", "Malayalam")
+                    val missingDefaults = defaultLanguages.filter { lang ->
+                        statusMap[lang] != LanguageStatus.DOWNLOADED &&
+                        statusMap[lang] != LanguageStatus.DOWNLOADING &&
+                        statusMap[lang] != LanguageStatus.FAILED
+                    }
+                    if (missingDefaults.isNotEmpty()) {
+                        startBatchDownload(missingDefaults)
+                    }
+                }
             }
 
-            translations.find { it.code == _selectedTranslationCode.value }?.let {
-                languageService.downloadLanguageScript(it.language)
+            allTranslations.find { it.code == _selectedTranslationCode.value }?.let {
+                if (statusMap[it.language] != LanguageStatus.DOWNLOADED) {
+                    languageService.downloadLanguageScript(it.language)
+                }
             }
         }
     }
@@ -116,17 +244,25 @@ class ReadingViewModel(
             viewModelScope.launch {
                 languageService.downloadLanguageScript(it.language)
                 _selectedTranslationCode.value = translationCode
+                _isCurrentTranslationComplete.value = repository.isTranslationComplete(translationCode)
                 prefs.edit { putString("default_bible", translationCode) }
                 if (_currentDate.value.isNotEmpty()) {
                     loadReading(_currentDate.value)
                 }
+                loadTranslations()
             }
         }
     }
 
-    fun startBatchDownload(languages: List<String>) {
+    fun startBatchDownload(
+        languages: List<String>,
+        codes: List<String>? = null,
+        force: Boolean = false,
+        allowNetwork: Boolean = true
+    ) {
         viewModelScope.launch {
-            languageService.batchDownload(languages)
+            languageService.batchDownload(languages, codes, force, allowNetwork)
+            loadTranslations() // Refresh available and downloaded lists after download attempt
         }
     }
 

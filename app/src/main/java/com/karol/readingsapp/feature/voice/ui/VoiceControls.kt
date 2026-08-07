@@ -127,6 +127,7 @@ fun VoiceControlBar(
                 // Play/Pause Button
                 IconButton(
                     modifier = Modifier.size(36.dp),
+                    enabled = textToRead.isNotBlank(),
                     onClick = {
                         when (ttsState) {
                             is TTSState.Speaking -> viewModel.onPauseClicked()
@@ -152,7 +153,7 @@ fun VoiceControlBar(
                         imageVector = icon,
                         contentDescription = if (ttsState is TTSState.Speaking) "Pause" else "Play",
                         modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = if (textToRead.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                     )
                 }
             }

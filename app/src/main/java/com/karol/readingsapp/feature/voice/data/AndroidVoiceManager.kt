@@ -145,6 +145,13 @@ class AndroidVoiceManager(
                 setupTTSListeners()
                 checkOfflineSupport()
                 updateAvailableVoices()
+
+                // Process any languages that were requested while initializing
+                if (pendingLanguageChecks.isNotEmpty()) {
+                    Log.d("AndroidVoiceManager", "Processing ${pendingLanguageChecks.size} pending language checks")
+                    pendingLanguageChecks.forEach { ensureLanguageInstalled(it) }
+                    pendingLanguageChecks.clear()
+                }
             } else {
                 Log.e("AndroidVoiceManager", "TTS Initialization Failed with status: $status")
                 _ttsState.value = TTSState.Error("TTS Initialization Failed")
@@ -473,7 +480,13 @@ class AndroidVoiceManager(
         }
     }
 
+    private var lastInstallRequestTime = 0L
+    private val pendingLanguageChecks = mutableSetOf<Locale>()
+
     override fun checkAndInstallVoices() {
+        val now = System.currentTimeMillis()
+        if (now - lastInstallRequestTime < 5000) return
+        lastInstallRequestTime = now
         try {
             val intent = android.content.Intent()
             intent.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
@@ -481,6 +494,23 @@ class AndroidVoiceManager(
             context.startActivity(intent)
         } catch (e: Exception) {
             Log.e("AndroidVoiceManager", "Could not open TTS install intent", e)
+        }
+    }
+
+    override fun ensureLanguageInstalled(locale: Locale) {
+        val engine = tts
+        if (engine == null || _ttsState.value == TTSState.Initializing) {
+            Log.d("AndroidVoiceManager", "TTS not ready, queuing language check for $locale")
+            pendingLanguageChecks.add(locale)
+            return
+        }
+
+        val result = engine.isLanguageAvailable(locale)
+        if (result == TextToSpeech.LANG_MISSING_DATA) {
+            Log.d("AndroidVoiceManager", "Language data missing for $locale, triggering installation.")
+            checkAndInstallVoices()
+        } else {
+            Log.d("AndroidVoiceManager", "Language data for $locale is already available or not supported (result: $result).")
         }
     }
 

@@ -28,10 +28,28 @@ abstract class BibleDatabase : RoomDatabase() {
             if (!dbFile.exists() || (lastVersion < ASSET_VERSION)) {
                 context.deleteDatabase("bibles.db")
                 dbFile.parentFile?.mkdirs()
-                context.assets.open("bibles.db").use { input ->
-                    dbFile.outputStream().use { output ->
-                        input.copyTo(output)
+                
+                var isAssetValid = false
+                try {
+                    context.assets.open("bibles.db").use { input ->
+                        val header = ByteArray(16)
+                        val bytesRead = input.read(header)
+                        if (bytesRead == 16 && String(header).startsWith("SQLite format 3")) {
+                            isAssetValid = true
+                        }
                     }
+                } catch (e: Exception) {
+                    android.util.Log.e("BibleDatabase", "Error checking bibles.db asset", e)
+                }
+
+                if (isAssetValid) {
+                    context.assets.open("bibles.db").use { input ->
+                        dbFile.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                } else {
+                    android.util.Log.w("BibleDatabase", "bibles.db asset is invalid or LFS pointer, skipping copy")
                 }
                 prefs.edit { putInt("version", ASSET_VERSION) }
             }
@@ -122,6 +140,8 @@ abstract class BibleDatabase : RoomDatabase() {
             )
             db.beginTransaction()
             try {
+                db.execSQL("DELETE FROM translations WHERE code = 'MIZO'")
+                db.execSQL("DELETE FROM verses WHERE translation_code = 'MIZO'")
                 for (t in translations) {
                     db.execSQL(
                         "INSERT OR IGNORE INTO translations (code, language, name) VALUES (?, ?, ?)",

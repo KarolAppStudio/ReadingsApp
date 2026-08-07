@@ -61,25 +61,29 @@ fun BibleReaderScreen(
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val allBooks by viewModel.allBooks.collectAsState()
 
-    val totalChapters = allChapters.size
+    val effectiveAllChapters = remember(allChapters, bookId, chapter) {
+        if (allChapters.isEmpty()) {
+            listOf(ChapterReference(bookId, chapter))
+        } else {
+            allChapters
+        }
+    }
+
+    val totalChapters = effectiveAllChapters.size
     val circularMultiplier = 1000
-    val virtualPageCount = if (totalChapters > 0) totalChapters * circularMultiplier else 0
+    val virtualPageCount = totalChapters * circularMultiplier
 
     val pagerState = rememberPagerState(
-        initialPage = remember(allChapters) {
-            if (totalChapters == 0) {
-                0
-            } else {
-                val index = allChapters.indexOfFirst { (it.bookId == bookId) && (it.chapter == chapter) }
-                val safeIndex = if (index != -1) index else 0
-                ((circularMultiplier / 2) * totalChapters) + safeIndex
-            }
+        initialPage = remember(effectiveAllChapters) {
+            val index = effectiveAllChapters.indexOfFirst { (it.bookId == bookId) && (it.chapter == chapter) }
+            val safeIndex = if (index != -1) index else 0
+            ((circularMultiplier / 2) * totalChapters) + safeIndex
         },
     ) { virtualPageCount }
 
-    LaunchedEffect(bookId, chapter, allChapters) {
+    LaunchedEffect(bookId, chapter, effectiveAllChapters) {
         if (totalChapters > 0) {
-            val targetIndex = allChapters.indexOfFirst { (it.bookId == bookId) && (it.chapter == chapter) }
+            val targetIndex = effectiveAllChapters.indexOfFirst { (it.bookId == bookId) && (it.chapter == chapter) }
             if (targetIndex != -1) {
                 val currentActualIndex = pagerState.currentPage % totalChapters
                 val isNotInitialized = pagerState.currentPage < totalChapters
@@ -94,15 +98,15 @@ fun BibleReaderScreen(
     LaunchedEffect(pagerState.settledPage) {
         if (totalChapters > 0) {
             val actualIndex = pagerState.settledPage % totalChapters
-            val currentRef = allChapters[actualIndex]
+            val currentRef = effectiveAllChapters[actualIndex]
             if ((currentRef.bookId != bookId) || (currentRef.chapter != chapter)) {
                 onChapterChange(currentRef.bookId, currentRef.chapter, readingType)
             }
         }
     }
 
-    val displayIndex = if (totalChapters > 0) pagerState.currentPage % totalChapters else -1
-    val currentRef = if (displayIndex != -1) allChapters[displayIndex] else ChapterReference(bookId, chapter)
+    val displayIndex = pagerState.currentPage % totalChapters
+    val currentRef = effectiveAllChapters[displayIndex]
 
     val displayBookId = currentRef.bookId
     val displayChapter = currentRef.chapter
@@ -148,6 +152,46 @@ fun BibleReaderScreen(
         }
     }
 
+    if (allChapters.isEmpty() && uiState.isEmpty() && currentVerses.isEmpty()) {
+        Scaffold(
+            topBar = {
+                ReaderTopBar(
+                    bookName = bookName,
+                    displayBookId = displayBookId,
+                    displayChapter = displayChapter,
+                    strings = strings,
+                    numberFormatter = numberFormatter,
+                    bookOptions = bookOptions,
+                    chapterCount = chapterCount,
+                    allBooks = allBooks,
+                    onHomeClick = onHomeClick,
+                    onBackClick = onBackClick,
+                    onParallelClick = { onParallelClick(displayBookId, displayChapter) },
+                    onChapterChange = onChapterChange,
+                )
+            },
+            containerColor = MaterialTheme.colorScheme.background,
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = strings.loadingReading,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+        return
+    }
+
     Scaffold(
         topBar = {
             ReaderTopBar(
@@ -189,7 +233,7 @@ fun BibleReaderScreen(
                 pagerState = pagerState,
                 innerPadding = innerPadding,
                 totalChapters = totalChapters,
-                allChapters = allChapters,
+                allChapters = effectiveAllChapters,
                 bookId = bookId,
                 chapter = chapter,
                 initialVerse = initialVerse,
@@ -456,6 +500,14 @@ fun ChapterPage(
     var verses by remember { mutableStateOf<List<TargetReadingDetails>>(emptyList()) }
     val listState = rememberLazyListState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
+    val isComplete by viewModel.isCurrentTranslationComplete.collectAsState()
+    val downloadStatus by viewModel.downloadStatus.collectAsState()
+    val translations by viewModel.availableTranslations.collectAsState()
+
+    val currentLang = remember(selectedCode, translations) {
+        translations.find { it.code == selectedCode }?.language ?: "English"
+    }
+    val status = downloadStatus[currentLang]
 
     val nextPortion = remember(readingType, bookId, chapter) {
         viewModel.getNextPortion(readingType)
@@ -497,11 +549,60 @@ fun ChapterPage(
         ) {
             if (verses.isEmpty()) {
                 item {
-                    Text(
-                        text = strings.loadingReading,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                        fontSize = AdaptiveDimens.bodyFontSize,
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillParentMaxSize()
+                            .padding(bottom = 64.dp), // Adjust for bottom bar
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            if (!isComplete) {
+                                Text(
+                                    text = strings.downloadRequired,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Button(
+                                    onClick = { viewModel.startBatchDownload(listOf(currentLang), force = true) },
+                                    shape = RoundedCornerShape(26.dp)
+                                ) {
+                                    Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(18.dp)) // Using Home as placeholder for download icon
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(strings.download)
+                                }
+                            } else if (status == com.karol.readingsapp.feature.bible.data.LanguageStatus.FAILED) {
+                                Text(
+                                    text = strings.failed,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Button(
+                                    onClick = { viewModel.startBatchDownload(listOf(currentLang), force = true) },
+                                    shape = RoundedCornerShape(26.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                                ) {
+                                    Text(strings.retry)
+                                }
+                            } else if (status == com.karol.readingsapp.feature.bible.data.LanguageStatus.DOWNLOADED) {
+                                Text(
+                                    text = strings.contentNotFound,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            } else {
+                                CircularProgressIndicator(modifier = Modifier.size(32.dp))
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = strings.loadingReading,
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                                    fontSize = AdaptiveDimens.bodyFontSize,
+                                )
+                            }
+                        }
+                    }
                 }
             } else {
                 items(verses, key = { "${it.translationCode}_${it.bookId}_${it.chapter}_${it.verseId}" }) { verse ->
