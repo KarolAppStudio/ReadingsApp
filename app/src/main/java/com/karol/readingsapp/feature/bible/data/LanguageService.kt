@@ -16,7 +16,8 @@ enum class LanguageStatus {
     FAILED,
 }
 
-class LanguageService(private val context: Context, private val bibleDao: BibleDao) {
+class LanguageService(private val context: Context, private val bibleDatabase: BibleDatabase) {
+    private val bibleDao = bibleDatabase.bibleDao()
     private val prefs = context.getSharedPreferences("language_downloads", Context.MODE_PRIVATE)
     private val _downloadStatus = MutableStateFlow<Map<String, LanguageStatus>>(emptyMap())
     val downloadStatus = _downloadStatus.asStateFlow()
@@ -28,8 +29,8 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
     val batchProgress = _batchProgress.asStateFlow()
 
     private val baseUrl = "https://raw.githubusercontent.com/KarolAppStudio/bible-data/main"
-    private val remoteRepoApiUrl = "https://api.github.com/repos/KarolAppStudio/BibleTranslations/contents/"
-    private val remoteDbBaseUrl = "https://raw.githubusercontent.com/KarolAppStudio/BibleTranslations/main"
+    private val remoteRepoApiUrl = "https://api.github.com/repos/KarolAppStudio/BibleTranslationDatabases/contents/"
+    private val remoteDbBaseUrl = "https://raw.githubusercontent.com/KarolAppStudio/BibleTranslationDatabases/main"
 
     companion object {
         fun getNativeName(language: String, translationName: String): String {
@@ -252,6 +253,48 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
     private suspend fun importFromDbFile(dbFile: java.io.File, code: String): Boolean = withContext(Dispatchers.IO) {
         try {
             val language = getLanguageFromCode(code)
+            
+            // Ensure the translation exists in the translations table first to satisfy FK constraint
+            val translation = TranslationEntity(
+                code = code,
+                language = language,
+                name = getTranslationName(code, language)
+            )
+            bibleDao.insertTranslation(translation)
+
+            updateProgress(language, 0.6f)
+            
+            val db = bibleDatabase.openHelper.writableDatabase
+            
+            // Use ATTACH DATABASE to efficiently import data
+            // We use [ ] or ' ' around the path to handle potential special characters
+            db.execSQL("ATTACH DATABASE '${dbFile.absolutePath}' AS to_import")
+            
+            try {
+                // Insert verses from the attached database into the main database
+                // Room's table name is 'verses'
+                db.execSQL("""
+                    INSERT OR REPLACE INTO verses (book_id, chapter, verse, text, translation_code)
+                    SELECT book_id, chapter, verse, text, '$code' FROM to_import.verses
+                """.trimIndent())
+                
+                updateProgress(language, 0.9f)
+            } finally {
+                db.execSQL("DETACH DATABASE to_import")
+            }
+            
+            updateProgress(language, 1.0f)
+            true
+        } catch (e: Exception) {
+            android.util.Log.e("LanguageService", "Error importing from DB file for $code using ATTACH", e)
+            // Fallback to manual import if ATTACH fails (e.g. schema mismatch in external DB)
+            fallbackImportFromDbFile(dbFile, code)
+        }
+    }
+
+    private suspend fun fallbackImportFromDbFile(dbFile: java.io.File, code: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val language = getLanguageFromCode(code)
             val db = android.database.sqlite.SQLiteDatabase.openDatabase(
                 dbFile.absolutePath,
                 null,
@@ -273,16 +316,13 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
                 )
                 processedVerses++
                 if (processedVerses % 1000 == 0 || processedVerses == totalVerses) {
-                    // 0.5 to 0.8 is extraction phase
-                    updateProgress(language, 0.5f + (processedVerses.toFloat() / totalVerses) * 0.3f)
+                    updateProgress(language, 0.6f + (processedVerses.toFloat() / totalVerses) * 0.3f)
                 }
             }
             cursor.close()
             db.close()
 
             if (verses.isNotEmpty()) {
-                // 0.8 to 1.0 is insertion phase
-                updateProgress(language, 0.9f)
                 bibleDao.insertVerses(verses)
                 updateProgress(language, 1.0f)
                 true
@@ -290,7 +330,7 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
                 false
             }
         } catch (e: Exception) {
-            android.util.Log.e("LanguageService", "Error importing from DB file for $code", e)
+            android.util.Log.e("LanguageService", "Error in fallback import for $code", e)
             false
         }
     }

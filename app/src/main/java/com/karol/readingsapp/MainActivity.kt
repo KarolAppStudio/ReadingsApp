@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity() {
                     bibleDatabase.bibleDao(),
                     planDatabase.readingPlanDao(),
                 )
-            val languageService = LanguageService(applicationContext, bibleDatabase.bibleDao())
+            val languageService = LanguageService(applicationContext, bibleDatabase)
             val voiceService: VoiceServiceProxy = remember { VoiceServiceProxy(applicationContext) }
             val viewModel: ReadingViewModel =
                 viewModel(
