@@ -268,9 +268,23 @@ class ReadingViewModel(
 
     fun removeTranslation(language: String, code: String) {
         viewModelScope.launch {
+            // Handle edge case: if removing currently selected translation
+            if (_selectedTranslationCode.value == code) {
+                _selectedTranslationCode.value = "ENG"
+                prefs.edit { putString("default_bible", "ENG") }
+            }
+            if (_secondTranslationCode.value == code) {
+                _secondTranslationCode.value = "ENG"
+            }
+
             languageService.removeLanguage(language, code)
             loadTranslations()
             loadAllBooks() // Refresh book list in case a translation was removed
+            
+            // Re-load reading with new default if needed
+            if (_currentDate.value.isNotEmpty()) {
+                loadReading(_currentDate.value)
+            }
         }
     }
 

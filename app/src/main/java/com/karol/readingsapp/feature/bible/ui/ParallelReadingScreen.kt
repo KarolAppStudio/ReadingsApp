@@ -44,7 +44,7 @@ fun ParallelReadingScreen(
 ) {
     val verses1 by viewModel.chapterVerses.collectAsState()
     val verses2 by viewModel.secondChapterVerses.collectAsState()
-    val translations by viewModel.availableTranslations.collectAsState()
+    val translations by viewModel.downloadedTranslations.collectAsState()
     val selectedCode1 by viewModel.selectedTranslationCode.collectAsState()
     val selectedCode2 by viewModel.secondTranslationCode.collectAsState()
     val allBooks by viewModel.allBooks.collectAsState()

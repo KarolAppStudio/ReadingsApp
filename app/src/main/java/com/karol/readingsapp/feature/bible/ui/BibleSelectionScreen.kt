@@ -43,7 +43,7 @@ fun BibleSelectionScreen(
     onChapterClick: (Int, Int, Int) -> Unit,
     onParallelClick: (Int, Int) -> Unit,
 ) {
-    val translations by viewModel.availableTranslations.collectAsState()
+    val translations by viewModel.downloadedTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val allBooks by viewModel.allBooks.collectAsState()
 

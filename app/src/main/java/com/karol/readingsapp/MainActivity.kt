@@ -126,7 +126,7 @@ class MainActivity : ComponentActivity() {
             }
 
             val batchProgress by viewModel.batchProgress.collectAsState()
-            val translations by viewModel.availableTranslations.collectAsState()
+            val translations by viewModel.downloadedTranslations.collectAsState()
             val selectedCode by viewModel.selectedTranslationCode.collectAsState()
 
             val selectedLanguage = remember(selectedCode, translations) {

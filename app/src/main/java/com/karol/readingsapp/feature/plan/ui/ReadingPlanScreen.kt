@@ -49,7 +49,7 @@ fun ReadingPlanScreen(
 ) {
     var currentMonth by remember { mutableStateOf(YearMonth.from(today)) }
     val monthlyPlan by viewModel.monthlyPlan.collectAsState()
-    val translations by viewModel.availableTranslations.collectAsState()
+    val translations by viewModel.downloadedTranslations.collectAsState()
     val selectedTranslation by viewModel.selectedTranslationCode.collectAsState()
 
     val selectedLanguage = remember(selectedTranslation, translations) {

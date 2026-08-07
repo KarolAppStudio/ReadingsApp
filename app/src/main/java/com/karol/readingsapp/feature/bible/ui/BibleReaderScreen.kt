@@ -57,7 +57,7 @@ fun BibleReaderScreen(
     onChapterChange: (Int, Int, String?) -> Unit,
 ) {
     val allChapters by viewModel.allChapters.collectAsState()
-    val translations by viewModel.availableTranslations.collectAsState()
+    val translations by viewModel.downloadedTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val allBooks by viewModel.allBooks.collectAsState()
 
@@ -502,7 +502,7 @@ fun ChapterPage(
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val isComplete by viewModel.isCurrentTranslationComplete.collectAsState()
     val downloadStatus by viewModel.downloadStatus.collectAsState()
-    val translations by viewModel.availableTranslations.collectAsState()
+    val translations by viewModel.downloadedTranslations.collectAsState()
 
     val currentLang = remember(selectedCode, translations) {
         translations.find { it.code == selectedCode }?.language ?: "English"

@@ -74,13 +74,12 @@ fun HomeScreen(
     onAboutClick: () -> Unit,
 ) {
     val readingsGrouped by viewModel.uiState.collectAsState()
-    val allTranslations by viewModel.availableTranslations.collectAsState()
     val downloadedTranslations by viewModel.downloadedTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val selectedDate by viewModel.currentDate.collectAsState()
 
-    val selectedLanguage = remember(selectedCode, allTranslations) {
-        allTranslations.find { it.code == selectedCode }?.language ?: "English"
+    val selectedLanguage = remember(selectedCode, downloadedTranslations) {
+        downloadedTranslations.find { it.code == selectedCode }?.language ?: "English"
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
@@ -194,7 +193,7 @@ fun HomeScreen(
                 item {
                     HomeHeader(
                         isDownloading = isDownloading,
-                        selectedName = allTranslations.find { it.code == selectedCode }?.name ?: strings.selectBible,
+                        selectedName = downloadedTranslations.find { it.code == selectedCode }?.name ?: strings.selectBible,
                         isToday = isToday,
                         strings = strings,
                         displayDate = displayDate,

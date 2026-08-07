@@ -159,7 +159,7 @@ fun SettingsScreen(
                     }
                 }
 
-                if (selectedTabIndex != 0) {
+                if (selectedTabIndex > 1) {
                     SettingsFooter(strings = strings)
                 }
             }
