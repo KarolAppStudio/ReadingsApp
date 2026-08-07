@@ -1,8 +1,7 @@
 package com.karol.readingsapp.feature.settings.ui
 
 import android.content.Intent
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -293,15 +292,15 @@ fun DownloadSettings(
     onDownloadClick: (String, String) -> Unit,
     onRefreshClick: () -> Unit,
 ) {
-    val rotation = remember { androidx.compose.animation.core.Animatable(0f) }
+    val rotation = remember { Animatable(0f) }
 
     LaunchedEffect(isRefreshing) {
         if (isRefreshing) {
             rotation.animateTo(
                 targetValue = rotation.value + 360f,
-                animationSpec = androidx.compose.animation.core.infiniteRepeatable(
-                    animation = androidx.compose.animation.core.tween(1000, easing = androidx.compose.animation.core.LinearEasing),
-                    repeatMode = androidx.compose.animation.core.RepeatMode.Restart
+                animationSpec = infiniteRepeatable(
+                    animation = tween(1000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart
                 )
             )
         } else {
@@ -404,7 +403,7 @@ fun DownloadSettings(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             LinearProgressIndicator(
-                                progress = progress,
+                                progress = { progress },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(4.dp)
