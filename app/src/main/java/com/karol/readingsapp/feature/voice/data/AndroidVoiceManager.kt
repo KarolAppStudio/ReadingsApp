@@ -42,7 +42,7 @@ class AndroidVoiceManager(
     private var currentChunkIndex: Int = 0
     private var nextWordOffsetInCurrentChunk: Int = 0
 
-    private val priorityLanguages = setOf("en", "hi", "bn", "kn", "ml", "ta", "te")
+    private val priorityLanguages = setOf("en", "hi", "bn", "kn", "ml", "ta", "te", "lus")
 
     init {
         initializeTTS()

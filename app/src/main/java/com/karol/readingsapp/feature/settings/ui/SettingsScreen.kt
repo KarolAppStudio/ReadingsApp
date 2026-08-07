@@ -5,6 +5,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.GenericShape
@@ -176,7 +177,7 @@ fun SettingsTopBar(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .height(40.dp),
+            .height(48.dp),
         color = MaterialTheme.colorScheme.background,
     ) {
         Box(
@@ -217,6 +218,7 @@ fun SettingsTabs(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy((-20).dp),
             verticalAlignment = Alignment.Bottom,
@@ -354,7 +356,7 @@ fun DownloadSettings(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = strings.refresh,
-                            fontSize = 12.sp,
+                            fontSize = (12 * AdaptiveDimens.fontScale).sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -392,7 +394,7 @@ fun DownloadSettings(
                         Text(
                             text = translation.language,
                             style = MaterialTheme.typography.bodySmall.copy(
-                                fontSize = 12.sp,
+                                fontSize = (12 * AdaptiveDimens.fontScale).sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             ),
                         )
@@ -427,13 +429,13 @@ fun DownloadSettings(
                                     text = statusText,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = 10.sp
+                                    fontSize = (10 * AdaptiveDimens.fontScale).sp
                                 )
                                 Text(
                                     text = "${(progress * 100).toInt()}%",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 10.sp
+                                    fontSize = (10 * AdaptiveDimens.fontScale).sp
                                 )
                             }
                         }
@@ -454,81 +456,80 @@ fun DownloadSettings(
                                 .padding(horizontal = 8.dp, vertical = 4.dp),
                         )
 
-                        Spacer(modifier = Modifier.width(8.dp))
+                        if (effectiveStatus != LanguageStatus.DOWNLOADING) {
+                            Spacer(modifier = Modifier.width(8.dp))
 
-                        Box(
-                            modifier = Modifier.width(160.dp),
-                            contentAlignment = Alignment.CenterEnd
-                        ) {
-                            when (effectiveStatus) {
-                                LanguageStatus.DOWNLOADED -> {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.End,
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text(
-                                            text = strings.installed,
-                                            color = Color(0xFF2E7D32), // Dark Green
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(end = 8.dp),
-                                            textAlign = TextAlign.End
-                                        )
+                            Box(
+                                modifier = Modifier.widthIn(min = 100.dp, max = 160.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                when (effectiveStatus) {
+                                    LanguageStatus.DOWNLOADED -> {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.End,
+                                            modifier = Modifier.wrapContentWidth()
+                                        ) {
+                                            Text(
+                                                text = strings.installed,
+                                                color = Color(0xFF2E7D32), // Dark Green
+                                                fontSize = (12 * AdaptiveDimens.fontScale).sp,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(end = 8.dp),
+                                                textAlign = TextAlign.End
+                                            )
 
-                                        if (translation.code != "ENG" && translation.code != "MAL") {
-                                            Button(
-                                                onClick = {
-                                                    onRemoveClick(
-                                                        translation.language,
-                                                        translation.code
+                                            if (translation.code != "ENG" && translation.code != "MAL") {
+                                                Button(
+                                                    onClick = {
+                                                        onRemoveClick(
+                                                            translation.language,
+                                                            translation.code
+                                                        )
+                                                    },
+                                                    contentPadding = PaddingValues(
+                                                        horizontal = 8.dp,
+                                                        vertical = 0.dp
+                                                    ),
+                                                    modifier = Modifier.height(28.dp),
+                                                    shape = RoundedCornerShape(4.dp),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                                                     )
-                                                },
-                                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-                                                modifier = Modifier.height(28.dp),
-                                                shape = RoundedCornerShape(4.dp),
-                                                colors = ButtonDefaults.buttonColors(
-                                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                                )
-                                            ) {
-                                                Text(
-                                                    text = "Remove",
-                                                    fontSize = 10.sp,
-                                                    fontWeight = FontWeight.Bold
-                                                )
+                                                ) {
+                                                    Text(
+                                                        text = "Remove",
+                                                        fontSize = (10 * AdaptiveDimens.fontScale).sp,
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                }
                                             }
                                         }
                                     }
-                                }
 
-                                LanguageStatus.DOWNLOADING -> {
-                                    // Handled by the progress bar Column above
-                                }
-
-                                else -> {
-                                    TextButton(
-                                        onClick = {
-                                            onDownloadClick(
-                                                translation.language,
-                                                translation.code
+                                    else -> {
+                                        TextButton(
+                                            onClick = {
+                                                onDownloadClick(
+                                                    translation.language,
+                                                    translation.code
+                                                )
+                                            },
+                                            contentPadding = PaddingValues(
+                                                horizontal = 8.dp,
+                                                vertical = 4.dp
+                                            ),
+                                            modifier = Modifier
+                                                .height(32.dp)
+                                        ) {
+                                            Text(
+                                                text = strings.download,
+                                                fontSize = (12 * AdaptiveDimens.fontScale).sp,
+                                                fontWeight = FontWeight.Bold,
+                                                textAlign = TextAlign.End
                                             )
-                                        },
-                                        contentPadding = PaddingValues(
-                                            horizontal = 8.dp,
-                                            vertical = 4.dp
-                                        ),
-                                        modifier = Modifier
-                                            .height(32.dp)
-                                            .fillMaxWidth()
-                                    ) {
-                                        Text(
-                                            text = strings.download,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.fillMaxWidth(),
-                                            textAlign = TextAlign.End
-                                        )
+                                        }
                                     }
                                 }
                             }
@@ -764,7 +765,7 @@ private fun SettingsFooter(strings: LocalizedStrings) {
             text = strings.developedBy,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-            fontSize = 10.sp,
+            fontSize = (10 * AdaptiveDimens.fontScale).sp,
             textAlign = TextAlign.Center,
         )
     }

@@ -212,6 +212,13 @@ class ReadingRepository(
             "2 Thesselonians" to 52,
             "1 Thess." to 51,
             "2 Thess." to 52,
+            "Nehem." to 15,
+            "Lament." to 24,
+            "Habak." to 34,
+            "Zephan." to 35,
+            "Ephes." to 48,
+            "Philip." to 49,
+            "Psalm" to 18,
         )
 
     private val sortedBookNames = bookNameToId.keys.sortedByDescending { it.length }

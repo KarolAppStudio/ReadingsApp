@@ -122,6 +122,7 @@ class ReadingViewModel(
             "Malayalam" -> Locale.forLanguageTag("ml-IN")
             "Tamil" -> Locale.forLanguageTag("ta-IN")
             "Telugu" -> Locale.forLanguageTag("te-IN")
+            "Mizo" -> Locale.forLanguageTag("lus-IN")
             else -> null
         }
         locale?.let {
@@ -140,7 +141,7 @@ class ReadingViewModel(
                 _remoteTranslations.value = remote
             }
             if (updateDb) {
-                loadTranslations()
+                loadTranslations(triggerRepair = false)
             }
             _isRefreshing.value = false
         }
@@ -160,7 +161,7 @@ class ReadingViewModel(
         chapter: Int,
     ): Int = repository.getVerseCount(bookId, chapter)
 
-    private fun loadTranslations() {
+    private fun loadTranslations(triggerRepair: Boolean = true) {
         viewModelScope.launch {
             val currentCode = _selectedTranslationCode.value
             _isCurrentTranslationComplete.value = repository.isTranslationComplete(currentCode)
@@ -193,7 +194,9 @@ class ReadingViewModel(
                 val allAssetsPresent = defaultLanguages.all { languageService.hasAsset(it) }
                 
                 // If assets are missing, we MUST allow network even on first run to have a working app
-                startBatchDownload(defaultLanguages, allowNetwork = allAssetsPresent.not())
+                if (triggerRepair) {
+                    startBatchDownload(defaultLanguages, allowNetwork = allAssetsPresent.not())
+                }
                 
                 setTheme(AppTheme.SKY_BLUE)
                 prefs.edit { putBoolean("is_first_run", false) }
@@ -213,10 +216,10 @@ class ReadingViewModel(
                     currentStatus[lang] != LanguageStatus.DOWNLOADING
                 }
 
-                if (actuallyIncomplete.isNotEmpty()) {
+                if (triggerRepair && actuallyIncomplete.isNotEmpty()) {
                     // If they are missing or incomplete after first run, we can try to repair them (allowing network now if necessary)
                     startBatchDownload(actuallyIncomplete, force = true)
-                } else {
+                } else if (triggerRepair) {
                     // Ensure default languages are eventually marked as downloaded if they weren't finished
                     val defaultLanguages = listOf("English", "Malayalam")
                     val missingDefaults = defaultLanguages.filter { lang ->
@@ -230,9 +233,11 @@ class ReadingViewModel(
                 }
             }
 
-            allTranslations.find { it.code == _selectedTranslationCode.value }?.let {
-                if (statusMap[it.language] != LanguageStatus.DOWNLOADED) {
-                    languageService.downloadLanguageScript(it.language)
+            if (triggerRepair) {
+                allTranslations.find { it.code == _selectedTranslationCode.value }?.let {
+                    if (statusMap[it.language] != LanguageStatus.DOWNLOADED) {
+                        languageService.downloadLanguageScript(it.language)
+                    }
                 }
             }
         }

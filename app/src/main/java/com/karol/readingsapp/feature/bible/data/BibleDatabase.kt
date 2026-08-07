@@ -124,11 +124,10 @@ abstract class BibleDatabase : RoomDatabase() {
                 arrayOf("MAL", "Malayalam", "Malayalam Bible"),
                 arrayOf("TAM", "Tamil", "Tamil Bible"),
                 arrayOf("TEL", "Telugu", "Telugu Bible"),
+                arrayOf("MIZO", "Mizo", "Mizo Bible"),
             )
             db.beginTransaction()
             try {
-                db.execSQL("DELETE FROM translations WHERE code = 'MIZO'")
-                db.execSQL("DELETE FROM verses WHERE translation_code = 'MIZO'")
                 for (t in translations) {
                     db.execSQL(
                         "INSERT OR IGNORE INTO translations (code, language, name) VALUES (?, ?, ?)",
