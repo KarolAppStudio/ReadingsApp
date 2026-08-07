@@ -62,9 +62,13 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
         // Load persisted download status
         val downloadedLanguages = prefs.all.keys.filter { 
             it != "is_first_run" && it != "version" && prefs.all[it] is Boolean && prefs.getBoolean(it, false) 
-        }
-        val statusMap = downloadedLanguages.associateWith { LanguageStatus.DOWNLOADED }.toMutableMap()
+        }.toMutableSet()
+        
+        // English and Malayalam are pre-included in bibles.db asset
+        downloadedLanguages.add("English")
+        downloadedLanguages.add("Malayalam")
 
+        val statusMap = downloadedLanguages.associateWith { LanguageStatus.DOWNLOADED }.toMutableMap()
         _downloadStatus.value = statusMap
     }
 
@@ -198,7 +202,6 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
         // Try reading from assets first (included in APK) or fallback to network
         jsonString?.let {
             if (processJson(it, code)) return@withContext true
-            android.util.Log.w("LanguageService", "Asset for $code found but failed to process (might be LFS pointer). Falling back to network.")
         }
 
         if (!allowNetwork) return@withContext false
@@ -428,20 +431,14 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
     }
 
     fun hasAsset(language: String): Boolean {
+        // English and Malayalam are now pre-included in the bibles.db asset
+        if (language == "English" || language == "Malayalam") return true
+
         val code = getLanguageCode(language)
         return try {
             val inputStream = context.assets.open("bibles/$code.json")
-            val buffer = ByteArray(100)
-            val read = inputStream.read(buffer)
             inputStream.close()
-
-            if (read > 0) {
-                val content = String(buffer, 0, read)
-                // Check if it's a Git LFS pointer
-                !content.startsWith("version https://git-lfs.github.com/spec/v1")
-            } else {
-                false
-            }
+            true
         } catch (_: Exception) {
             false
         }

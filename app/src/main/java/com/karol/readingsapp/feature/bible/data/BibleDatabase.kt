@@ -29,27 +29,14 @@ abstract class BibleDatabase : RoomDatabase() {
                 context.deleteDatabase("bibles.db")
                 dbFile.parentFile?.mkdirs()
                 
-                var isAssetValid = false
                 try {
-                    context.assets.open("bibles.db").use { input ->
-                        val header = ByteArray(16)
-                        val bytesRead = input.read(header)
-                        if (bytesRead == 16 && String(header).startsWith("SQLite format 3")) {
-                            isAssetValid = true
-                        }
-                    }
-                } catch (e: Exception) {
-                    android.util.Log.e("BibleDatabase", "Error checking bibles.db asset", e)
-                }
-
-                if (isAssetValid) {
                     context.assets.open("bibles.db").use { input ->
                         dbFile.outputStream().use { output ->
                             input.copyTo(output)
                         }
                     }
-                } else {
-                    android.util.Log.w("BibleDatabase", "bibles.db asset is invalid or LFS pointer, skipping copy")
+                } catch (e: Exception) {
+                    android.util.Log.e("BibleDatabase", "Error copying bibles.db asset", e)
                 }
                 prefs.edit { putInt("version", ASSET_VERSION) }
             }
