@@ -266,6 +266,14 @@ class ReadingViewModel(
         }
     }
 
+    fun removeTranslation(language: String, code: String) {
+        viewModelScope.launch {
+            languageService.removeLanguage(language, code)
+            loadTranslations()
+            loadAllBooks() // Refresh book list in case a translation was removed
+        }
+    }
+
     fun setTheme(theme: AppTheme) {
         _appTheme.value = theme
         prefs.edit { putString("app_theme", theme.name) }

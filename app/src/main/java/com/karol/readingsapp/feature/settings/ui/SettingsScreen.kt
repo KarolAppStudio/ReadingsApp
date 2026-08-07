@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
@@ -143,6 +144,7 @@ fun SettingsScreen(
                                 individualProgress = individualProgress,
                                 isRefreshing = isRefreshing,
                                 onDownloadClick = { language, code -> viewModel.startBatchDownload(listOf(language), listOf(code)) },
+                                onRemoveClick = { language, code -> viewModel.removeTranslation(language, code) },
                                 onRefreshClick = { viewModel.refreshRemoteTranslations(updateDb = true) }
                             )
 
@@ -290,6 +292,7 @@ fun DownloadSettings(
     individualProgress: Map<String, Float>,
     isRefreshing: Boolean,
     onDownloadClick: (String, String) -> Unit,
+    onRemoveClick: (String, String) -> Unit,
     onRefreshClick: () -> Unit,
 ) {
     val rotation = remember { Animatable(0f) }
@@ -454,21 +457,49 @@ fun DownloadSettings(
                         Spacer(modifier = Modifier.width(8.dp))
 
                         Box(
-                            modifier = Modifier.width(120.dp),
+                            modifier = Modifier.width(160.dp),
                             contentAlignment = Alignment.CenterEnd
                         ) {
                             when (effectiveStatus) {
                                 LanguageStatus.DOWNLOADED -> {
-                                    Text(
-                                        text = strings.installed,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(end = 8.dp),
-                                        textAlign = TextAlign.End
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.End,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text(
+                                            text = strings.installed,
+                                            color = Color(0xFF2E7D32), // Dark Green
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(end = 8.dp),
+                                            textAlign = TextAlign.End
+                                        )
+
+                                        if (translation.code != "ENG" && translation.code != "MAL") {
+                                            Button(
+                                                onClick = {
+                                                    onRemoveClick(
+                                                        translation.language,
+                                                        translation.code
+                                                    )
+                                                },
+                                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                                                modifier = Modifier.height(28.dp),
+                                                shape = RoundedCornerShape(4.dp),
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                                )
+                                            ) {
+                                                Text(
+                                                    text = "Remove",
+                                                    fontSize = 10.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
 
                                 LanguageStatus.DOWNLOADING -> {

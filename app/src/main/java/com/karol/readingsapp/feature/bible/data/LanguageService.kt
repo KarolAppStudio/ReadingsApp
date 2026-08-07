@@ -371,6 +371,22 @@ class LanguageService(private val context: Context, private val bibleDao: BibleD
         _downloadStatus.value = currentMap
     }
 
+    suspend fun removeLanguage(language: String, code: String) = withContext(Dispatchers.IO) {
+        // Prevent removing core translations if needed (though English/Malayalam logic is elsewhere)
+        if (code == "ENG" || code == "MAL") return@withContext
+
+        bibleDao.deleteVersesByTranslation(code)
+        prefs.edit { remove(language) }
+        
+        val currentMap = _downloadStatus.value.toMutableMap()
+        currentMap.remove(language)
+        _downloadStatus.value = currentMap
+        
+        val progressMap = _individualProgress.value.toMutableMap()
+        progressMap.remove(language)
+        _individualProgress.value = progressMap
+    }
+
     fun hasAsset(language: String): Boolean {
         val code = getLanguageCode(language)
         return try {
