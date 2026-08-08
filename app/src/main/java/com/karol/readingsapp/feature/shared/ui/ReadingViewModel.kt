@@ -43,7 +43,7 @@ class ReadingViewModel(
     private val _remoteTranslations = MutableStateFlow<List<TranslationEntity>>(emptyList())
     val remoteTranslations = _remoteTranslations.asStateFlow()
 
-    private val _isRefreshing = MutableStateFlow(false)
+    private val _isRefreshing = MutableStateFlow(value = false)
     val isRefreshing = _isRefreshing.asStateFlow()
 
     private val _allBooks = MutableStateFlow<List<BookEntity>>(emptyList())
@@ -55,7 +55,7 @@ class ReadingViewModel(
     private val _chapterVerses = MutableStateFlow<List<TargetReadingDetails>>(emptyList())
     val chapterVerses = _chapterVerses.asStateFlow()
 
-    private val _isCurrentTranslationComplete = MutableStateFlow(true)
+    private val _isCurrentTranslationComplete = MutableStateFlow(value = true)
     val isCurrentTranslationComplete = _isCurrentTranslationComplete.asStateFlow()
 
     private val _secondChapterVerses = MutableStateFlow<List<TargetReadingDetails>>(emptyList())
@@ -98,7 +98,7 @@ class ReadingViewModel(
                 // Check for newly downloaded languages to ensure TTS data is also available
                 var newlyDownloadedDetected = false
                 currentStatus.forEach { (lang, status) ->
-                    if (status == LanguageStatus.DOWNLOADED && previousStatus[lang] != LanguageStatus.DOWNLOADED) {
+                    if ((status == LanguageStatus.DOWNLOADED) && (previousStatus[lang] != LanguageStatus.DOWNLOADED)) {
                         checkTTSForLanguage(lang)
                         newlyDownloadedDetected = true
                     }
@@ -173,8 +173,8 @@ class ReadingViewModel(
 
             val downloadedFromDb = repository.getDownloadedTranslations().map {
                 val nativeName = LanguageService.getNativeName(it.language, it.name)
-                val displayLanguage = if (it.language == "English-ASV" ||
-                    it.name == "English-ASV"
+                val displayLanguage = if ((it.language == "English-ASV") ||
+                    (it.name == "English-ASV")
                 ) {
                     "English"
                 } else {
@@ -209,9 +209,12 @@ class ReadingViewModel(
             } else {
                 // Check if default translations are actually complete
                 val defaultCodes = listOf("ENG", "MAL")
-                val incompleteDefaults = defaultCodes.filter { code ->
-                    !repository.isTranslationComplete(code)
-                }.map { code -> if (code == "ENG") "English" else "Malayalam" }
+                val incompleteDefaults = mutableListOf<String>()
+                for (code in defaultCodes) {
+                    if (!repository.isTranslationComplete(code)) {
+                        incompleteDefaults.add(if (code == "ENG") "English" else "Malayalam")
+                    }
+                }
 
                 // Only trigger repair if not already downloading
                 val currentStatus = languageService.downloadStatus.value

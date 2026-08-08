@@ -62,8 +62,8 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
 
     init {
         // Load persisted download status
-        val downloadedLanguages = prefs.all.keys.filter {
-            it != "is_first_run" && it != "version" && prefs.all[it] is Boolean && prefs.getBoolean(it, false)
+        val downloadedLanguages = prefs.all.keys.asSequence().filter {
+            (it != "is_first_run") && (it != "version") && (prefs.all[it] is Boolean) && prefs.getBoolean(it, false)
         }.toMutableSet()
 
         // English and Malayalam are pre-included in bibles.db asset

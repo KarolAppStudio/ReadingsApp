@@ -520,7 +520,7 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
 
     override fun checkAndInstallVoices() {
         val now = System.currentTimeMillis()
-        if (now - lastInstallRequestTime < 5000) return
+        if ((now - lastInstallRequestTime) < 5000) return
         lastInstallRequestTime = now
         try {
             val intent = android.content.Intent()
@@ -534,7 +534,7 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
 
     override fun ensureLanguageInstalled(locale: Locale) {
         val engine = tts
-        if (engine == null || _ttsState.value == TTSState.Initializing) {
+        if ((engine == null) || (_ttsState.value == TTSState.Initializing)) {
             Log.d("AndroidVoiceManager", "TTS not ready, queuing language check for $locale")
             pendingLanguageChecks.add(locale)
             return

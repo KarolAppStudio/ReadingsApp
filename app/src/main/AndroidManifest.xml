@@ -7,7 +7,8 @@
     <!-- Justification for Foreground Service: Audio playback for Bible verses -->
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE"
-        tools:ignore="ForegroundServiceType" />
+        tools:ignore="ForegroundServiceType"
+        tools:justification="Audio playback for Bible verses" />
     <uses-permission
         android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
         tools:targetApi="34" />

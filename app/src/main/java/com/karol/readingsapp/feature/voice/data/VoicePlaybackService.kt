@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.karol.readingsapp.feature.voice.data
 
 import android.app.Notification
@@ -11,6 +13,7 @@ import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.media.app.NotificationCompat.MediaStyle
 import com.karol.readingsapp.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -95,6 +98,7 @@ class VoicePlaybackService : Service() {
         }.launchIn(serviceScope)
     }
 
+    @Suppress("DEPRECATION")
     private fun createNotification(isPlaying: Boolean): Notification {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -124,7 +128,7 @@ class VoicePlaybackService : Service() {
             )
             .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop", stopPendingIntent)
             .setStyle(
-                androidx.media.app.NotificationCompat.MediaStyle()
+                MediaStyle()
                     .setShowActionsInCompactView(0, 1),
             )
 

@@ -25,7 +25,7 @@ tasks.register("installGitHooks") {
                 exit $status
             fi
             git add .
-            """.trimIndent()
+            """.trimIndent(),
         )
         preCommit.setExecutable(true)
         println("Git pre-commit hook installed at ${preCommit.path}")

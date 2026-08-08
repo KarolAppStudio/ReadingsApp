@@ -63,10 +63,8 @@ fun BibleReaderScreen(
     val allBooks by viewModel.allBooks.collectAsState()
 
     val effectiveAllChapters = remember(allChapters, bookId, chapter) {
-        if (allChapters.isEmpty()) {
+        allChapters.ifEmpty {
             listOf(ChapterReference(bookId, chapter))
-        } else {
-            allChapters
         }
     }
 
@@ -597,7 +595,7 @@ fun ChapterPage(
                                 ) {
                                     AutoResizingText(strings.retry, fontSize = AdaptiveDimens.smallFontSize)
                                 }
-                            } else if (status == com.karol.readingsapp.feature.bible.data.LanguageStatus.DOWNLOADED) {
+                            } else if (status == LanguageStatus.DOWNLOADED) {
                                 AutoResizingText(
                                     text = strings.contentNotFound,
                                     fontSize = AdaptiveDimens.bodyFontSize,
