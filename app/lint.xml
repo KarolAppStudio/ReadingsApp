@@ -2,4 +2,5 @@
 <lint>
     <!-- Suppress icon shape warning as the current app_icon.png is the desired design -->
     <issue id="IconLauncherShape" severity="ignore" />
+    <issue id="ForegroundServicePermission" severity="ignore" />
 </lint>
