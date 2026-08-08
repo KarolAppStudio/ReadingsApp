@@ -53,13 +53,12 @@ fun AboutContent(strings: LocalizedStrings, modifier: Modifier = Modifier) {
             Column(
                 modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
             ) {
-                Text(
+                AutoResizingText(
                     text = strings.developerNoteTitle,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = AdaptiveDimens.bodyFontSize,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    ),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = AdaptiveDimens.bodyFontSize,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
                 Text(
@@ -84,13 +83,12 @@ fun AboutContent(strings: LocalizedStrings, modifier: Modifier = Modifier) {
             Column(
                 modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
             ) {
-                Text(
+                AutoResizingText(
                     text = strings.copyrightTitle,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = AdaptiveDimens.bodyFontSize,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    ),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = AdaptiveDimens.bodyFontSize,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
                 Text(

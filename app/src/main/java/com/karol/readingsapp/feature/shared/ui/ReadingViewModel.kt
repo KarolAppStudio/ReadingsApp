@@ -220,7 +220,8 @@ class ReadingViewModel(
                 }
 
                 if (triggerRepair && actuallyIncomplete.isNotEmpty()) {
-                    // If they are missing or incomplete after first run, we can try to repair them (allowing network now if necessary)
+                    // If they are missing or incomplete after first run, we can try to repair them
+                    // (allowing network now if necessary)
                     startBatchDownload(actuallyIncomplete, force = true)
                 } else if (triggerRepair) {
                     // Ensure default languages are eventually marked as downloaded if they weren't finished

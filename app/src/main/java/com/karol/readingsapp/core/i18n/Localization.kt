@@ -655,10 +655,13 @@ object Localization {
             chapter = "Chapter",
             verse = "Verse",
             developerNoteTitle = "Developer Note",
-            developerNoteContent = "Our deepest gratitude to Our Almighty LORD for this opportunity to create something meaningful for the community.",
-            appDescription = "A simple app to help you follow your daily Bible reading plan with multiple translations support.",
+            developerNoteContent = "Our deepest gratitude to Our Almighty LORD for this opportunity to create " +
+                "something meaningful for the community.",
+            appDescription = "A simple app to help you follow your daily Bible reading plan with " +
+                "multiple translations support.",
             copyrightTitle = "Copyright Information",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
+                "publishers and copyright holders. All rights remain with their respective owners.",
             developedBy = "Developed by Karol",
             theme = "Theme",
             themeSkyBlue = "Sky Blue",
@@ -713,10 +716,14 @@ object Localization {
             chapter = "অধ্যায়",
             verse = "পদ",
             developerNoteTitle = "ডেভেলপার নোট",
-            developerNoteContent = "সমাজের জন্য অর্থবহ কিছু তৈরি করার এই সুযোগ দেওয়ার জন্য আমরা সর্বশক্তিমান প্রভুর প্রতি আমাদের গভীর কৃতজ্ঞতা প্রকাশ করছি।",
-            appDescription = "একাধিক অনুবাদ সমর্থন সহ আপনার প্রতিদিনের বাইবেল পড়ার পরিকল্পনা অনুসরণ করতে সহায়তা করার জন্য একটি সহজ অ্যাপ।",
+            developerNoteContent =
+            "সমাজের জন্য অর্থবহ কিছু তৈরি করার এই সুযোগ দেওয়ার জন্য আমরা সর্বশক্তিমান প্রভুর প্রতি " +
+                "আমাদের গভীর কৃতজ্ঞতা প্রকাশ করছি।",
+            appDescription = "একাধিক অনুবাদ সমর্থন সহ আপনার প্রতিদিনের বাইবেল পড়ার পরিকল্পনা অনুসরণ করতে " +
+                "সহায়তা করার জন্য একটি সহজ অ্যাপ।",
             copyrightTitle = "কপিরাইট তথ্য",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
+                "publishers and copyright holders. All rights remain with their respective owners.",
             developedBy = "Karol দ্বারা বিকশিত",
             theme = "থিম",
             themeSkyBlue = "আকাশী নীল",
@@ -771,10 +778,13 @@ object Localization {
             chapter = "अध्याय",
             verse = "पद",
             developerNoteTitle = "डेवलपर नोट",
-            developerNoteContent = "समुदाय के लिए कुछ सार्थक बनाने का यह अवसर देने के लिए हम अपने सर्वशक्तिमान प्रभु के प्रति अत्यंत आभारी हैं।",
-            appDescription = "एकाधिक अनुवादों के समर्थन के साथ आपकी दैनिक बाइबिल पढ़ने की योजना का पालन करने में आपकी सहायता करने के लिए एक सरल ऐप।",
+            developerNoteContent = "समुदाय के लिए कुछ सार्थक बनाने का यह अवसर देने के लिए हम अपने " +
+                "सर्वशक्तिमान प्रभु के प्रति अत्यंत आभारी हैं।",
+            appDescription = "एकाधिक अनुवादों के समर्थन के साथ आपकी दैनिक बाइबिल पढ़ने की योजना का पालन " +
+                "करने में आपकी सहायता करने के लिए एक सरल ऐप।",
             copyrightTitle = "कॉपीराइट जानकारी",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
+                "publishers and copyright holders. All rights remain with their respective owners.",
             developedBy = "Karol द्वारा विकसित",
             theme = "विषय",
             themeSkyBlue = "आसमान नीला",
@@ -829,10 +839,13 @@ object Localization {
             chapter = "ಅಧ್ಯಾಯ",
             verse = "ವಚನ",
             developerNoteTitle = "ಡೆವಲಪರ್ ಟಿಪ್ಪಣಿ",
-            developerNoteContent = "ಸಮುದಾಯಕ್ಕಾಗಿ ಅರ್ಥಪೂರ್ಣವಾದುದನ್ನು ಸೃಷ್ಟಿಸಲು ನಮಗೆ ಈ ಅವಕಾಶ ನೀಡಿದ ಆ ಸರ್ವಶಕ್ತ ದೇವರಿಗೆ ನಮ್ಮ ಅನಂತ ಕೃತಜ್ಞತೆಗಳು.",
-            appDescription = "ಬಹು ಅನುವಾದಗಳ ಬೆಂಬಲದೊಂದಿಗೆ ನಿಮ್ಮ ದೈನಂದಿನ ಬೈಬಲ್ ಓದುವ ಯೋಜನೆಯನ್ನು ಅನುಸರಿಸಲು ಸಹಾಯ ಮಾಡುವ ಸರಳ ಅಪ್ಲಿಕೇಶನ್.",
+            developerNoteContent = "ಸಮುದಾಯಕ್ಕಾಗಿ ಅರ್ಥಪೂರ್ಣವಾದುದನ್ನು ಸೃಷ್ಟಿಸಲು ನಮಗೆ ಈ ಅವಕಾಶ ನೀಡಿದ ಆ " +
+                "ಸರ್ವಶಕ್ತ ದೇವರಿಗೆ ನಮ್ಮ ಅನಂತ ಕೃತಜ್ಞತೆಗಳು.",
+            appDescription = "ಬಹು ಅನುವಾದಗಳ ಬೆಂಬಲದೊಂದಿಗೆ ನಿಮ್ಮ ದೈನಂದಿನ ಬೈಬಲ್ ಓದುವ ಯೋಜನೆಯನ್ನು ಅನುಸರಿಸಲು ಸಹಾಯ " +
+                "ಮಾಡುವ ಸರಳ ಅಪ್ಲಿಕೇಶನ್.",
             copyrightTitle = "ಕೃತಿಸ್ವಾಮ್ಯ ಮಾಹಿತಿ",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
+                "publishers and copyright holders. All rights remain with their respective owners.",
             developedBy = "Karol ಅವರಿಂದ ಅಭಿವೃದ್ಧಿಪಡಿಸಲಾಗಿದೆ",
             theme = "ಥೀಮ್",
             themeSkyBlue = "ಆಕಾಶ ನೀಲಿ",
@@ -887,10 +900,13 @@ object Localization {
             chapter = "അദ്ധ്യായം",
             verse = "വാക്യം",
             developerNoteTitle = "ഡെവലപ്പർ കുറിപ്പ്",
-            developerNoteContent = "സമൂഹത്തിനായി അർത്ഥവത്തായ ഒന്ന് സൃഷ്ടിക്കാൻ ഞങ്ങൾക്ക് ഈ അവസരം നൽകിയ സർവ്വശക്തനായ ദൈവത്തോട് ഞങ്ങൾ അങ്ങേയറ്റം കടപ്പെട്ടിരിക്കുന്നു.",
-            appDescription = "ഒന്നിലധികം വിവർത്തനങ്ങളുടെ പിന്തുണയോടെ നിങ്ങളുടെ ദൈനംദിന ബൈബിൾ വായനാ പദ്ധതി പിന്തുടരാൻ സഹായിക്കുന്ന ലളിതമായ ആപ്പ്.",
+            developerNoteContent = "സമൂഹത്തിനായി അർത്ഥവത്തായ ഒന്ന് സൃഷ്ടിക്കാൻ ഞങ്ങൾക്ക് ഈ അവസരം നൽകിയ " +
+                "സർവ്വശക്തനായ ദൈവത്തോട് ഞങ്ങൾ അങ്ങേയറ്റം കടപ്പെട്ടിരിക്കുന്നു.",
+            appDescription = "ഒന്നിലധികം വിവർത്തനങ്ങളുടെ പിന്തുണയോടെ നിങ്ങളുടെ ദൈനംദിന ബൈബിൾ വായനാ " +
+                "പദ്ധതി പിന്തുടരാൻ സഹായിക്കുന്ന ലളിതമായ ആപ്പ്.",
             copyrightTitle = "പകർപ്പവകാശ വിവരം",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
+                "publishers and copyright holders. All rights remain with their respective owners.",
             developedBy = "Karol വികസിപ്പിച്ചത്",
             theme = "തീം",
             themeSkyBlue = "സ്കൈ ബ്ലൂ",
@@ -945,10 +961,13 @@ object Localization {
             chapter = "அதிகாரம்",
             verse = "வசனம்",
             developerNoteTitle = "டெவலப்பர் குறிப்பு",
-            developerNoteContent = "சமுதாயத்திற்காக அர்த்தமுள்ள ஒன்றை உருவாக்குவதற்கான இந்த வாய்ப்பை வழங்கிய இறைவனுக்கு எங்களது மனமார்ந்த நன்றியைத் தெரிவித்துக் கொள்கிறோம்.",
-            appDescription = "பல மொழிபெயர்ப்பு ஆதரவுடன் உங்களின் தினசரி பைபிள் வாசிப்புத் திட்டத்தைப் பின்பற்ற உதவும் எளிய செயலி.",
+            developerNoteContent = "சமுதாயத்திற்காக அர்த்தமுள்ள ஒன்றை உருவாக்குவதற்கான এই வாய்ப்பை வழங்கிய " +
+                "இறைவனுக்கு எங்களது மனமார்ந்த நன்றியைத் தெரிவித்துக் கொள்கிறோம்.",
+            appDescription = "பல மொழிபெயர்ப்பு ஆதரவுடன் உங்களின் தினசரி பைபிள் வாசிப்புத் திட்டத்தைப் பின்பற்ற " +
+                "உதவும் எளிய செயலி.",
             copyrightTitle = "பதிப்புரிமை தகவல்",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
+                "publishers and copyright holders. All rights remain with their respective owners.",
             developedBy = "Karol உருவாக்கியது",
             theme = "தீம்",
             themeSkyBlue = "ஸ்கை ப்ளூ",
@@ -1003,10 +1022,13 @@ object Localization {
             chapter = "అధ్యాయం",
             verse = "వచనము",
             developerNoteTitle = "డెవలపర్ గమనిక",
-            developerNoteContent = "సమాజానికి అర్థవంతమైనదాన్ని సృష్టించే ఈ అవకాశాన్ని మాకు ప్రసాదించిన ఆ సర్వశక్తిమంతుడైన ప్రభువుకు మా హృదయపూర్వక కృతజ్ఞతలు.",
-            appDescription = "బహుళ అనువాదాల మద్దతుతో మీ రోజువారీ బైబిల్ పఠన ప్రణాళికను అనుసరించడంలో మీకు సహాయపడే ఒక సాధారణ యాప్.",
+            developerNoteContent = "సమాజానికి అర్థవంతమైనదాన్ని సృష్టించే ఈ అవకాశాన్ని మాకు ప్రసాదించిన ఆ " +
+                "సర్వశక్తిమంతుడైన ప్రభువుకు మా హృదయపూర్వక కృతజ్ఞతలు.",
+            appDescription = "బహుళ అనువాదాల మద్దతుతో మీ రోజువారీ బైబిల్ పఠన ప్రణాళికను అనుసరించడంలో మీకు సహాయపడే " +
+                "ఒక సాధారణ యాప్.",
             copyrightTitle = "కాపీరైట్ సమాచారం",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
+                "publishers and copyright holders. All rights remain with their respective owners.",
             developedBy = "Karol అభివృద్ధి చేశారు",
             theme = "థీమ్",
             themeSkyBlue = "స్కై బ్లూ",
@@ -1061,10 +1083,12 @@ object Localization {
             chapter = "Bung",
             verse = "Chang",
             developerNoteTitle = "Developer Note",
-            developerNoteContent = "Kan Pathian Engkimtitia hnenah lawmthu kan hrilh a ni, he hna kan thawh theih avang hian.",
+            developerNoteContent = "Kan Pathian Engkimtitia hnenah lawmthu kan hrilh a ni, he hna kan thawh " +
+                "theih avang hian.",
             appDescription = "Ni tin Bible chhiar tana hmanraw awlsam tak.",
             copyrightTitle = "Copyright Chanchin",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
+                "publishers and copyright holders. All rights remain with their respective owners.",
             developedBy = "Karol-a siam",
             theme = "Mawi hnaihna",
             themeSkyBlue = "Vantlang Pawl",

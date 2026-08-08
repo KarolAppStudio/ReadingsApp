@@ -141,13 +141,19 @@ fun SettingsScreen(
 
                             1 -> DownloadSettings(
                                 strings = strings,
-                                translations = if (remoteTranslations.isNotEmpty()) remoteTranslations else translations,
+                                translations = if (remoteTranslations.isNotEmpty()) {
+                                    remoteTranslations
+                                } else {
+                                    translations
+                                },
                                 downloadStatus = downloadStatus,
                                 individualProgress = individualProgress,
                                 isRefreshing = isRefreshing,
-                                onDownloadClick = { language, code -> viewModel.startBatchDownload(listOf(language), listOf(code)) },
+                                onDownloadClick = { language, code ->
+                                    viewModel.startBatchDownload(listOf(language), listOf(code))
+                                },
                                 onRemoveClick = { language, code -> viewModel.removeTranslation(language, code) },
-                                onRefreshClick = { viewModel.refreshRemoteTranslations(updateDb = true) }
+                                onRefreshClick = { viewModel.refreshRemoteTranslations(updateDb = true) },
                             )
 
                             2 -> AboutSettings(
@@ -170,10 +176,7 @@ fun SettingsScreen(
 }
 
 @Composable
-fun SettingsTopBar(
-    strings: LocalizedStrings,
-    onHomeClick: () -> Unit,
-) {
+fun SettingsTopBar(strings: LocalizedStrings, onHomeClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -209,11 +212,7 @@ fun SettingsTopBar(
 }
 
 @Composable
-fun SettingsTabs(
-    tabs: List<String>,
-    selectedTabIndex: Int,
-    onTabSelected: (Int) -> Unit,
-) {
+fun SettingsTabs(tabs: List<String>, selectedTabIndex: Int, onTabSelected: (Int) -> Unit) {
     val r = with(LocalDensity.current) { 10.dp.toPx() }
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -306,8 +305,8 @@ fun DownloadSettings(
                 targetValue = rotation.value + 360f,
                 animationSpec = infiniteRepeatable(
                     animation = tween(1000, easing = LinearEasing),
-                    repeatMode = RepeatMode.Restart
-                )
+                    repeatMode = RepeatMode.Restart,
+                ),
             )
         } else {
             rotation.stop()
@@ -330,21 +329,19 @@ fun DownloadSettings(
                     .fillMaxWidth()
                     .padding(bottom = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
+                AutoResizingText(
                     text = strings.availableBibles,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = AdaptiveDimens.bodyFontSize,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = AdaptiveDimens.bodyFontSize,
+                    fontWeight = FontWeight.Bold,
                 )
                 TextButton(
                     onClick = onRefreshClick,
                     enabled = !isRefreshing,
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-                    modifier = Modifier.height(32.dp)
+                    modifier = Modifier.height(32.dp),
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -352,13 +349,13 @@ fun DownloadSettings(
                             contentDescription = null,
                             modifier = Modifier
                                 .size(16.dp)
-                                .rotate(rotation.value)
+                                .rotate(rotation.value),
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         AutoResizingText(
                             text = strings.refresh,
                             fontSize = (12 * AdaptiveDimens.fontScale).sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
                         )
                     }
                 }
@@ -402,7 +399,7 @@ fun DownloadSettings(
                             modifier = Modifier
                                 .weight(0.6f)
                                 .padding(horizontal = 8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             LinearProgressIndicator(
                                 progress = { progress },
@@ -420,19 +417,19 @@ fun DownloadSettings(
                             }
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(top = 2.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
                                 Text(
                                     text = statusText,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontSize = (10 * AdaptiveDimens.fontScale).sp
+                                    fontSize = (10 * AdaptiveDimens.fontScale).sp,
                                 )
                                 Text(
                                     text = "${(progress * 100).toInt()}%",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.primary,
-                                    fontSize = (10 * AdaptiveDimens.fontScale).sp
+                                    fontSize = (10 * AdaptiveDimens.fontScale).sp,
                                 )
                             }
                         }
@@ -458,14 +455,14 @@ fun DownloadSettings(
 
                             Box(
                                 modifier = Modifier.widthIn(min = 100.dp, max = 160.dp),
-                                contentAlignment = Alignment.CenterEnd
+                                contentAlignment = Alignment.CenterEnd,
                             ) {
                                 when (effectiveStatus) {
                                     LanguageStatus.DOWNLOADED -> {
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
                                             horizontalArrangement = Arrangement.End,
-                                            modifier = Modifier.wrapContentWidth()
+                                            modifier = Modifier.wrapContentWidth(),
                                         ) {
                                             AutoResizingText(
                                                 text = strings.installed,
@@ -473,7 +470,7 @@ fun DownloadSettings(
                                                 fontSize = (12 * AdaptiveDimens.fontScale).sp,
                                                 fontWeight = FontWeight.Bold,
                                                 modifier = Modifier.padding(end = 8.dp),
-                                                textAlign = TextAlign.End
+                                                textAlign = TextAlign.End,
                                             )
 
                                             if (translation.code != "ENG" && translation.code != "MAL") {
@@ -481,24 +478,24 @@ fun DownloadSettings(
                                                     onClick = {
                                                         onRemoveClick(
                                                             translation.language,
-                                                            translation.code
+                                                            translation.code,
                                                         )
                                                     },
                                                     contentPadding = PaddingValues(
                                                         horizontal = 8.dp,
-                                                        vertical = 0.dp
+                                                        vertical = 0.dp,
                                                     ),
                                                     modifier = Modifier.height(28.dp),
                                                     shape = RoundedCornerShape(4.dp),
                                                     colors = ButtonDefaults.buttonColors(
                                                         containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                                    )
+                                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                    ),
                                                 ) {
                                                     AutoResizingText(
                                                         text = "Remove",
                                                         fontSize = (10 * AdaptiveDimens.fontScale).sp,
-                                                        fontWeight = FontWeight.Bold
+                                                        fontWeight = FontWeight.Bold,
                                                     )
                                                 }
                                             }
@@ -510,21 +507,21 @@ fun DownloadSettings(
                                             onClick = {
                                                 onDownloadClick(
                                                     translation.language,
-                                                    translation.code
+                                                    translation.code,
                                                 )
                                             },
                                             contentPadding = PaddingValues(
                                                 horizontal = 8.dp,
-                                                vertical = 4.dp
+                                                vertical = 4.dp,
                                             ),
                                             modifier = Modifier
-                                                .height(32.dp)
+                                                .height(32.dp),
                                         ) {
                                             AutoResizingText(
                                                 text = strings.download,
                                                 fontSize = (12 * AdaptiveDimens.fontScale).sp,
                                                 fontWeight = FontWeight.Bold,
-                                                textAlign = TextAlign.End
+                                                textAlign = TextAlign.End,
                                             )
                                         }
                                     }
@@ -537,7 +534,7 @@ fun DownloadSettings(
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 4.dp),
                         thickness = 0.5.dp,
-                        color = MaterialTheme.colorScheme.outlineVariant
+                        color = MaterialTheme.colorScheme.outlineVariant,
                     )
                 }
             }
@@ -564,13 +561,11 @@ fun AppearanceSettings(
         Column(
             modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
         ) {
-            Text(
+            AutoResizingText(
                 text = strings.theme,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = AdaptiveDimens.bodyFontSize,
-                    color = MaterialTheme.colorScheme.onSurface,
-                ),
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = AdaptiveDimens.bodyFontSize,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp),
             )
 
@@ -627,18 +622,13 @@ fun AppearanceSettings(
     }
 }
 
-
 @Composable
-fun AboutSettings(
-    strings: LocalizedStrings,
-) {
+fun AboutSettings(strings: LocalizedStrings) {
     AboutContent(strings = strings)
 }
 
 @Composable
-fun ContactSettings(
-    strings: LocalizedStrings,
-) {
+fun ContactSettings(strings: LocalizedStrings) {
     var showFeedbackDialog by remember { mutableStateOf(value = false) }
     var showMessageSentPopup by remember { mutableStateOf(value = false) }
 
@@ -677,13 +667,11 @@ fun ContactSettings(
                 modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
                 horizontalAlignment = Alignment.Start,
             ) {
-                Text(
+                AutoResizingText(
                     text = strings.contact,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = AdaptiveDimens.bodyFontSize,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = AdaptiveDimens.bodyFontSize,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 12.dp),
@@ -727,13 +715,11 @@ fun ContactSettings(
                 modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text(
+                AutoResizingText(
                     text = strings.theTeam,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = AdaptiveDimens.bodyFontSize,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = AdaptiveDimens.bodyFontSize,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp),
                     textAlign = TextAlign.Center,
                 )
@@ -752,17 +738,15 @@ private fun SettingsFooter(strings: LocalizedStrings) {
             .fillMaxWidth()
             .padding(bottom = AdaptiveDimens.paddingMedium),
     ) {
-        Text(
+        AutoResizingText(
             text = strings.appTitle,
-            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-            fontWeight = FontWeight.SemiBold,
             fontSize = AdaptiveDimens.smallFontSize,
+            fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
         )
-        Text(
+        AutoResizingText(
             text = strings.developedBy,
-            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
             fontSize = (10 * AdaptiveDimens.fontScale).sp,
             textAlign = TextAlign.Center,
@@ -845,9 +829,7 @@ private fun ScrollingCredits() {
 }
 
 @Composable
-fun VoiceSettings(
-    voiceViewModel: VoiceViewModel,
-) {
+fun VoiceSettings(voiceViewModel: VoiceViewModel) {
     val availableVoices by voiceViewModel.filteredVoices.collectAsStateWithLifecycle()
     val selectedVoice by voiceViewModel.selectedVoice.collectAsStateWithLifecycle()
     var expanded by remember { mutableStateOf(value = false) }
@@ -872,13 +854,11 @@ fun VoiceSettings(
         Column(
             modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
         ) {
-            Text(
+            AutoResizingText(
                 text = "Voice Selection",
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = AdaptiveDimens.bodyFontSize,
-                    color = MaterialTheme.colorScheme.onSurface,
-                ),
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = AdaptiveDimens.bodyFontSize,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp),
             )
 
@@ -900,7 +880,7 @@ fun VoiceSettings(
                         AutoResizingText(
                             text = selectedVoiceName,
                             fontSize = AdaptiveDimens.smallFontSize,
-                            modifier = Modifier.weight(1f, fill = false)
+                            modifier = Modifier.weight(1f, fill = false),
                         )
                         Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                     }
@@ -945,7 +925,8 @@ fun VoiceSettings(
                                 val index = sameGenderVoices.indexOf(voice) + 1
                                 val indexLabel = if (sameGenderVoices.size > 1) " $index" else ""
 
-                                val displayName = "  $genderLabel$indexLabel${if (voice.isOffline) " [Offline]" else ""}"
+                                val offlineLabel = if (voice.isOffline) " [Offline]" else ""
+                                val displayName = "  $genderLabel$indexLabel$offlineLabel"
                                 DropdownMenuItem(
                                     text = {
                                         AutoResizingText(
@@ -969,10 +950,7 @@ fun VoiceSettings(
 }
 
 @Composable
-fun FeedbackDialog(
-    onDismiss: () -> Unit,
-    onSent: () -> Unit,
-) {
+fun FeedbackDialog(onDismiss: () -> Unit, onSent: () -> Unit) {
     var subject by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var dropdownExpanded by remember { mutableStateOf(false) }
@@ -996,10 +974,10 @@ fun FeedbackDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                Text(
+                AutoResizingText(
                     text = "Feedback",
-                    style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
+                    fontSize = AdaptiveDimens.titleFontSize,
                     fontWeight = FontWeight.Bold,
                 )
 
@@ -1054,7 +1032,9 @@ fun FeedbackDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(150.dp),
-                        placeholder = { AutoResizingText("Type your message here...", fontSize = AdaptiveDimens.smallFontSize) },
+                        placeholder = {
+                            AutoResizingText("Type your message here...", fontSize = AdaptiveDimens.smallFontSize)
+                        },
                         shape = androidx.compose.ui.graphics.RectangleShape,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = MaterialTheme.colorScheme.onSurface,

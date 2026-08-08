@@ -386,7 +386,8 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
                         if (bestVoice != null) {
                             Log.d(
                                 "AndroidVoiceManager",
-                                "Setting voice to best fallback: ${bestVoice.name} (offline: ${!bestVoice.isNetworkConnectionRequired})",
+                                "Setting voice to best fallback: ${bestVoice.name} " +
+                                    "(offline: ${!bestVoice.isNetworkConnectionRequired})",
                             )
                             ttsEngine.voice = bestVoice
                         } else {

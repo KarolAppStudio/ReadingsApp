@@ -14,7 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.karol.readingsapp.core.theme.AdaptiveDimens
+import com.karol.readingsapp.core.ui.components.AutoResizingText
 import com.karol.readingsapp.feature.voice.data.TTSState
 
 @Composable
@@ -99,10 +102,14 @@ fun VoiceControlBar(
                         else -> ""
                     }
                     if (statusText.isNotEmpty()) {
-                        Text(
+                        AutoResizingText(
                             text = statusText,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (ttsState is TTSState.Error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                            fontSize = AdaptiveDimens.smallFontSize,
+                            color = if (ttsState is TTSState.Error) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            },
                         )
                     }
                     if (isOfflineAvailable && (ttsState is TTSState.Idle)) {
@@ -113,9 +120,9 @@ fun VoiceControlBar(
                                 shape = CircleShape,
                             ) {}
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(
+                            AutoResizingText(
                                 text = "Voice Mode",
-                                style = MaterialTheme.typography.labelSmall,
+                                fontSize = (12 * AdaptiveDimens.fontScale).sp,
                                 color = MaterialTheme.colorScheme.tertiary,
                             )
                         }
@@ -153,7 +160,11 @@ fun VoiceControlBar(
                         imageVector = icon,
                         contentDescription = if (ttsState is TTSState.Speaking) "Pause" else "Play",
                         modifier = Modifier.size(24.dp),
-                        tint = if (textToRead.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                        tint = if (textToRead.isNotBlank()) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        },
                     )
                 }
             }

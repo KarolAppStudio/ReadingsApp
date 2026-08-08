@@ -7,10 +7,7 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class ReadingRepository(
-    private val bibleDao: BibleDao,
-    private val planDao: ReadingPlanDao,
-) {
+class ReadingRepository(private val bibleDao: BibleDao, private val planDao: ReadingPlanDao) {
     private val bookNameToId =
         mapOf(
             "Genesis" to 0,
@@ -389,7 +386,9 @@ class ReadingRepository(
     }
 
     private val standardChapterCounts = listOf(
-        50, 40, 27, 36, 34, 24, 21, 4, 31, 24, 22, 25, 29, 36, 10, 13, 10, 42, 150, 31, 12, 8, 66, 52, 5, 48, 12, 14, 3, 9, 1, 4, 7, 3, 3, 3, 2, 14, 4, 28, 16, 24, 21, 28, 16, 16, 13, 6, 6, 4, 4, 5, 3, 6, 4, 3, 1, 13, 5, 5, 3, 5, 1, 1, 1, 22
+        50, 40, 27, 36, 34, 24, 21, 4, 31, 24, 22, 25, 29, 36, 10, 13, 10, 42, 150, 31, 12, 8, 66, 52, 5, 48, 12,
+        14, 3, 9, 1, 4, 7, 3, 3, 3, 2, 14, 4, 28, 16, 24, 21, 28, 16, 16, 13, 6, 6, 4, 4, 5, 3, 6, 4, 3, 1, 13,
+        5, 5, 3, 5, 1, 1, 1, 22,
     )
 
     suspend fun getAllChapters(): List<ChapterReference> = withContext(Dispatchers.IO) {
@@ -413,20 +412,14 @@ class ReadingRepository(
         if (count > 0) count else standardChapterCounts.getOrNull(bookId) ?: 0
     }
 
-    suspend fun getVerseCount(
-        bookId: Int,
-        chapter: Int,
-    ): Int = withContext(Dispatchers.IO) {
+    suspend fun getVerseCount(bookId: Int, chapter: Int): Int = withContext(Dispatchers.IO) {
         bibleDao.getVerseCount(bookId, chapter)
     }
 
-    suspend fun getChapterVerses(
-        bookId: Int,
-        chapter: Int,
-        translationCode: String,
-    ): List<TargetReadingDetails> = withContext(Dispatchers.IO) {
-        bibleDao.getChapterVerses(bookId, chapter, translationCode)
-    }
+    suspend fun getChapterVerses(bookId: Int, chapter: Int, translationCode: String): List<TargetReadingDetails> =
+        withContext(Dispatchers.IO) {
+            bibleDao.getChapterVerses(bookId, chapter, translationCode)
+        }
 
     suspend fun isTranslationComplete(translationCode: String): Boolean = withContext(Dispatchers.IO) {
         // Simple heuristic: A complete Bible has ~31,000 verses.

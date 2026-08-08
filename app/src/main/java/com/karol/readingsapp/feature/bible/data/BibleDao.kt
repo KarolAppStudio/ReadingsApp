@@ -41,7 +41,9 @@ interface BibleDao {
 
     @Query(
         """
-        SELECT :date AS date, :bookId AS bookId, :bookName AS bookName, chapter, verse AS verseId, text, :readingType AS readingType, translation_code AS translationCode
+        SELECT :date AS date, :bookId AS bookId, :bookName AS bookName, chapter,
+               verse AS verseId, text, :readingType AS readingType,
+               translation_code AS translationCode
         FROM verses
         WHERE book_id = :bookId AND chapter IN (:chapters) AND translation_code = :translationCode
         """,
@@ -57,7 +59,9 @@ interface BibleDao {
 
     @Query(
         """
-        SELECT '' AS date, :bookId AS bookId, '' AS bookName, chapter, verse AS verseId, text, 'Bible' AS readingType, translation_code AS translationCode
+        SELECT '' AS date, :bookId AS bookId, '' AS bookName, chapter,
+               verse AS verseId, text, 'Bible' AS readingType,
+               translation_code AS translationCode
         FROM verses
         WHERE book_id = :bookId AND chapter = :chapter AND translation_code = :translationCode
         ORDER BY verse ASC

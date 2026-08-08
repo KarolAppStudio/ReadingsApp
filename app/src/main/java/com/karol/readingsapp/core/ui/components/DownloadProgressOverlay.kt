@@ -12,8 +12,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.karol.readingsapp.core.i18n.Localization
 import com.karol.readingsapp.core.i18n.LocalizedStrings
+import com.karol.readingsapp.core.theme.AdaptiveDimens
+import com.karol.readingsapp.core.theme.ProvideWindowSizeClass
+import com.karol.readingsapp.core.theme.ReadingsAppTheme
 
 @Composable
 fun DownloadProgressOverlay(progress: Float?, strings: LocalizedStrings) {
@@ -40,11 +46,12 @@ fun DownloadProgressOverlay(progress: Float?, strings: LocalizedStrings) {
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text(
+                    AutoResizingText(
                         text = strings.downloadingSelected,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
+                        fontSize = AdaptiveDimens.bodyFontSize,
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -61,14 +68,49 @@ fun DownloadProgressOverlay(progress: Float?, strings: LocalizedStrings) {
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Text(
+                    AutoResizingText(
                         text = "${((progress ?: 0f) * 100).toInt()}%",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = AdaptiveDimens.smallFontSize,
                     )
                 }
             }
+        }
+    }
+}
+
+@OptIn(androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi::class)
+@Preview(showBackground = true)
+@Composable
+fun DownloadProgressOverlayPreview() {
+    val windowSizeClass = androidx.compose.material3.windowsizeclass.WindowSizeClass.calculateFromSize(
+        DpSize(360.dp, 640.dp),
+    )
+    ProvideWindowSizeClass(windowSizeClass) {
+        ReadingsAppTheme {
+            DownloadProgressOverlay(
+                progress = 0.45f,
+                strings = Localization.getStrings("English"),
+            )
+        }
+    }
+}
+
+@OptIn(androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi::class)
+@Preview(showBackground = true)
+@Composable
+fun DownloadProgressOverlayTamilPreview() {
+    val windowSizeClass = androidx.compose.material3.windowsizeclass.WindowSizeClass.calculateFromSize(
+        DpSize(360.dp, 640.dp),
+    )
+    ProvideWindowSizeClass(windowSizeClass) {
+        ReadingsAppTheme {
+            DownloadProgressOverlay(
+                progress = 0.75f,
+                strings = Localization.getStrings("Tamil"),
+            )
         }
     }
 }
