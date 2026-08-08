@@ -36,6 +36,7 @@ import com.karol.readingsapp.feature.bible.data.ChapterReference
 import com.karol.readingsapp.feature.bible.data.LanguageStatus
 import com.karol.readingsapp.feature.bible.data.TargetReadingDetails
 import com.karol.readingsapp.feature.shared.ui.ReadingViewModel
+import com.karol.readingsapp.feature.voice.data.TTSState
 import com.karol.readingsapp.feature.voice.ui.VoiceControlBar
 import com.karol.readingsapp.feature.voice.ui.VoiceViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -140,6 +141,15 @@ fun BibleReaderScreen(
     }
 
     val uiState by viewModel.uiState.collectAsState()
+    val availableVoices by voiceViewModel.availableVoices.collectAsState()
+    val ttsState by voiceViewModel.voiceService.ttsState.collectAsState()
+
+    val showVoiceControls = remember(availableVoices, ttsState, strings.locale) {
+        val isSupported = availableVoices.any { it.locale.language == strings.locale.language }
+        // Show if it's currently doing something (Initializing/Speaking/Paused/Error)
+        // OR if we know the language is supported (even if Idle)
+        ttsState !is TTSState.Idle || isSupported
+    }
 
     val textToRead = remember(currentVerses, selectedVerseId, readingType, uiState) {
         if (selectedVerseId != null) {
@@ -210,15 +220,17 @@ fun BibleReaderScreen(
         },
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
-            VoiceControlBar(
-                viewModel = voiceViewModel,
-                textToRead = textToRead,
-                locale = strings.locale,
-                modifier = Modifier
-                    .padding(horizontal = AdaptiveDimens.paddingMedium)
-                    .navigationBarsPadding()
-                    .padding(bottom = 8.dp),
-            )
+            if (showVoiceControls) {
+                VoiceControlBar(
+                    viewModel = voiceViewModel,
+                    textToRead = textToRead,
+                    locale = strings.locale,
+                    modifier = Modifier
+                        .padding(horizontal = AdaptiveDimens.paddingMedium)
+                        .navigationBarsPadding()
+                        .padding(bottom = 8.dp),
+                )
+            }
         },
     ) { innerPadding ->
         HorizontalPager(

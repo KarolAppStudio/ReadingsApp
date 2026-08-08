@@ -640,18 +640,33 @@ private fun SettingsFooter(strings: LocalizedStrings) {
 
 @Composable
 fun VoiceSettings(voiceViewModel: VoiceViewModel) {
-    val availableVoices by voiceViewModel.filteredVoices.collectAsStateWithLifecycle()
+    val filteredVoices by voiceViewModel.filteredVoices.collectAsStateWithLifecycle()
+    val allVoices by voiceViewModel.availableVoices.collectAsStateWithLifecycle()
     val selectedVoice by voiceViewModel.selectedVoice.collectAsStateWithLifecycle()
     var expanded by remember { mutableStateOf(value = false) }
 
-    val selectedVoiceName = selectedVoice?.let { voice ->
-        val genderLabel = when (voice.gender) {
-            VoiceGender.MALE -> "Male"
-            VoiceGender.FEMALE -> "Female"
-            VoiceGender.UNKNOWN -> "Voice"
-        }
-        "${voice.locale.displayLanguage} ($genderLabel)"
-    } ?: "Default"
+    var persistentVoiceName by remember { mutableStateOf("Default") }
+
+    val selectedVoiceName = remember(selectedVoice, allVoices) {
+        selectedVoice?.let { voice ->
+            val lang = voice.locale.displayLanguage
+            val genderLabel = when (voice.gender) {
+                VoiceGender.MALE -> "Male"
+                VoiceGender.FEMALE -> "Female"
+                VoiceGender.UNKNOWN -> "Voice"
+            }
+            // Find index within same gender/lang in all voices for consistent display
+            val voicesInLang = allVoices.filter { it.locale.language == voice.locale.language }
+            val sameGenderVoices = voicesInLang.filter { it.gender == voice.gender }
+            val index = sameGenderVoices.indexOfFirst { it.name == voice.name } + 1
+            val indexLabel = if (sameGenderVoices.size > 1 && index > 0) " $index" else ""
+            val offlineLabel = if (voice.isOffline) " [Offline]" else ""
+
+            val name = "$lang ($genderLabel$indexLabel$offlineLabel)"
+            persistentVoiceName = name
+            name
+        } ?: persistentVoiceName
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -704,13 +719,13 @@ fun VoiceSettings(voiceViewModel: VoiceViewModel) {
                         .background(MaterialTheme.colorScheme.surface)
                         .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
                 ) {
-                    if (availableVoices.isEmpty()) {
+                    if (filteredVoices.isEmpty()) {
                         DropdownMenuItem(
                             text = { Text("No voices available", fontSize = AdaptiveDimens.smallFontSize) },
                             onClick = { expanded = false },
                         )
                     } else {
-                        val grouped = availableVoices.groupBy { it.locale.displayLanguage }
+                        val grouped = filteredVoices.groupBy { it.locale.displayLanguage }
                         grouped.forEach { (lang, voices) ->
                             DropdownMenuItem(
                                 text = {
@@ -754,6 +769,20 @@ fun VoiceSettings(voiceViewModel: VoiceViewModel) {
                         }
                     }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            TextButton(
+                onClick = { voiceViewModel.voiceService.checkAndInstallVoices() },
+                modifier = Modifier.align(Alignment.End),
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                AutoResizingText(
+                    text = "Download more voices...",
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                )
             }
         }
     }

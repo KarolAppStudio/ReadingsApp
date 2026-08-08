@@ -33,13 +33,19 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
 
     fun filterVoices(locale: Locale, autoSelect: Boolean = false) {
         filterLocale.value = locale
+        voiceService.ensureLanguageInstalled(locale)
         if (autoSelect) {
             viewModelScope.launch {
                 // Wait for voices to be available if they are not
                 availableVoices.first { it.isNotEmpty() }
-                val voices = availableVoices.value
-                val firstVoice = voices.find { it.locale.language == locale.language }
-                firstVoice?.let { onVoiceSelected(it) }
+
+                // Only auto-select if current voice is null OR doesn't match the required language
+                val current = selectedVoice.value
+                if (current == null || current.locale.language != locale.language) {
+                    val voices = availableVoices.value
+                    val firstVoice = voices.find { it.locale.language == locale.language }
+                    firstVoice?.let { onVoiceSelected(it) }
+                }
             }
         }
     }
