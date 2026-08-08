@@ -124,7 +124,6 @@ class VoicePlaybackService : Service() {
             )
             .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop", stopPendingIntent)
             .setStyle(
-                @Suppress("DEPRECATION")
                 androidx.media.app.NotificationCompat.MediaStyle()
                     .setShowActionsInCompactView(0, 1),
             )

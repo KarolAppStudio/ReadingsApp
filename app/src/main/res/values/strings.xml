@@ -1,5 +1,4 @@
 <resources>
     <string name="app_name">Readings App</string>
-    <string name="companion_app_name">Bible Reading Companion App</string>
     <string name="voice_playback_description">Provides background audio playback for Bible verses using text-to-speech.</string>
 </resources>
