@@ -43,6 +43,7 @@ import com.karol.readingsapp.feature.bible.data.ReadingRepository
 import com.karol.readingsapp.feature.bible.ui.BibleReaderScreen
 import com.karol.readingsapp.feature.bible.ui.BibleSelectionScreen
 import com.karol.readingsapp.feature.bible.ui.ParallelReadingScreen
+import com.karol.readingsapp.feature.contact.ui.ContactScreen
 import com.karol.readingsapp.feature.home.ui.HomeScreen
 import com.karol.readingsapp.feature.plan.data.ReadingPlanDatabase
 import com.karol.readingsapp.feature.plan.ui.ReadingPlanScreen
@@ -166,12 +167,21 @@ class MainActivity : ComponentActivity() {
                                         onSettingsClick = {
                                             navController.navigate("settings")
                                         },
-                                    ) {
-                                        navController.navigate("about")
-                                    }
+                                        onAboutClick = {
+                                            navController.navigate("about")
+                                        },
+                                        onContactClick = {
+                                            navController.navigate("contact")
+                                        },
+                                    )
                                 }
                                 composable("about") {
                                     AboutScreen(strings = strings) {
+                                        navController.popBackStack("home", inclusive = false)
+                                    }
+                                }
+                                composable("contact") {
+                                    ContactScreen(strings = strings) {
                                         navController.popBackStack("home", inclusive = false)
                                     }
                                 }

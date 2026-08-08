@@ -1,6 +1,5 @@
 package com.karol.readingsapp.feature.settings.ui
 
-import android.content.Intent
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -24,15 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.karol.readingsapp.core.i18n.Localization
 import com.karol.readingsapp.core.i18n.LocalizedStrings
@@ -70,7 +65,7 @@ fun SettingsScreen(
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = remember(strings) { listOf(strings.settings, strings.download, strings.about, strings.contact) }
+    val tabs = remember(strings) { listOf(strings.settings, strings.download, strings.about) }
     var themeExpanded by remember { mutableStateOf(value = false) }
 
     Scaffold(
@@ -153,10 +148,6 @@ fun SettingsScreen(
                             )
 
                             2 -> AboutSettings(
-                                strings = strings,
-                            )
-
-                            3 -> ContactSettings(
                                 strings = strings,
                             )
                         }
@@ -624,84 +615,6 @@ fun AboutSettings(strings: LocalizedStrings) {
 }
 
 @Composable
-fun ContactSettings(strings: LocalizedStrings) {
-    var showFeedbackDialog by remember { mutableStateOf(value = false) }
-    var showMessageSentPopup by remember { mutableStateOf(value = false) }
-
-    if (showFeedbackDialog) {
-        FeedbackDialog(
-            onDismiss = { showFeedbackDialog = false },
-        ) {
-            showFeedbackDialog = false
-            showMessageSentPopup = true
-        }
-    }
-
-    if (showMessageSentPopup) {
-        AlertDialog(
-            onDismissRequest = { showMessageSentPopup = false },
-            confirmButton = {
-                TextButton(onClick = { showMessageSentPopup = false }) {
-                    AutoResizingText("OK", fontSize = AdaptiveDimens.smallFontSize)
-                }
-            },
-            title = { AutoResizingText("Success", fontSize = AdaptiveDimens.bodyFontSize) },
-            text = { AutoResizingText("Message Sent", fontSize = AdaptiveDimens.smallFontSize) },
-        )
-    }
-
-    Column(verticalArrangement = Arrangement.spacedBy(AdaptiveDimens.paddingMedium)) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(2.dp),
-        ) {
-            Column(
-                modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
-                horizontalAlignment = Alignment.Start,
-            ) {
-                AutoResizingText(
-                    text = strings.contact,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = AdaptiveDimens.bodyFontSize,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
-                    textAlign = TextAlign.Center,
-                )
-
-                Text(
-                    text = "We’d love to hear from you! Send us your questions, suggestions, or feedback.",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = AdaptiveDimens.smallFontSize,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    ),
-                    textAlign = TextAlign.Start,
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = { showFeedbackDialog = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-                ) {
-                    AutoResizingText("Click Here", fontSize = AdaptiveDimens.bodyFontSize)
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun SettingsFooter(strings: LocalizedStrings) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -839,122 +752,6 @@ fun VoiceSettings(voiceViewModel: VoiceViewModel) {
                                 )
                             }
                         }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun FeedbackDialog(onDismiss: () -> Unit, onSent: () -> Unit) {
-    var subject by remember { mutableStateOf("") }
-    var message by remember { mutableStateOf("") }
-    var dropdownExpanded by remember { mutableStateOf(false) }
-    val subjects = listOf("Feedback", "Suggestion", "Report an Issue", "Request a feature")
-    val context = LocalContext.current
-
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                AutoResizingText(
-                    text = "Feedback",
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = AdaptiveDimens.titleFontSize,
-                    fontWeight = FontWeight.Bold,
-                )
-
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = subject,
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { AutoResizingText("Select Subject", fontSize = AdaptiveDimens.smallFontSize) },
-                        trailingIcon = {
-                            IconButton(onClick = { dropdownExpanded = true }) {
-                                Icon(
-                                    Icons.Default.MoreVert,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        ),
-                    )
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .clickable { dropdownExpanded = true },
-                    )
-
-                    DropdownMenu(
-                        expanded = dropdownExpanded,
-                        onDismissRequest = { dropdownExpanded = false },
-                        modifier = Modifier.fillMaxWidth(0.6f),
-                    ) {
-                        subjects.forEach { item ->
-                            DropdownMenuItem(
-                                text = { AutoResizingText(item, fontSize = AdaptiveDimens.smallFontSize) },
-                                onClick = {
-                                    subject = item
-                                    dropdownExpanded = false
-                                },
-                            )
-                        }
-                    }
-                }
-
-                if (subject.isNotEmpty()) {
-                    OutlinedTextField(
-                        value = message,
-                        onValueChange = { message = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(150.dp),
-                        placeholder = {
-                            AutoResizingText("Type your message here...", fontSize = AdaptiveDimens.smallFontSize)
-                        },
-                        shape = androidx.compose.ui.graphics.RectangleShape,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        ),
-                    )
-
-                    Button(
-                        onClick = {
-                            val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                data = "mailto:justkarol@icloud.com".toUri()
-                                putExtra(Intent.EXTRA_SUBJECT, subject)
-                                putExtra(Intent.EXTRA_TEXT, message)
-                            }
-                            try {
-                                context.startActivity(Intent.createChooser(intent, "Send Email"))
-                                onSent()
-                            } catch (_: Exception) {}
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = androidx.compose.ui.graphics.RectangleShape,
-                    ) {
-                        AutoResizingText("Send", fontSize = AdaptiveDimens.bodyFontSize)
                     }
                 }
             }

@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
@@ -71,6 +72,7 @@ fun HomeScreen(
     onReadingClick: (TargetReadingDetails) -> Unit,
     onSettingsClick: () -> Unit,
     onAboutClick: () -> Unit,
+    onContactClick: () -> Unit,
 ) {
     val readingsGrouped by viewModel.uiState.collectAsState()
     val downloadedTranslations by viewModel.downloadedTranslations.collectAsState()
@@ -153,6 +155,28 @@ fun HomeScreen(
                                 leadingIcon = {
                                     Icon(
                                         Icons.Default.Info,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = {
+                                    AutoResizingText(
+                                        text = strings.contact,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        fontSize = AdaptiveDimens.smallFontSize,
+                                        fontWeight = FontWeight.Normal,
+                                    )
+                                },
+                                onClick = {
+                                    menuExpanded = false
+                                    onContactClick()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Email,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(18.dp),
