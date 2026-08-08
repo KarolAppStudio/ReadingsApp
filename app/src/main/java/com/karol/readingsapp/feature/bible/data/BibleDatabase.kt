@@ -64,7 +64,8 @@ abstract class BibleDatabase : RoomDatabase() {
             // Remove Polish and Khmer translations if they exist
             db.execSQL("DELETE FROM translations WHERE language LIKE 'Polish' OR language = 'pl' OR code = 'POL'")
             db.execSQL("DELETE FROM translations WHERE language LIKE 'Khmer' OR language = 'km' OR code = 'KHM'")
-            db.execSQL("DELETE FROM verses WHERE translation_code = 'KHM'")
+            db.execSQL("DELETE FROM translations WHERE code = 'MIZ'")
+            db.execSQL("DELETE FROM verses WHERE translation_code = 'KHM' OR translation_code = 'MIZ'")
 
             val integrityCursor = db.query("PRAGMA integrity_check")
             if (integrityCursor.moveToFirst()) {

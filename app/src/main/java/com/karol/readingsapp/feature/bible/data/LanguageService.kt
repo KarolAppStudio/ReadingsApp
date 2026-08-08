@@ -274,29 +274,51 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
             val db = bibleDatabase.openHelper.writableDatabase
 
             // Use ATTACH DATABASE to efficiently import data
-            // We use [ ] or ' ' around the path to handle potential special characters
-            db.execSQL("ATTACH DATABASE '${dbFile.absolutePath}' AS to_import")
+            // We use ' ' around the path and escape potential single quotes in the path
+            val escapedPath = dbFile.absolutePath.replace("'", "''")
+            db.execSQL("ATTACH DATABASE '$escapedPath' AS to_import")
 
             try {
+                // Determine the table name in the imported database (verses or verse)
+                var importedTable = "verses"
+                val tableCheckCursor = db.query(
+                    "SELECT name FROM to_import.sqlite_master WHERE type='table' AND (name='verses' OR name='verse')",
+                )
+                if (tableCheckCursor.moveToFirst()) {
+                    importedTable = tableCheckCursor.getString(0)
+                }
+                tableCheckCursor.close()
+
+                // Check if the imported database uses 1-based book IDs
+                val minBookIdCursor = db.query("SELECT MIN(book_id) FROM to_import.$importedTable")
+                val minBookId = if (minBookIdCursor.moveToFirst()) minBookIdCursor.getInt(0) else 0
+                minBookIdCursor.close()
+                val offset = if (minBookId == 1) -1 else 0
+
                 // Insert verses from the attached database into the main database
                 // Room's table name is 'verses'
                 db.execSQL(
                     """
                     INSERT OR REPLACE INTO verses (book_id, chapter, verse, text, translation_code)
-                    SELECT book_id, chapter, verse, text, '$code' FROM to_import.verses
+                    SELECT book_id + $offset, chapter, verse, text, '$code' FROM to_import.$importedTable
+                    WHERE book_id + $offset BETWEEN 0 AND 65
                     """.trimIndent(),
                 )
 
                 updateProgress(language, 0.9f)
             } finally {
-                db.execSQL("DETACH DATABASE to_import")
+                try {
+                    db.execSQL("DETACH DATABASE to_import")
+                } catch (e: Exception) {
+                    android.util.Log.e("LanguageService", "Error detaching database", e)
+                }
             }
 
             updateProgress(language, 1.0f)
             true
         } catch (e: Exception) {
             android.util.Log.e("LanguageService", "Error importing from DB file for $code using ATTACH", e)
-            // Fallback to manual import if ATTACH fails (e.g. schema mismatch in external DB)
+            // Fallback to manual import if ATTACH fails (e.g. WAL conflict or schema mismatch)
             fallbackImportFromDbFile(dbFile, code)
         }
     }
@@ -305,40 +327,73 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
         withContext(Dispatchers.IO) {
             try {
                 val language = getLanguageFromCode(code)
+
+                // Ensure the translation exists to satisfy FK constraint
+                val translation = TranslationEntity(
+                    code = code,
+                    language = language,
+                    name = getTranslationName(code, language),
+                )
+                bibleDao.insertTranslation(translation)
+
                 val db = android.database.sqlite.SQLiteDatabase.openDatabase(
                     dbFile.absolutePath,
                     null,
                     android.database.sqlite.SQLiteDatabase.OPEN_READONLY,
                 )
-                val cursor = db.rawQuery("SELECT book_id, chapter, verse, text FROM verses", null)
+
+                // Determine table name
+                var importedTable = "verses"
+                val tableCheckCursor = db.rawQuery(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND (name='verses' OR name='verse')",
+                    null,
+                )
+                if (tableCheckCursor.moveToFirst()) {
+                    importedTable = tableCheckCursor.getString(0)
+                }
+                tableCheckCursor.close()
+
+                // Check for 1-based book IDs in fallback import
+                val minCursor = db.rawQuery("SELECT MIN(book_id) FROM $importedTable", null)
+                val minBookId = if (minCursor.moveToFirst()) minCursor.getInt(0) else 0
+                minCursor.close()
+                val offset = if (minBookId == 1) -1 else 0
+
+                val cursor = db.rawQuery("SELECT book_id, chapter, verse, text FROM $importedTable", null)
                 val totalVerses = cursor.count
-                val verses = mutableListOf<Verse>()
+                val batchSize = 1000
+                var versesList = mutableListOf<Verse>()
                 var processedVerses = 0
+
                 while (cursor.moveToNext()) {
-                    verses.add(
-                        Verse(
-                            bookId = cursor.getInt(0),
-                            chapter = cursor.getInt(1),
-                            verse = cursor.getInt(2),
-                            text = cursor.getString(3),
-                            translationCode = code,
-                        ),
-                    )
+                    val bookId = cursor.getInt(0) + offset
+                    // Basic validation to avoid FK constraint failures with books table (0-65)
+                    if (bookId in 0..65) {
+                        versesList.add(
+                            Verse(
+                                bookId = bookId,
+                                chapter = cursor.getInt(1),
+                                verse = cursor.getInt(2),
+                                text = cursor.getString(3),
+                                translationCode = code,
+                            ),
+                        )
+                    }
+
                     processedVerses++
-                    if (processedVerses % 1000 == 0 || processedVerses == totalVerses) {
-                        updateProgress(language, 0.6f + (processedVerses.toFloat() / totalVerses) * 0.3f)
+                    if (versesList.size >= batchSize || processedVerses == totalVerses) {
+                        if (versesList.isNotEmpty()) {
+                            bibleDao.insertVerses(versesList)
+                            versesList = mutableListOf()
+                        }
+                        updateProgress(language, 0.6f + (processedVerses.toFloat() / totalVerses) * 0.4f)
                     }
                 }
                 cursor.close()
                 db.close()
 
-                if (verses.isNotEmpty()) {
-                    bibleDao.insertVerses(verses)
-                    updateProgress(language, 1.0f)
-                    true
-                } else {
-                    false
-                }
+                updateProgress(language, 1.0f)
+                true
             } catch (e: Exception) {
                 android.util.Log.e("LanguageService", "Error in fallback import for $code", e)
                 false
