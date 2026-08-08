@@ -36,12 +36,7 @@ import java.text.NumberFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParallelReadingScreen(
-    bookId: Int,
-    chapter: Int,
-    viewModel: ReadingViewModel,
-    onBackClick: () -> Unit,
-) {
+fun ParallelReadingScreen(bookId: Int, chapter: Int, viewModel: ReadingViewModel, onBackClick: () -> Unit) {
     val verses1 by viewModel.chapterVerses.collectAsState()
     val verses2 by viewModel.secondChapterVerses.collectAsState()
     val translations by viewModel.downloadedTranslations.collectAsState()
@@ -99,7 +94,9 @@ fun ParallelReadingScreen(
                     val displayTitle = if ((bookId1 == bookId2) && (chapter1 == chapter2)) {
                         "$bookName1 ${numberFormatter1.format(chapter1)}"
                     } else {
-                        "$bookName1 ${numberFormatter1.format(chapter1)} | $bookName2 ${numberFormatter2.format(chapter2)}"
+                        "$bookName1 ${numberFormatter1.format(
+                            chapter1,
+                        )} | $bookName2 ${numberFormatter2.format(chapter2)}"
                     }
                     AutoResizingText(
                         text = displayTitle,
@@ -111,7 +108,11 @@ fun ParallelReadingScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, strings1.back, tint = MaterialTheme.colorScheme.primary)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            strings1.back,
+                            tint = MaterialTheme.colorScheme.primary,
+                        )
                     }
                 },
                 actions = {
@@ -135,10 +136,16 @@ fun ParallelReadingScreen(
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize().padding(innerPadding).navigationBarsPadding(), contentAlignment = Alignment.TopCenter) {
+        Box(
+            modifier = Modifier.fillMaxSize().padding(innerPadding).navigationBarsPadding(),
+            contentAlignment = Alignment.TopCenter,
+        ) {
             Column(modifier = Modifier.fillMaxHeight().widthIn(max = AdaptiveDimens.contentMaxWidth)) {
                 // Selection Area
-                Row(modifier = Modifier.fillMaxWidth().padding(4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
                     ReadingSideSelector(
                         modifier = Modifier.weight(1f),
                         selectedCode = selectedCode1,
@@ -214,7 +221,10 @@ private fun ReadingSideSelector(
             modifier = Modifier.fillMaxWidth(),
             placeholder = strings.selectBible,
         )
-        Row(modifier = Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
             SelectionButton(
                 text = strings.book,
                 options = remember(allBooks, strings) { allBooks.map { strings.bookNames[it.id] ?: it.name } },
@@ -226,7 +236,9 @@ private fun ReadingSideSelector(
             )
             SelectionButton(
                 text = strings.chapter,
-                options = remember(chapterCount, numberFormatter) { (1..chapterCount).map { numberFormatter.format(it) } },
+                options = remember(chapterCount, numberFormatter) {
+                    (1..chapterCount).map { numberFormatter.format(it) }
+                },
                 onOptionSelected = { onLocationSelected(-1, it + 1) }, // -1 indicates keeping current book
                 modifier = Modifier.weight(1f),
                 height = if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 32.dp,
@@ -298,7 +310,10 @@ private fun SyncToggleButton(isEnabled: Boolean, contentDescription: String, onC
         label = "ledAlpha",
     )
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable(onClick = onClick).padding(horizontal = 8.dp)) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable(onClick = onClick).padding(horizontal = 8.dp),
+    ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(24.dp)) {
             Icon(
                 imageVector = if (isEnabled) Icons.Default.Lock else Icons.Default.LockOpen,
@@ -327,7 +342,10 @@ private fun SyncToggleButton(isEnabled: Boolean, contentDescription: String, onC
 
 @Composable
 private fun ResetButton(contentDescription: String, onClick: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable(onClick = onClick).padding(horizontal = 8.dp)) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable(onClick = onClick).padding(horizontal = 8.dp),
+    ) {
         Icon(
             Icons.Default.RestartAlt,
             contentDescription,

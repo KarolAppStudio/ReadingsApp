@@ -16,10 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.karol.readingsapp.core.i18n.LocalizedStrings
 
 @Composable
-fun DownloadProgressOverlay(
-    progress: Float?,
-    strings: LocalizedStrings,
-) {
+fun DownloadProgressOverlay(progress: Float?, strings: LocalizedStrings) {
     AnimatedVisibility(
         visible = progress != null,
         enter = fadeIn(),

@@ -105,7 +105,8 @@ class MainActivity : ComponentActivity() {
                     factory =
                     object : ViewModelProvider.Factory {
                         @Suppress("UNCHECKED_CAST")
-                        override fun <T : ViewModel> create(modelClass: Class<T>): T = ReadingViewModel(repository, languageService, voiceService, applicationContext) as T
+                        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                            ReadingViewModel(repository, languageService, voiceService, applicationContext) as T
                     },
                 )
             val voiceViewModel: VoiceViewModel = viewModel()
@@ -152,7 +153,9 @@ class MainActivity : ComponentActivity() {
                                     HomeScreen(
                                         viewModel = viewModel,
                                         onReadingClick = { reading ->
-                                            navController.navigate("reader/${reading.bookId}/${reading.chapter}/${reading.verseId}/${reading.readingType}")
+                                            navController.navigate(
+                                                "reader/${reading.bookId}/${reading.chapter}/${reading.verseId}/${reading.readingType}",
+                                            )
                                         },
                                         onCalendarClick = {
                                             navController.navigate("reading_plan")

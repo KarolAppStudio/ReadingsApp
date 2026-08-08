@@ -35,7 +35,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -125,7 +124,11 @@ fun HomeScreen(
                 navigationIcon = {
                     Box {
                         IconButton(onClick = { menuExpanded = true }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = MaterialTheme.colorScheme.primary)
+                            Icon(
+                                Icons.Default.Menu,
+                                contentDescription = "Menu",
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
                         }
                         DropdownMenu(
                             expanded = menuExpanded,
@@ -193,7 +196,8 @@ fun HomeScreen(
                 item {
                     HomeHeader(
                         isDownloading = isDownloading,
-                        selectedName = downloadedTranslations.find { it.code == selectedCode }?.name ?: strings.selectBible,
+                        selectedName =
+                        downloadedTranslations.find { it.code == selectedCode }?.name ?: strings.selectBible,
                         isToday = isToday,
                         strings = strings,
                         displayDate = displayDate,
@@ -283,7 +287,7 @@ fun HomeHeader(
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                             fontWeight = FontWeight.Bold,
                             fontSize = AdaptiveDimens.smallFontSize,
-                            modifier = Modifier.weight(1f, fill = false)
+                            modifier = Modifier.weight(1f, fill = false),
                         )
                         Icon(
                             Icons.Default.ArrowDropDown,

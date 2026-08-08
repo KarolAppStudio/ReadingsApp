@@ -103,7 +103,7 @@ class ReadingViewModel(
                         newlyDownloadedDetected = true
                     }
                 }
-                
+
                 if (newlyDownloadedDetected) {
                     loadAllBooks()
                 }
@@ -156,10 +156,7 @@ class ReadingViewModel(
 
     suspend fun getChapterCount(bookId: Int): Int = repository.getChapterCount(bookId)
 
-    suspend fun getVerseCount(
-        bookId: Int,
-        chapter: Int,
-    ): Int = repository.getVerseCount(bookId, chapter)
+    suspend fun getVerseCount(bookId: Int, chapter: Int): Int = repository.getVerseCount(bookId, chapter)
 
     private fun loadTranslations(triggerRepair: Boolean = true) {
         viewModelScope.launch {
@@ -176,7 +173,13 @@ class ReadingViewModel(
 
             val downloadedFromDb = repository.getDownloadedTranslations().map {
                 val nativeName = LanguageService.getNativeName(it.language, it.name)
-                val displayLanguage = if (it.language == "English-ASV" || it.name == "English-ASV") "English" else it.language
+                val displayLanguage = if (it.language == "English-ASV" ||
+                    it.name == "English-ASV"
+                ) {
+                    "English"
+                } else {
+                    it.language
+                }
                 it.copy(name = nativeName, language = displayLanguage)
             }
 
@@ -192,12 +195,12 @@ class ReadingViewModel(
                 val defaultLanguages = listOf("English", "Malayalam")
                 // Check if assets are available for default languages
                 val allAssetsPresent = defaultLanguages.all { languageService.hasAsset(it) }
-                
+
                 // If assets are missing, we MUST allow network even on first run to have a working app
                 if (triggerRepair) {
                     startBatchDownload(defaultLanguages, allowNetwork = allAssetsPresent.not())
                 }
-                
+
                 setTheme(AppTheme.SKY_BLUE)
                 prefs.edit { putBoolean("is_first_run", false) }
 
@@ -224,8 +227,8 @@ class ReadingViewModel(
                     val defaultLanguages = listOf("English", "Malayalam")
                     val missingDefaults = defaultLanguages.filter { lang ->
                         statusMap[lang] != LanguageStatus.DOWNLOADED &&
-                        statusMap[lang] != LanguageStatus.DOWNLOADING &&
-                        statusMap[lang] != LanguageStatus.FAILED
+                            statusMap[lang] != LanguageStatus.DOWNLOADING &&
+                            statusMap[lang] != LanguageStatus.FAILED
                     }
                     if (missingDefaults.isNotEmpty()) {
                         startBatchDownload(missingDefaults)
@@ -263,7 +266,7 @@ class ReadingViewModel(
         languages: List<String>,
         codes: List<String>? = null,
         force: Boolean = false,
-        allowNetwork: Boolean = true
+        allowNetwork: Boolean = true,
     ) {
         viewModelScope.launch {
             languageService.batchDownload(languages, codes, force, allowNetwork)
@@ -285,7 +288,7 @@ class ReadingViewModel(
             languageService.removeLanguage(language, code)
             loadTranslations()
             loadAllBooks() // Refresh book list in case a translation was removed
-            
+
             // Re-load reading with new default if needed
             if (_currentDate.value.isNotEmpty()) {
                 loadReading(_currentDate.value)
@@ -306,25 +309,16 @@ class ReadingViewModel(
         }
     }
 
-    fun loadChapterVerses(
-        bookId: Int,
-        chapter: Int,
-    ) {
+    fun loadChapterVerses(bookId: Int, chapter: Int) {
         viewModelScope.launch {
             _chapterVerses.value = repository.getChapterVerses(bookId, chapter, _selectedTranslationCode.value)
         }
     }
 
-    suspend fun getChapterVerses(
-        bookId: Int,
-        chapter: Int,
-    ): List<TargetReadingDetails> = repository.getChapterVerses(bookId, chapter, _selectedTranslationCode.value)
+    suspend fun getChapterVerses(bookId: Int, chapter: Int): List<TargetReadingDetails> =
+        repository.getChapterVerses(bookId, chapter, _selectedTranslationCode.value)
 
-    fun loadSecondChapterVerses(
-        bookId: Int,
-        chapter: Int,
-        translationCode: String,
-    ) {
+    fun loadSecondChapterVerses(bookId: Int, chapter: Int, translationCode: String) {
         viewModelScope.launch {
             _secondTranslationCode.value = translationCode
             _secondChapterVerses.value = repository.getChapterVerses(bookId, chapter, translationCode)
@@ -337,10 +331,7 @@ class ReadingViewModel(
         }
     }
 
-    fun resetParallelReading(
-        bookId: Int,
-        chapter: Int,
-    ) {
+    fun resetParallelReading(bookId: Int, chapter: Int) {
         viewModelScope.launch {
             // First grid remains the default language Bible (_selectedTranslationCode)
             // Second grid is strictly set to English

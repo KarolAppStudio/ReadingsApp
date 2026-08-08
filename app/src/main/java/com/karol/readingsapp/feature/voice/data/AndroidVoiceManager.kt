@@ -13,9 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.util.Locale
 import java.util.UUID
 
-class AndroidVoiceManager(
-    private val context: Context,
-) : VoiceService {
+class AndroidVoiceManager(private val context: Context) : VoiceService {
 
     private var tts: TextToSpeech? = null
     private val audioManager = context.getSystemService(AudioManager::class.java)
@@ -88,8 +86,12 @@ class AndroidVoiceManager(
                     ).toList()
 
                     // Limit per language to keep the list manageable but flexible
-                    val females = detectedVoices.asSequence().filter { it.gender == VoiceGender.FEMALE }.take(limitPerGender).toList()
-                    val males = detectedVoices.asSequence().filter { it.gender == VoiceGender.MALE }.take(limitPerGender).toList()
+                    val females = detectedVoices.asSequence().filter {
+                        it.gender == VoiceGender.FEMALE
+                    }.take(limitPerGender).toList()
+                    val males = detectedVoices.asSequence().filter {
+                        it.gender == VoiceGender.MALE
+                    }.take(limitPerGender).toList()
 
                     filteredVoices.addAll(females)
                     filteredVoices.addAll(males)
@@ -292,7 +294,14 @@ class AndroidVoiceManager(
     }
 
     private fun speakInternal(text: String, language: Locale, startIndex: Int, charOffset: Int) {
-        val actualText = if (text.startsWith("DEBUG_TEST")) "This is a test of the Android Text to Speech system." else text
+        val actualText = if (text.startsWith(
+                "DEBUG_TEST",
+            )
+        ) {
+            "This is a test of the Android Text to Speech system."
+        } else {
+            text
+        }
         val actualLanguage = if (text.startsWith("DEBUG_TEST")) Locale.US else language
 
         if ((startIndex == 0) && (charOffset == 0)) {
@@ -302,7 +311,10 @@ class AndroidVoiceManager(
             nextWordOffsetInCurrentChunk = 0
         }
 
-        Log.d("AndroidVoiceManager", "speakInternal() called index: $startIndex, offset: $charOffset, text length: ${actualText.length}")
+        Log.d(
+            "AndroidVoiceManager",
+            "speakInternal() called index: $startIndex, offset: $charOffset, text length: ${actualText.length}",
+        )
         if (requestAudioFocus()) {
             Log.d("AndroidVoiceManager", "Audio focus granted")
             tts?.let { ttsEngine ->
@@ -311,7 +323,10 @@ class AndroidVoiceManager(
                 Log.d("AndroidVoiceManager", "Language availability for $actualLanguage: $availability")
 
                 if (availability == TextToSpeech.LANG_MISSING_DATA) {
-                    Log.w("AndroidVoiceManager", "Language data is missing for $actualLanguage. Attempting to trigger installation.")
+                    Log.w(
+                        "AndroidVoiceManager",
+                        "Language data is missing for $actualLanguage. Attempting to trigger installation.",
+                    )
                 }
 
                 var langResult = ttsEngine.setLanguage(actualLanguage)
@@ -333,7 +348,10 @@ class AndroidVoiceManager(
                     _ttsState.value = TTSState.Error("Language not supported")
                     return
                 }
-                Log.d("AndroidVoiceManager", "TTS language set to: ${ttsEngine.voice?.locale ?: ttsEngine.defaultVoice.locale}")
+                Log.d(
+                    "AndroidVoiceManager",
+                    "TTS language set to: ${ttsEngine.voice?.locale ?: ttsEngine.defaultVoice.locale}",
+                )
 
                 // Try to find and set the voice
                 try {
@@ -359,16 +377,23 @@ class AndroidVoiceManager(
                         ttsEngine.voice = preferredVoice
                     } else {
                         // 3. Fallback to best available voice for this language
-                        val langVoices = allVoices?.filter { it.locale.language == actualLanguage.language } ?: emptyList()
+                        val langVoices =
+                            allVoices?.filter { it.locale.language == actualLanguage.language } ?: emptyList()
 
                         // Prioritize offline voices
                         val bestVoice = langVoices.maxByOrNull { !it.isNetworkConnectionRequired }
 
                         if (bestVoice != null) {
-                            Log.d("AndroidVoiceManager", "Setting voice to best fallback: ${bestVoice.name} (offline: ${!bestVoice.isNetworkConnectionRequired})")
+                            Log.d(
+                                "AndroidVoiceManager",
+                                "Setting voice to best fallback: ${bestVoice.name} (offline: ${!bestVoice.isNetworkConnectionRequired})",
+                            )
                             ttsEngine.voice = bestVoice
                         } else {
-                            Log.d("AndroidVoiceManager", "No suitable voice found for $actualLanguage, using engine default")
+                            Log.d(
+                                "AndroidVoiceManager",
+                                "No suitable voice found for $actualLanguage, using engine default",
+                            )
                         }
                     }
                 } catch (e: Exception) {
@@ -381,13 +406,22 @@ class AndroidVoiceManager(
                 // Chunking text to handle 4000 character limit
                 // Using 500 for better resume granularity
                 val allChunks = splitIntoChunks(actualText)
-                val chunksToSpeak = if (startIndex < allChunks.size) allChunks.asSequence().drop(startIndex).toMutableList() else mutableListOf()
+                val chunksToSpeak = if (startIndex <
+                    allChunks.size
+                ) {
+                    allChunks.asSequence().drop(startIndex).toMutableList()
+                } else {
+                    mutableListOf()
+                }
 
                 if (chunksToSpeak.isNotEmpty() && (charOffset > 0) && (charOffset < chunksToSpeak[0].length)) {
                     chunksToSpeak[0] = chunksToSpeak[0].substring(charOffset)
                 }
 
-                Log.d("AndroidVoiceManager", "Total chunks: ${allChunks.size}, remaining to speak: ${chunksToSpeak.size}")
+                Log.d(
+                    "AndroidVoiceManager",
+                    "Total chunks: ${allChunks.size}, remaining to speak: ${chunksToSpeak.size}",
+                )
 
                 if (chunksToSpeak.isEmpty()) {
                     Log.d("AndroidVoiceManager", "No chunks to speak. Moving to Idle.")
@@ -510,7 +544,10 @@ class AndroidVoiceManager(
             Log.d("AndroidVoiceManager", "Language data missing for $locale, triggering installation.")
             checkAndInstallVoices()
         } else {
-            Log.d("AndroidVoiceManager", "Language data for $locale is already available or not supported (result: $result).")
+            Log.d(
+                "AndroidVoiceManager",
+                "Language data for $locale is already available or not supported (result: $result).",
+            )
         }
     }
 

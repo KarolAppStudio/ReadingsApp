@@ -17,11 +17,7 @@ data class BookEntity(
 )
 
 @Entity(tableName = "translations")
-data class TranslationEntity(
-    @PrimaryKey val code: String,
-    val language: String,
-    val name: String,
-)
+data class TranslationEntity(@PrimaryKey val code: String, val language: String, val name: String)
 
 @Entity(
     tableName = "verses",
@@ -67,7 +63,4 @@ data class TargetReadingDetails(
     val translationCode: String,
 )
 
-data class ChapterReference(
-    val bookId: Int,
-    val chapter: Int,
-)
+data class ChapterReference(val bookId: Int, val chapter: Int)

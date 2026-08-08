@@ -65,12 +65,7 @@ fun AppBottomNavBar(
 }
 
 @Composable
-private fun RowScope.AppNavigationBarItem(
-    selected: Boolean,
-    icon: ImageVector,
-    label: String,
-    onClick: () -> Unit,
-) {
+private fun RowScope.AppNavigationBarItem(selected: Boolean, icon: ImageVector, label: String, onClick: () -> Unit) {
     NavigationBarItem(
         selected = selected,
         onClick = onClick,

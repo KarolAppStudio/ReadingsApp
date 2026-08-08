@@ -54,7 +54,13 @@ fun AnimatedDropdownMenu(
                 Surface(
                     shape = RoundedCornerShape(8.dp),
                     color = backgroundColor,
-                    contentColor = if (backgroundColor == Color.White) Color.Black else contentColorFor(backgroundColor),
+                    contentColor = if (backgroundColor ==
+                        Color.White
+                    ) {
+                        Color.Black
+                    } else {
+                        contentColorFor(backgroundColor)
+                    },
                     tonalElevation = 3.dp,
                     shadowElevation = 8.dp,
                     modifier = modifier,

@@ -19,7 +19,9 @@ interface BibleDao {
     @Query("SELECT * FROM translations")
     suspend fun getAvailableTranslations(): List<TranslationEntity>
 
-    @Query("SELECT * FROM translations WHERE code IN (SELECT DISTINCT translation_code FROM verses) OR code IN ('ENG', 'MAL')")
+    @Query(
+        "SELECT * FROM translations WHERE code IN (SELECT DISTINCT translation_code FROM verses) OR code IN ('ENG', 'MAL')",
+    )
     suspend fun getDownloadedTranslations(): List<TranslationEntity>
 
     @Query("SELECT * FROM books ORDER BY sort_order ASC")
@@ -32,10 +34,7 @@ interface BibleDao {
     suspend fun getChapterCount(bookId: Int): Int
 
     @Query("SELECT MAX(verse) FROM verses WHERE book_id = :bookId AND chapter = :chapter")
-    suspend fun getVerseCount(
-        bookId: Int,
-        chapter: Int,
-    ): Int
+    suspend fun getVerseCount(bookId: Int, chapter: Int): Int
 
     @Query("SELECT COUNT(*) FROM verses WHERE translation_code = :translationCode")
     suspend fun getTotalVerseCount(translationCode: String): Int
@@ -64,9 +63,5 @@ interface BibleDao {
         ORDER BY verse ASC
         """,
     )
-    suspend fun getChapterVerses(
-        bookId: Int,
-        chapter: Int,
-        translationCode: String,
-    ): List<TargetReadingDetails>
+    suspend fun getChapterVerses(bookId: Int, chapter: Int, translationCode: String): List<TargetReadingDetails>
 }

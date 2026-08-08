@@ -212,8 +212,12 @@ fun SelectionTopBar(
             AutoResizingText(
                 text = when {
                     selectedBook == null -> strings.bible
+
                     selectedChapter == 0 -> strings.bookNames[selectedBook.id] ?: selectedBook.name
-                    else -> "${strings.bookNames[selectedBook.id] ?: selectedBook.name} ${numberFormatter.format(selectedChapter)}"
+
+                    else -> "${strings.bookNames[selectedBook.id] ?: selectedBook.name} ${numberFormatter.format(
+                        selectedChapter,
+                    )}"
                 },
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.Bold,

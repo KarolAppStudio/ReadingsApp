@@ -28,7 +28,7 @@ abstract class BibleDatabase : RoomDatabase() {
             if (!dbFile.exists() || (lastVersion < ASSET_VERSION)) {
                 context.deleteDatabase("bibles.db")
                 dbFile.parentFile?.mkdirs()
-                
+
                 try {
                     context.assets.open("bibles.db").use { input ->
                         dbFile.outputStream().use { output ->

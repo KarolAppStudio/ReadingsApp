@@ -25,7 +25,10 @@ abstract class ReadingPlanDatabase : RoomDatabase() {
             val prefs = context.getSharedPreferences("reading_plan_prefs", Context.MODE_PRIVATE)
             val lastVersion = prefs.getInt("version", 0)
 
-            android.util.Log.d("ReadingPlanDatabase", "dbFile path: ${dbFile.absolutePath}, exists: ${dbFile.exists()}, lastVersion: $lastVersion, ASSET_VERSION: $ASSET_VERSION")
+            android.util.Log.d(
+                "ReadingPlanDatabase",
+                "dbFile path: ${dbFile.absolutePath}, exists: ${dbFile.exists()}, lastVersion: $lastVersion, ASSET_VERSION: $ASSET_VERSION",
+            )
 
             if (!dbFile.exists() || (lastVersion < ASSET_VERSION)) {
                 android.util.Log.d("ReadingPlanDatabase", "Copying database from assets...")

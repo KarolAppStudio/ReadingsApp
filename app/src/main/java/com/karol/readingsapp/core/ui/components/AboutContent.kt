@@ -13,10 +13,7 @@ import com.karol.readingsapp.core.i18n.LocalizedStrings
 import com.karol.readingsapp.core.theme.AdaptiveDimens
 
 @Composable
-fun AboutContent(
-    strings: LocalizedStrings,
-    modifier: Modifier = Modifier,
-) {
+fun AboutContent(strings: LocalizedStrings, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
