@@ -136,8 +136,8 @@ fun HomeScreen(
                         ) {
                             DropdownMenuItem(
                                 text = {
-                                    Text(
-                                        strings.about,
+                                    AutoResizingText(
+                                        text = strings.about,
                                         color = MaterialTheme.colorScheme.onSurface,
                                         fontSize = AdaptiveDimens.smallFontSize,
                                         fontWeight = FontWeight.Normal,
@@ -278,11 +278,12 @@ fun HomeHeader(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                         }
-                        Text(
+                        AutoResizingText(
                             text = selectedName,
                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                             fontWeight = FontWeight.Bold,
                             fontSize = AdaptiveDimens.smallFontSize,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
                         Icon(
                             Icons.Default.ArrowDropDown,
@@ -301,8 +302,8 @@ fun HomeHeader(
                     translations.forEach { translation ->
                         DropdownMenuItem(
                             text = {
-                                Text(
-                                    translation.name,
+                                AutoResizingText(
+                                    text = translation.name,
                                     color = MaterialTheme.colorScheme.onSurface,
                                     fontSize = AdaptiveDimens.smallFontSize,
                                     fontWeight = FontWeight.Normal,
@@ -366,7 +367,7 @@ fun ReadingSection(
             modifier = Modifier.padding(sectionPadding),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
+                AutoResizingText(
                     title,
                     color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
                     fontWeight = FontWeight.Bold,
@@ -376,7 +377,7 @@ fun ReadingSection(
             Spacer(modifier = Modifier.height(innerSpacer))
 
             if (items.isEmpty()) {
-                Text(
+                AutoResizingText(
                     noReadingsText,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                     fontSize = AdaptiveDimens.smallFontSize,

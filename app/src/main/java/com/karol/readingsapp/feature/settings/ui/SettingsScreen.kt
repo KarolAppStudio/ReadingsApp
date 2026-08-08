@@ -44,6 +44,7 @@ import com.karol.readingsapp.core.theme.AdaptiveDimens
 import com.karol.readingsapp.core.theme.AppTheme
 import com.karol.readingsapp.core.ui.components.AboutContent
 import com.karol.readingsapp.core.ui.components.AppBottomNavBar
+import com.karol.readingsapp.core.ui.components.AutoResizingText
 import com.karol.readingsapp.core.ui.components.NavItem
 import com.karol.readingsapp.feature.bible.data.LanguageStatus
 import com.karol.readingsapp.feature.bible.data.TranslationEntity
@@ -263,7 +264,7 @@ fun SettingsTabs(
                         .padding(start = 16.dp, end = 35.dp, top = 8.dp, bottom = 8.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(
+                    AutoResizingText(
                         text = title,
                         color = if (selected) {
                             MaterialTheme.colorScheme.onPrimary
@@ -354,7 +355,7 @@ fun DownloadSettings(
                                 .rotate(rotation.value)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(
+                        AutoResizingText(
                             text = strings.refresh,
                             fontSize = (12 * AdaptiveDimens.fontScale).sp,
                             fontWeight = FontWeight.Bold
@@ -383,20 +384,16 @@ fun DownloadSettings(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(
+                        AutoResizingText(
                             text = translation.name,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = AdaptiveDimens.smallFontSize,
-                                color = MaterialTheme.colorScheme.onSurface,
-                            ),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = AdaptiveDimens.smallFontSize,
+                            fontWeight = FontWeight.SemiBold,
                         )
-                        Text(
+                        AutoResizingText(
                             text = translation.language,
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontSize = (12 * AdaptiveDimens.fontScale).sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = (12 * AdaptiveDimens.fontScale).sp,
                         )
                     }
 
@@ -470,7 +467,7 @@ fun DownloadSettings(
                                             horizontalArrangement = Arrangement.End,
                                             modifier = Modifier.wrapContentWidth()
                                         ) {
-                                            Text(
+                                            AutoResizingText(
                                                 text = strings.installed,
                                                 color = Color(0xFF2E7D32), // Dark Green
                                                 fontSize = (12 * AdaptiveDimens.fontScale).sp,
@@ -498,7 +495,7 @@ fun DownloadSettings(
                                                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                                                     )
                                                 ) {
-                                                    Text(
+                                                    AutoResizingText(
                                                         text = "Remove",
                                                         fontSize = (10 * AdaptiveDimens.fontScale).sp,
                                                         fontWeight = FontWeight.Bold
@@ -523,7 +520,7 @@ fun DownloadSettings(
                                             modifier = Modifier
                                                 .height(32.dp)
                                         ) {
-                                            Text(
+                                            AutoResizingText(
                                                 text = strings.download,
                                                 fontSize = (12 * AdaptiveDimens.fontScale).sp,
                                                 fontWeight = FontWeight.Bold,
@@ -592,9 +589,10 @@ fun AppearanceSettings(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
+                        AutoResizingText(
                             text = currentTheme.getDisplayName(strings),
                             fontSize = AdaptiveDimens.smallFontSize,
+                            modifier = Modifier.weight(1f),
                         )
                         Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                     }
@@ -611,8 +609,8 @@ fun AppearanceSettings(
                     AppTheme.entries.forEach { theme ->
                         DropdownMenuItem(
                             text = {
-                                Text(
-                                    theme.getDisplayName(strings),
+                                AutoResizingText(
+                                    text = theme.getDisplayName(strings),
                                     fontSize = AdaptiveDimens.smallFontSize,
                                     color = MaterialTheme.colorScheme.onSurface,
                                 )
@@ -628,6 +626,7 @@ fun AppearanceSettings(
         }
     }
 }
+
 
 @Composable
 fun AboutSettings(
@@ -657,11 +656,11 @@ fun ContactSettings(
             onDismissRequest = { showMessageSentPopup = false },
             confirmButton = {
                 TextButton(onClick = { showMessageSentPopup = false }) {
-                    Text("OK")
+                    AutoResizingText("OK", fontSize = AdaptiveDimens.smallFontSize)
                 }
             },
-            title = { Text("Success") },
-            text = { Text("Message Sent") },
+            title = { AutoResizingText("Success", fontSize = AdaptiveDimens.bodyFontSize) },
+            text = { AutoResizingText("Message Sent", fontSize = AdaptiveDimens.smallFontSize) },
         )
     }
 
@@ -711,7 +710,7 @@ fun ContactSettings(
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 ) {
-                    Text("Click Here")
+                    AutoResizingText("Click Here", fontSize = AdaptiveDimens.bodyFontSize)
                 }
             }
         }
@@ -898,9 +897,10 @@ fun VoiceSettings(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
+                        AutoResizingText(
                             text = selectedVoiceName,
                             fontSize = AdaptiveDimens.smallFontSize,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
                         Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                     }
@@ -924,7 +924,7 @@ fun VoiceSettings(
                         grouped.forEach { (lang, voices) ->
                             DropdownMenuItem(
                                 text = {
-                                    Text(
+                                    AutoResizingText(
                                         lang,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = AdaptiveDimens.smallFontSize,
@@ -948,7 +948,7 @@ fun VoiceSettings(
                                 val displayName = "  $genderLabel$indexLabel${if (voice.isOffline) " [Offline]" else ""}"
                                 DropdownMenuItem(
                                     text = {
-                                        Text(
+                                        AutoResizingText(
                                             displayName,
                                             fontSize = AdaptiveDimens.smallFontSize,
                                             color = MaterialTheme.colorScheme.onSurface,
@@ -1009,7 +1009,7 @@ fun FeedbackDialog(
                         onValueChange = {},
                         readOnly = true,
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Select Subject") },
+                        placeholder = { AutoResizingText("Select Subject", fontSize = AdaptiveDimens.smallFontSize) },
                         trailingIcon = {
                             IconButton(onClick = { dropdownExpanded = true }) {
                                 Icon(
@@ -1037,7 +1037,7 @@ fun FeedbackDialog(
                     ) {
                         subjects.forEach { item ->
                             DropdownMenuItem(
-                                text = { Text(item) },
+                                text = { AutoResizingText(item, fontSize = AdaptiveDimens.smallFontSize) },
                                 onClick = {
                                     subject = item
                                     dropdownExpanded = false
@@ -1054,7 +1054,7 @@ fun FeedbackDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(150.dp),
-                        placeholder = { Text("Type your message here...") },
+                        placeholder = { AutoResizingText("Type your message here...", fontSize = AdaptiveDimens.smallFontSize) },
                         shape = androidx.compose.ui.graphics.RectangleShape,
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -1077,7 +1077,7 @@ fun FeedbackDialog(
                         modifier = Modifier.fillMaxWidth(),
                         shape = androidx.compose.ui.graphics.RectangleShape,
                     ) {
-                        Text("Send")
+                        AutoResizingText("Send", fontSize = AdaptiveDimens.bodyFontSize)
                     }
                 }
             }

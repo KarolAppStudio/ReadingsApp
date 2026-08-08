@@ -94,7 +94,7 @@ fun TranslationSelector(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(
+                AutoResizingText(
                     text = transName,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     fontWeight = FontWeight.Bold,
@@ -123,11 +123,10 @@ fun TranslationSelector(
             translations.forEach { translation ->
                 DropdownMenuItem(
                     text = {
-                        Text(
+                        AutoResizingText(
                             text = translation.name,
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurface,
-                            softWrap = false,
                         )
                     },
                     onClick = {
@@ -195,13 +194,12 @@ fun SelectionButton(
             options.forEachIndexed { index, option ->
                 DropdownMenuItem(
                     text = {
-                        Text(
+                        AutoResizingText(
                             text = option,
                             fontSize = 12.sp,
                             textAlign = TextAlign.Start,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.fillMaxWidth(),
-                            softWrap = false,
                         )
                     },
                     contentPadding = PaddingValues(horizontal = 8.dp),

@@ -181,9 +181,9 @@ fun BibleReaderScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(
+                    AutoResizingText(
                         text = strings.loadingReading,
-                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = AdaptiveDimens.smallFontSize,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -348,7 +348,7 @@ fun ReaderTopBar(
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(24.dp),
                                 )
-                                Text(
+                                AutoResizingText(
                                     text = strings.parallelReading,
                                     color = MaterialTheme.colorScheme.primary,
                                     fontSize = 10.sp,
@@ -557,9 +557,9 @@ fun ChapterPage(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             if (!isComplete) {
-                                Text(
+                                AutoResizingText(
                                     text = strings.downloadRequired,
-                                    style = MaterialTheme.typography.titleMedium,
+                                    fontSize = AdaptiveDimens.bodyFontSize,
                                     color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -570,12 +570,12 @@ fun ChapterPage(
                                 ) {
                                     Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(18.dp)) // Using Home as placeholder for download icon
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(strings.download)
+                                    AutoResizingText(strings.download, fontSize = AdaptiveDimens.smallFontSize)
                                 }
                             } else if (status == com.karol.readingsapp.feature.bible.data.LanguageStatus.FAILED) {
-                                Text(
+                                AutoResizingText(
                                     text = strings.failed,
-                                    style = MaterialTheme.typography.titleMedium,
+                                    fontSize = AdaptiveDimens.bodyFontSize,
                                     color = MaterialTheme.colorScheme.error
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -584,18 +584,18 @@ fun ChapterPage(
                                     shape = RoundedCornerShape(26.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                                 ) {
-                                    Text(strings.retry)
+                                    AutoResizingText(strings.retry, fontSize = AdaptiveDimens.smallFontSize)
                                 }
                             } else if (status == com.karol.readingsapp.feature.bible.data.LanguageStatus.DOWNLOADED) {
-                                Text(
+                                AutoResizingText(
                                     text = strings.contentNotFound,
-                                    style = MaterialTheme.typography.titleMedium,
+                                    fontSize = AdaptiveDimens.bodyFontSize,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             } else {
                                 CircularProgressIndicator(modifier = Modifier.size(32.dp))
                                 Spacer(modifier = Modifier.height(16.dp))
-                                Text(
+                                AutoResizingText(
                                     text = strings.loadingReading,
                                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                                     fontSize = AdaptiveDimens.bodyFontSize,
@@ -664,7 +664,7 @@ fun ChapterPage(
                                         modifier = Modifier.size(18.dp),
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
+                                    AutoResizingText(
                                         text = strings.back,
                                         fontSize = AdaptiveDimens.smallFontSize,
                                     )
@@ -687,7 +687,7 @@ fun ChapterPage(
                                     colors = ButtonDefaults.buttonColors(),
                                 ) {
                                     val nextPortionName = nextPortion?.let { strings.bookNames[it.bookId] ?: it.bookName }
-                                    Text(
+                                    AutoResizingText(
                                         text = when {
                                             nextPortionName != null -> "${strings.nextPortion}: $nextPortionName"
                                             nextBookName != null -> "${strings.nextReading}: $nextBookName"

@@ -82,8 +82,8 @@ private fun RowScope.AppNavigationBarItem(
             )
         },
         label = {
-            Text(
-                label,
+            AutoResizingText(
+                text = label,
                 fontSize = AdaptiveDimens.smallFontSize,
             )
         },

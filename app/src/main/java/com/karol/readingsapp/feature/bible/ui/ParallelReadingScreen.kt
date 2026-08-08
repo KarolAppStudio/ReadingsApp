@@ -317,7 +317,7 @@ private fun SyncToggleButton(isEnabled: Boolean, contentDescription: String, onC
                 }
             }
         }
-        Text(
+        AutoResizingText(
             text = contentDescription,
             color = MaterialTheme.colorScheme.primary,
             fontSize = 10.sp,
@@ -334,7 +334,7 @@ private fun ResetButton(contentDescription: String, onClick: () -> Unit) {
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(24.dp),
         )
-        Text(
+        AutoResizingText(
             text = contentDescription,
             color = MaterialTheme.colorScheme.primary,
             fontSize = 10.sp,

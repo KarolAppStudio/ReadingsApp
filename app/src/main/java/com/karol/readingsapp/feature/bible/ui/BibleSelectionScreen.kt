@@ -137,8 +137,8 @@ fun BibleSelectionScreen(
                             selected = currentMode == mode,
                             onClick = { currentMode = mode },
                             text = {
-                                Text(
-                                    mode.name,
+                                AutoResizingText(
+                                    text = mode.name,
                                     fontSize = AdaptiveDimens.smallFontSize,
                                     color = MaterialTheme.colorScheme.primary,
                                 )
@@ -238,7 +238,7 @@ fun SelectionTopBar(
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp),
                     )
-                    Text(
+                    AutoResizingText(
                         text = strings.parallelReading,
                         color = MaterialTheme.colorScheme.primary,
                         fontSize = 10.sp,
@@ -389,10 +389,11 @@ fun GridOrListSelection(
                         color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(8.dp),
                     ) {
-                        Text(
+                        AutoResizingText(
                             text = itemLabel(item),
                             modifier = Modifier.padding(16.dp),
                             color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = AdaptiveDimens.smallFontSize,
                         )
                     }
                 }
@@ -444,11 +445,12 @@ fun BookListItem(book: BookEntity, strings: LocalizedStrings, onClick: (BookEnti
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(8.dp),
     ) {
-        Text(
+        AutoResizingText(
             text = strings.bookNames[book.id] ?: book.name,
             modifier = Modifier.padding(16.dp),
             color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Medium,
+            fontSize = AdaptiveDimens.smallFontSize,
         )
     }
 }
@@ -469,15 +471,16 @@ fun ChapterCard(item: Int, header: String, label: String, onClick: (Int) -> Unit
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Text(
+            AutoResizingText(
                 text = header,
                 fontSize = 10.sp,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
             )
-            Text(
+            AutoResizingText(
                 text = label,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
+                fontSize = AdaptiveDimens.smallFontSize,
             )
         }
     }
