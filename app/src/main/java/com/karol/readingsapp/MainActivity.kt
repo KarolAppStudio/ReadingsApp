@@ -260,7 +260,7 @@ class MainActivity : ComponentActivity() {
                                         chapter = chapter,
                                         viewModel = viewModel,
                                     ) {
-                                        navController.popBackStack()
+                                        navController.popBackStack("home", inclusive = false)
                                     }
                                 }
                                 composable(

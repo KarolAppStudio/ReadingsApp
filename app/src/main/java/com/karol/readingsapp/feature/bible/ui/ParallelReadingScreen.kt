@@ -9,7 +9,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.RestartAlt
@@ -36,7 +36,7 @@ import java.text.NumberFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParallelReadingScreen(bookId: Int, chapter: Int, viewModel: ReadingViewModel, onBackClick: () -> Unit) {
+fun ParallelReadingScreen(bookId: Int, chapter: Int, viewModel: ReadingViewModel, onHomeClick: () -> Unit) {
     val verses1 by viewModel.chapterVerses.collectAsState()
     val verses2 by viewModel.secondChapterVerses.collectAsState()
     val translations by viewModel.downloadedTranslations.collectAsState()
@@ -107,10 +107,10 @@ fun ParallelReadingScreen(bookId: Int, chapter: Int, viewModel: ReadingViewModel
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = onHomeClick) {
                         Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            strings1.back,
+                            Icons.Default.Home,
+                            strings1.home,
                             tint = MaterialTheme.colorScheme.primary,
                         )
                     }
