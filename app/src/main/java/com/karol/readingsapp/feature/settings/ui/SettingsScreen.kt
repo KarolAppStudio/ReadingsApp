@@ -647,13 +647,12 @@ private fun SettingsFooter(strings: LocalizedStrings) {
 @Composable
 fun VoiceSettings(voiceViewModel: VoiceViewModel) {
     val filteredVoices by voiceViewModel.filteredVoices.collectAsStateWithLifecycle()
-    val allVoices by voiceViewModel.availableVoices.collectAsStateWithLifecycle()
     val selectedVoice by voiceViewModel.selectedVoice.collectAsStateWithLifecycle()
     var expanded by remember { mutableStateOf(value = false) }
 
     var persistentVoiceName by remember { mutableStateOf("Default") }
 
-    val selectedVoiceName = remember(selectedVoice, allVoices) {
+    val selectedVoiceName = remember(selectedVoice, filteredVoices) {
         selectedVoice?.let { voice ->
             val lang = voice.locale.displayLanguage
             val genderLabel = when (voice.gender) {
@@ -661,8 +660,8 @@ fun VoiceSettings(voiceViewModel: VoiceViewModel) {
                 VoiceGender.FEMALE -> "Female"
                 VoiceGender.UNKNOWN -> "Voice"
             }
-            // Find index within same gender/lang in all voices for consistent display
-            val voicesInLang = allVoices.filter { it.locale.language == voice.locale.language }
+            // Find index within same gender/lang in filtered voices for consistent display
+            val voicesInLang = filteredVoices.filter { it.locale.language == voice.locale.language }
             val sameGenderVoices = voicesInLang.filter { it.gender == voice.gender }
             val index = sameGenderVoices.indexOfFirst { it.name == voice.name } + 1
             val indexLabel = if (sameGenderVoices.size > 1 && index > 0) " $index" else ""
