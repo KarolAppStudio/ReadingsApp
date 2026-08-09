@@ -19,7 +19,9 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -30,6 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.karol.readingsapp.core.i18n.Localization
@@ -143,6 +146,9 @@ class MainActivity : ComponentActivity() {
             ProvideWindowSizeClass(windowSizeClass) {
                 ReadingsAppTheme(appTheme = currentTheme) {
                     val navController = rememberNavController()
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentRoute = navBackStackEntry?.destination?.route
+                    var settingsTabIndex by remember { mutableIntStateOf(0) }
 
                     Surface(
                         modifier = Modifier.fillMaxSize(),
@@ -195,9 +201,12 @@ class MainActivity : ComponentActivity() {
                                         onCalendarClick = {
                                             navController.navigate("reading_plan")
                                         },
-                                    ) {
-                                        navController.navigate("bible")
-                                    }
+                                        onBibleClick = {
+                                            navController.navigate("bible")
+                                        },
+                                        initialTabIndex = settingsTabIndex,
+                                        onTabSelected = { settingsTabIndex = it },
+                                    )
                                 }
                                 composable("reading_plan") {
                                     ReadingPlanScreen(
@@ -299,10 +308,13 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
 
-                            DownloadProgressOverlay(
-                                progress = batchProgress,
-                                strings = strings,
-                            )
+                            val isDownloadTab = currentRoute == "settings" && settingsTabIndex == 1
+                            if (!isDownloadTab) {
+                                DownloadProgressOverlay(
+                                    progress = batchProgress,
+                                    strings = strings,
+                                )
+                            }
                         }
                     }
                 }

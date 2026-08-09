@@ -50,6 +50,8 @@ fun SettingsScreen(
     onHomeClick: () -> Unit,
     onCalendarClick: () -> Unit,
     onBibleClick: () -> Unit,
+    initialTabIndex: Int = 0,
+    onTabSelected: (Int) -> Unit = {},
 ) {
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val translations by viewModel.availableTranslations.collectAsState()
@@ -64,9 +66,13 @@ fun SettingsScreen(
     }
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
     val tabs = remember(strings) { listOf(strings.settings, strings.download, strings.about) }
     var themeExpanded by remember { mutableStateOf(value = false) }
+
+    LaunchedEffect(selectedTabIndex) {
+        onTabSelected(selectedTabIndex)
+    }
 
     Scaffold(
         topBar = {
