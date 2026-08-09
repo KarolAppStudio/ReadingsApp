@@ -30,6 +30,22 @@ The reading plan used in this app is based on the **Christadelphian Bible Readin
 
 ## Copyright & License Information
 
+Bangla: William Carey's 19th-century Bengali translation.
+
+Tamil: The classic Tamil Old Version (O.V)
+
+Malayalam: Indian Revised Version (IRV-2019). Creative Commons Attribution-ShareAlike 4.0 International License
+
+Telugu: Indian Revised Version (IRV-2019). Creative Commons Attribution-ShareAlike 4.0 International License
+
+Kannada: Indian Revised Version (IRV-2019). Creative Commons Attribution-ShareAlike 4.0 International License
+
+Hindi: Creative Commons Attribution-ShareAlike 4.0 International License
+
+English: American Standard Version (ASV) 1901
+
+Mizo: Mizo Old Version / Lushai Bible 1959
+
 INDIAN REVISED VERSION (IRV-2019)
 BIBLE TEXT LICENSE
 
