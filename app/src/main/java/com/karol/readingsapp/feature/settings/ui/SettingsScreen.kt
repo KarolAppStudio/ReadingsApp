@@ -134,6 +134,11 @@ fun SettingsScreen(
                                 VoiceSettings(
                                     voiceViewModel = voiceViewModel,
                                 )
+                                Spacer(modifier = Modifier.height(AdaptiveDimens.paddingMedium))
+                                UpdateSettings(
+                                    isRefreshing = isRefreshing,
+                                    onCheckForUpdates = { viewModel.refreshRemoteTranslations(updateDb = true) },
+                                )
                             }
 
                             1 -> DownloadSettings(
@@ -641,6 +646,50 @@ private fun SettingsFooter(strings: LocalizedStrings) {
             fontSize = (10 * AdaptiveDimens.fontScale).sp,
             textAlign = TextAlign.Center,
         )
+    }
+}
+
+@Composable
+fun UpdateSettings(isRefreshing: Boolean, onCheckForUpdates: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
+        ) {
+            AutoResizingText(
+                text = "Updates",
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = AdaptiveDimens.bodyFontSize,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 12.dp),
+            )
+
+            Button(
+                onClick = onCheckForUpdates,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isRefreshing,
+                shape = RoundedCornerShape(8.dp),
+            ) {
+                if (isRefreshing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(
+                    text = "Check for updates",
+                    fontSize = AdaptiveDimens.smallFontSize,
+                )
+            }
+        }
     }
 }
 
