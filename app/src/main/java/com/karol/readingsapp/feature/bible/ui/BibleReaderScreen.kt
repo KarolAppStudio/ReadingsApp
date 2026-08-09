@@ -59,7 +59,7 @@ fun BibleReaderScreen(
     onChapterChange: (Int, Int, String?) -> Unit,
 ) {
     val allChapters by viewModel.allChapters.collectAsState()
-    val translations by viewModel.downloadedTranslations.collectAsState()
+    val availableTranslations by viewModel.availableTranslations.collectAsState()
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val allBooks by viewModel.allBooks.collectAsState()
 
@@ -116,9 +116,10 @@ fun BibleReaderScreen(
         chapterCount = viewModel.getChapterCount(displayBookId)
     }
 
-    val selectedLanguage = remember(selectedCode, translations) {
-        translations.find { it.code == selectedCode }?.language ?: "English"
+    val selectedTranslation = remember(selectedCode, availableTranslations) {
+        availableTranslations.find { it.code == selectedCode }
     }
+    val selectedLanguage = selectedTranslation?.language ?: "English"
     val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
     val bookName = strings.bookNames[displayBookId] ?: "Book $displayBookId"
 
@@ -148,7 +149,7 @@ fun BibleReaderScreen(
         val isSupported = availableVoices.any { it.locale.language == strings.locale.language }
         // Show if it's currently doing something (Initializing/Speaking/Paused/Error)
         // OR if we know the language is supported (even if Idle)
-        ttsState !is TTSState.Idle || isSupported
+        (ttsState !is TTSState.Idle) || isSupported
     }
 
     val textToRead = remember(currentVerses, selectedVerseId, readingType, uiState) {
@@ -264,6 +265,7 @@ fun BibleReaderScreen(
                 viewModel = viewModel,
                 numberFormatter = numberFormatter,
                 strings = strings,
+                selectedTranslation = selectedTranslation,
                 onChapterChange = onChapterChange,
                 scope = scope,
             )
@@ -424,6 +426,7 @@ fun ReaderPagerPage(
     viewModel: ReadingViewModel,
     numberFormatter: NumberFormat,
     strings: LocalizedStrings,
+    selectedTranslation: com.karol.readingsapp.feature.bible.data.TranslationEntity?,
     onChapterChange: (Int, Int, String?) -> Unit,
     scope: CoroutineScope,
 ) {
@@ -473,6 +476,7 @@ fun ReaderPagerPage(
                 viewModel = viewModel,
                 numberFormatter = numberFormatter,
                 strings = strings,
+                selectedTranslation = selectedTranslation,
                 onNextChapter = {
                     scope.launch {
                         pagerState.animateScrollToPage(pagerState.currentPage + 1)
@@ -503,6 +507,7 @@ fun ChapterPage(
     viewModel: ReadingViewModel,
     numberFormatter: NumberFormat,
     strings: LocalizedStrings,
+    selectedTranslation: com.karol.readingsapp.feature.bible.data.TranslationEntity?,
     onNextChapter: (() -> Unit)? = null,
     onPreviousChapter: (() -> Unit)? = null,
     nextBookName: String? = null,
@@ -513,11 +518,9 @@ fun ChapterPage(
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val isComplete by viewModel.isCurrentTranslationComplete.collectAsState()
     val downloadStatus by viewModel.downloadStatus.collectAsState()
-    val translations by viewModel.downloadedTranslations.collectAsState()
 
-    val currentLang = remember(selectedCode, translations) {
-        translations.find { it.code == selectedCode }?.language ?: "English"
-    }
+    val currentLang = selectedTranslation?.language ?: "English"
+    val currentCode = selectedTranslation?.code ?: "ENG"
     val status = downloadStatus[currentLang]
 
     val nextPortion = remember(readingType, bookId, chapter) {
@@ -577,7 +580,11 @@ fun ChapterPage(
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Button(
                                     onClick = {
-                                        viewModel.startBatchDownload(listOf(currentLang), force = true)
+                                        viewModel.startBatchDownload(
+                                            listOf(currentLang),
+                                            listOf(currentCode),
+                                            force = true,
+                                        )
                                     },
                                     shape = RoundedCornerShape(26.dp),
                                 ) {
@@ -598,7 +605,11 @@ fun ChapterPage(
                                 Spacer(modifier = Modifier.height(16.dp))
                                 Button(
                                     onClick = {
-                                        viewModel.startBatchDownload(listOf(currentLang), force = true)
+                                        viewModel.startBatchDownload(
+                                            listOf(currentLang),
+                                            listOf(currentCode),
+                                            force = true,
+                                        )
                                     },
                                     shape = RoundedCornerShape(26.dp),
                                     colors = ButtonDefaults.buttonColors(

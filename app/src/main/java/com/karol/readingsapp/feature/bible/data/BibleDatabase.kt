@@ -31,8 +31,13 @@ abstract class BibleDatabase : RoomDatabase() {
 
                 try {
                     context.assets.open("bibles.db").use { input ->
-                        dbFile.outputStream().use { output ->
-                            input.copyTo(output)
+                        java.io.FileOutputStream(dbFile).use { output ->
+                            val buffer = ByteArray(8192)
+                            var bytesRead: Int
+                            while (input.read(buffer).also { bytesRead = it } != -1) {
+                                output.write(buffer, 0, bytesRead)
+                            }
+                            output.flush()
                         }
                     }
                 } catch (e: Exception) {

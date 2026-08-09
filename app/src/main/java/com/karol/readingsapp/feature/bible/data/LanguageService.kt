@@ -56,7 +56,8 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
             "Tamil" -> "TAM"
             "Telugu" -> "TEL"
             "Mizo" -> "MIZO"
-            else -> "ENG"
+            "English", "English-ASV" -> "ENG"
+            else -> language
         }
     }
 
@@ -193,7 +194,8 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
         forceCode: String? = null,
         allowNetwork: Boolean = true,
     ): Boolean = withContext(Dispatchers.IO) {
-        val code = forceCode ?: getLanguageCode(language)
+        // Normalize MIZ to MIZO for remote file compatibility
+        val code = (forceCode ?: getLanguageCode(language)).let { if (it == "MIZ") "MIZO" else it }
 
         // Try reading from assets first (included in APK)
         val assetPath = "bibles/$code.json"
@@ -230,8 +232,9 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
             if (connection.responseCode == HttpURLConnection.HTTP_OK) {
                 val contentLength = connection.contentLength
                 val tempFile = java.io.File(context.cacheDir, "${code}_temp.db")
+
                 connection.inputStream.use { input ->
-                    tempFile.outputStream().use { output ->
+                    java.io.FileOutputStream(tempFile).use { output ->
                         val buffer = ByteArray(8192)
                         var bytesRead: Int
                         var totalBytesRead = 0L
@@ -243,6 +246,7 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
                                 updateProgress(language, (totalBytesRead.toFloat() / contentLength) * 0.5f)
                             }
                         }
+                        output.flush()
                     }
                 }
                 val success = importFromDbFile(tempFile, code)
@@ -258,10 +262,14 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
     }
 
     private suspend fun importFromDbFile(dbFile: java.io.File, code: String): Boolean = withContext(Dispatchers.IO) {
+        val language = getLanguageFromCode(code)
         try {
-            val language = getLanguageFromCode(code)
+            // 1. Verify file exists and has valid SQLite magic header before opening
+            if (!dbFile.exists() || dbFile.length() < 100) {
+                throw IllegalArgumentException("Temporary DB file for $code is missing or invalid.")
+            }
 
-            // Ensure the translation exists in the translations table first to satisfy FK constraint
+            // 2. Ensure the translation exists to satisfy FK constraint
             val translation = TranslationEntity(
                 code = code,
                 language = language,
@@ -273,40 +281,48 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
 
             val db = bibleDatabase.openHelper.writableDatabase
 
-            // Use ATTACH DATABASE to efficiently import data
+            // 3. Ensure ATTACH happens OUTSIDE an active Room transaction block
             // We use ' ' around the path and escape potential single quotes in the path
             val escapedPath = dbFile.absolutePath.replace("'", "''")
             db.execSQL("ATTACH DATABASE '$escapedPath' AS to_import")
 
             try {
-                // Determine the table name in the imported database (verses or verse)
-                var importedTable = "verses"
-                val tableCheckCursor = db.query(
-                    "SELECT name FROM to_import.sqlite_master WHERE type='table' AND (name='verses' OR name='verse')",
-                )
-                if (tableCheckCursor.moveToFirst()) {
-                    importedTable = tableCheckCursor.getString(0)
+                // 4. Perform discovery and data import inside a clear inner transaction
+                db.beginTransaction()
+                try {
+                    // Determine the table name in the imported database (verses or verse)
+                    var importedTable = "verses"
+                    val tableCheckCursor = db.query(
+                        "SELECT name FROM to_import.sqlite_master WHERE type='table' AND (name='verses' OR name='verse')",
+                    )
+                    if (tableCheckCursor.moveToFirst()) {
+                        importedTable = tableCheckCursor.getString(0)
+                    }
+                    tableCheckCursor.close()
+
+                    // Check if the imported database uses 1-based book IDs
+                    val minBookIdCursor = db.query("SELECT MIN(book_id) FROM to_import.$importedTable")
+                    val minBookId = if (minBookIdCursor.moveToFirst()) minBookIdCursor.getInt(0) else 0
+                    minBookIdCursor.close()
+                    val offset = if (minBookId == 1) -1 else 0
+
+                    // Insert verses from the attached database into the main database
+                    // Room's table name is 'verses'
+                    db.execSQL(
+                        """
+                        INSERT OR REPLACE INTO verses (book_id, chapter, verse, text, translation_code)
+                        SELECT book_id + $offset, chapter, verse, text, '$code' FROM to_import.$importedTable
+                        WHERE book_id + $offset BETWEEN 0 AND 65
+                        """.trimIndent(),
+                    )
+
+                    db.setTransactionSuccessful()
+                    updateProgress(language, 0.9f)
+                } finally {
+                    db.endTransaction()
                 }
-                tableCheckCursor.close()
-
-                // Check if the imported database uses 1-based book IDs
-                val minBookIdCursor = db.query("SELECT MIN(book_id) FROM to_import.$importedTable")
-                val minBookId = if (minBookIdCursor.moveToFirst()) minBookIdCursor.getInt(0) else 0
-                minBookIdCursor.close()
-                val offset = if (minBookId == 1) -1 else 0
-
-                // Insert verses from the attached database into the main database
-                // Room's table name is 'verses'
-                db.execSQL(
-                    """
-                    INSERT OR REPLACE INTO verses (book_id, chapter, verse, text, translation_code)
-                    SELECT book_id + $offset, chapter, verse, text, '$code' FROM to_import.$importedTable
-                    WHERE book_id + $offset BETWEEN 0 AND 65
-                    """.trimIndent(),
-                )
-
-                updateProgress(language, 0.9f)
             } finally {
+                // 5. Always DETACH after completion
                 try {
                     db.execSQL("DETACH DATABASE to_import")
                 } catch (e: Exception) {

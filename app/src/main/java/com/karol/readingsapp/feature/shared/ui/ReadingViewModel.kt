@@ -193,12 +193,13 @@ class ReadingViewModel(
             val isFirstRun = prefs.getBoolean("is_first_run", true)
             if (isFirstRun) {
                 val defaultLanguages = listOf("English", "Malayalam")
+                val defaultCodes = listOf("ENG", "MAL")
                 // Check if assets are available for default languages
                 val allAssetsPresent = defaultLanguages.all { languageService.hasAsset(it) }
 
                 // If assets are missing, we MUST allow network even on first run to have a working app
                 if (triggerRepair) {
-                    startBatchDownload(defaultLanguages, allowNetwork = allAssetsPresent.not())
+                    startBatchDownload(defaultLanguages, defaultCodes, allowNetwork = allAssetsPresent.not())
                 }
 
                 setTheme(AppTheme.SKY_BLUE)
@@ -208,34 +209,40 @@ class ReadingViewModel(
                 defaultLanguages.forEach { checkTTSForLanguage(it) }
             } else {
                 // Check if default translations are actually complete
-                val defaultCodes = listOf("ENG", "MAL")
-                val incompleteDefaults = mutableListOf<String>()
-                for (code in defaultCodes) {
+                val defaultMapping = listOf("English" to "ENG", "Malayalam" to "MAL")
+                val incompleteData = mutableListOf<Pair<String, String>>()
+                for ((lang, code) in defaultMapping) {
                     if (!repository.isTranslationComplete(code)) {
-                        incompleteDefaults.add(if (code == "ENG") "English" else "Malayalam")
+                        incompleteData.add(lang to code)
                     }
                 }
 
                 // Only trigger repair if not already downloading
                 val currentStatus = languageService.downloadStatus.value
-                val actuallyIncomplete = incompleteDefaults.filter { lang ->
+                val actuallyIncomplete = incompleteData.filter { (lang, _) ->
                     currentStatus[lang] != LanguageStatus.DOWNLOADING
                 }
 
                 if (triggerRepair && actuallyIncomplete.isNotEmpty()) {
                     // If they are missing or incomplete after first run, we can try to repair them
                     // (allowing network now if necessary)
-                    startBatchDownload(actuallyIncomplete, force = true)
+                    startBatchDownload(
+                        actuallyIncomplete.map { it.first },
+                        actuallyIncomplete.map { it.second },
+                        force = true,
+                    )
                 } else if (triggerRepair) {
                     // Ensure default languages are eventually marked as downloaded if they weren't finished
-                    val defaultLanguages = listOf("English", "Malayalam")
-                    val missingDefaults = defaultLanguages.filter { lang ->
+                    val missingDefaults = defaultMapping.filter { (lang, _) ->
                         statusMap[lang] != LanguageStatus.DOWNLOADED &&
                             statusMap[lang] != LanguageStatus.DOWNLOADING &&
                             statusMap[lang] != LanguageStatus.FAILED
                     }
                     if (missingDefaults.isNotEmpty()) {
-                        startBatchDownload(missingDefaults)
+                        startBatchDownload(
+                            missingDefaults.map { it.first },
+                            missingDefaults.map { it.second },
+                        )
                     }
                 }
             }
@@ -254,7 +261,7 @@ class ReadingViewModel(
         val translation = _availableTranslations.value.find { it.code == translationCode }
         translation?.let {
             viewModelScope.launch {
-                languageService.downloadLanguageScript(it.language)
+                languageService.downloadLanguageScript(it.language, it.code)
                 _selectedTranslationCode.value = translationCode
                 _isCurrentTranslationComplete.value = repository.isTranslationComplete(translationCode)
                 prefs.edit { putString("default_bible", translationCode) }
