@@ -40,7 +40,7 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
     private var currentChunkIndex: Int = 0
     private var nextWordOffsetInCurrentChunk: Int = 0
 
-    private val priorityLanguages = setOf("en", "hi", "bn", "kn", "ml", "ta", "te", "lus")
+    private val priorityLanguages = setOf("en", "hi", "bn", "kn", "ml", "ta", "te", "lus", "miz")
 
     init {
         initializeTTS()
@@ -63,8 +63,6 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
                     .groupBy { it.locale.language }
 
                 languageGroups.forEach { (_, voicesInLang) ->
-                    val limitPerGender = 5 // Use consistent limit for allowed languages
-
                     val detectedVoices = voicesInLang.asSequence().map { voice ->
                         val gender = when {
                             voice.name.contains("female", ignoreCase = true) -> VoiceGender.FEMALE
@@ -85,21 +83,7 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
                             .thenBy { it.name },
                     ).toList()
 
-                    // Limit per language to keep the list manageable but flexible
-                    val females = detectedVoices.asSequence().filter {
-                        it.gender == VoiceGender.FEMALE
-                    }.take(limitPerGender).toList()
-                    val males = detectedVoices.asSequence().filter {
-                        it.gender == VoiceGender.MALE
-                    }.take(limitPerGender).toList()
-
-                    filteredVoices.addAll(females)
-                    filteredVoices.addAll(males)
-
-                    // Fallback: If no male/female detected for a language, take up to limit
-                    if (females.isEmpty() && males.isEmpty()) {
-                        filteredVoices.addAll(detectedVoices.take(limitPerGender))
-                    }
+                    filteredVoices.addAll(detectedVoices)
                 }
 
                 _availableVoices.value = filteredVoices.sortedWith(

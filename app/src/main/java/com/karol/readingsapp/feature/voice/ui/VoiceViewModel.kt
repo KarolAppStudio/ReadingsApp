@@ -31,7 +31,14 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
             .flatMap { (_, langVoices) ->
                 val males = langVoices.filter { it.gender == VoiceGender.MALE }.take(1)
                 val females = langVoices.filter { it.gender == VoiceGender.FEMALE }.take(2)
-                males + females
+                val selected = (males + females).toMutableList()
+
+                // Fallback: If we don't have enough male/female voices, fill with others up to 3
+                if (selected.size < 3) {
+                    val others = langVoices.filter { it !in selected }.take(3 - selected.size)
+                    selected.addAll(others)
+                }
+                selected
             }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
