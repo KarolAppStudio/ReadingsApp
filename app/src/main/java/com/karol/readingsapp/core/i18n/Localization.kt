@@ -659,9 +659,8 @@ object Localization {
                 "something meaningful for the community.",
             appDescription = "A simple app to help you follow your daily Bible reading plan with " +
                 "multiple translations support.",
-            copyrightTitle = "Copyright Information",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
-                "publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightTitle = "Bible Copyright & License",
+            copyrightNotice = "Indian Revised Version (IRV-2019) Bible text is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0). © 2019 Bridge Connectivity Solutions Pvt. Ltd. License: CC BY-SA 4.0",
             developedBy = "Developed by Karol",
             theme = "Theme",
             themeSkyBlue = "Sky Blue",
@@ -721,9 +720,8 @@ object Localization {
                 "আমাদের গভীর কৃতজ্ঞতা প্রকাশ করছি।",
             appDescription = "একাধিক অনুবাদ সমর্থন সহ আপনার প্রতিদিনের বাইবেল পড়ার পরিকল্পনা অনুসরণ করতে " +
                 "সহায়তা করার জন্য একটি সহজ অ্যাপ।",
-            copyrightTitle = "কপিরাইট তথ্য",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
-                "publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightTitle = "Bible Copyright & License",
+            copyrightNotice = "Indian Revised Version (IRV-2019) Bible text is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0). © 2019 Bridge Connectivity Solutions Pvt. Ltd. License: CC BY-SA 4.0",
             developedBy = "Karol দ্বারা বিকশিত",
             theme = "থিম",
             themeSkyBlue = "আকাশী নীল",
@@ -782,9 +780,8 @@ object Localization {
                 "सर्वशक्तिमान प्रभु के प्रति अत्यंत आभारी हैं।",
             appDescription = "एकाधिक अनुवादों के समर्थन के साथ आपकी दैनिक बाइबिल पढ़ने की योजना का पालन " +
                 "करने में आपकी सहायता करने के लिए एक सरल ऐप।",
-            copyrightTitle = "कॉपीराइट जानकारी",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
-                "publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightTitle = "Bible Copyright & License",
+            copyrightNotice = "Indian Revised Version (IRV-2019) Bible text is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0). © 2019 Bridge Connectivity Solutions Pvt. Ltd. License: CC BY-SA 4.0",
             developedBy = "Karol द्वारा विकसित",
             theme = "विषय",
             themeSkyBlue = "आसमान नीला",
@@ -843,9 +840,8 @@ object Localization {
                 "ಸರ್ವಶಕ್ತ ದೇವರಿಗೆ ನಮ್ಮ ಅನಂತ ಕೃತಜ್ಞತೆಗಳು.",
             appDescription = "ಬಹು ಅನುವಾದಗಳ ಬೆಂಬಲದೊಂದಿಗೆ ನಿಮ್ಮ ದೈನಂದಿನ ಬೈಬಲ್ ಓದುವ ಯೋಜನೆಯನ್ನು ಅನುಸರಿಸಲು ಸಹಾಯ " +
                 "ಮಾಡುವ ಸರಳ ಅಪ್ಲಿಕೇಶನ್.",
-            copyrightTitle = "ಕೃತಿಸ್ವಾಮ್ಯ ಮಾಹಿತಿ",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
-                "publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightTitle = "Bible Copyright & License",
+            copyrightNotice = "Indian Revised Version (IRV-2019) Bible text is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0). © 2019 Bridge Connectivity Solutions Pvt. Ltd. License: CC BY-SA 4.0",
             developedBy = "Karol ಅವರಿಂದ ಅಭಿವೃದ್ಧಿಪಡಿಸಲಾಗಿದೆ",
             theme = "ಥೀಮ್",
             themeSkyBlue = "ಆಕಾಶ ನೀಲಿ",
@@ -904,9 +900,8 @@ object Localization {
                 "സർവ്വശക്തനായ ദൈവത്തോട് ഞങ്ങൾ അങ്ങേയറ്റം കടപ്പെട്ടിരിക്കുന്നു.",
             appDescription = "ഒന്നിലധികം വിവർത്തനങ്ങളുടെ പിന്തുണയോടെ നിങ്ങളുടെ ദൈനംദിന ബൈബിൾ വായനാ " +
                 "പദ്ധതി പിന്തുടരാൻ സഹായിക്കുന്ന ലളിതമായ ആപ്പ്.",
-            copyrightTitle = "പകർപ്പവകാശ വിവരം",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
-                "publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightTitle = "Bible Copyright & License",
+            copyrightNotice = "Indian Revised Version (IRV-2019) Bible text is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0). © 2019 Bridge Connectivity Solutions Pvt. Ltd. License: CC BY-SA 4.0",
             developedBy = "Karol വികസിപ്പിച്ചത്",
             theme = "തീം",
             themeSkyBlue = "സ്കൈ ബ്ലൂ",
@@ -965,9 +960,8 @@ object Localization {
                 "இறைவனுக்கு எங்களது மனமார்ந்த நன்றியைத் தெரிவித்துக் கொள்கிறோம்.",
             appDescription = "பல மொழிபெயர்ப்பு ஆதரவுடன் உங்களின் தினசரி பைபிள் வாசிப்புத் திட்டத்தைப் பின்பற்ற " +
                 "உதவும் எளிய செயலி.",
-            copyrightTitle = "பதிப்புரிமை தகவல்",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
-                "publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightTitle = "Bible Copyright & License",
+            copyrightNotice = "Indian Revised Version (IRV-2019) Bible text is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0). © 2019 Bridge Connectivity Solutions Pvt. Ltd. License: CC BY-SA 4.0",
             developedBy = "Karol உருவாக்கியது",
             theme = "தீம்",
             themeSkyBlue = "ஸ்கை ப்ளூ",
@@ -1026,9 +1020,8 @@ object Localization {
                 "సర్వశక్తిమంతుడైన ప్రభువుకు మా హృదయపూర్వక కృతజ్ఞతలు.",
             appDescription = "బహుళ అనువాదాల మద్దతుతో మీ రోజువారీ బైబిల్ పఠన ప్రణాళికను అనుసరించడంలో మీకు సహాయపడే " +
                 "ఒక సాధారణ యాప్.",
-            copyrightTitle = "కాపీరైట్ సమాచారం",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
-                "publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightTitle = "Bible Copyright & License",
+            copyrightNotice = "Indian Revised Version (IRV-2019) Bible text is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0). © 2019 Bridge Connectivity Solutions Pvt. Ltd. License: CC BY-SA 4.0",
             developedBy = "Karol అభివృద్ధి చేశారు",
             theme = "థీమ్",
             themeSkyBlue = "స్కై బ్లూ",
@@ -1086,9 +1079,8 @@ object Localization {
             developerNoteContent = "Kan Pathian Engkimtitia hnenah lawmthu kan hrilh a ni, he hna kan thawh " +
                 "theih avang hian.",
             appDescription = "Ni tin Bible chhiar tana hmanraw awlsam tak.",
-            copyrightTitle = "Copyright Chanchin",
-            copyrightNotice = "Bible translations included in this app are copyright of their respective " +
-                "publishers and copyright holders. All rights remain with their respective owners.",
+            copyrightTitle = "Bible Copyright & License",
+            copyrightNotice = "Indian Revised Version (IRV-2019) Bible text is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0). © 2019 Bridge Connectivity Solutions Pvt. Ltd. License: CC BY-SA 4.0",
             developedBy = "Karol-a siam",
             theme = "Mawi hnaihna",
             themeSkyBlue = "Vantlang Pawl",
