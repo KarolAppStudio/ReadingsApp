@@ -56,6 +56,8 @@ data class LocalizedStrings(
     val downloaded: String,
     val installed: String,
     val failed: String,
+    val updateApplication: String,
+    val checkForUpdates: String,
     val locale: Locale,
     val bookNames: Map<Int, String> = emptyMap(),
 )
@@ -677,6 +679,8 @@ object Localization {
             downloaded = "Downloaded",
             installed = "Installed",
             failed = "Failed",
+            updateApplication = "Application Updates",
+            checkForUpdates = "Check for updates",
             locale = Locale.US,
             bookNames = EnglishBooks,
         )
@@ -738,6 +742,8 @@ object Localization {
             downloaded = "ডাউনলোড করা হয়েছে",
             installed = "ইনস্টল করা হয়েছে",
             failed = "ব্যর্থ হয়েছে",
+            updateApplication = "অ্যাপ্লিকেশন আপডেট",
+            checkForUpdates = "আপডেট চেক করুন",
             locale = Locale.forLanguageTag("bn-BD"),
             bookNames = BanglaBooks,
         )
@@ -798,6 +804,8 @@ object Localization {
             downloaded = "डाउनलोड किया गया",
             installed = "इंस्टॉल किया गया",
             failed = "विफल",
+            updateApplication = "एप्लिकेशन अपडेट",
+            checkForUpdates = "अपडेट की जांच करें",
             locale = Locale.forLanguageTag("hi-IN"),
             bookNames = HindiBooks,
         )
@@ -858,6 +866,8 @@ object Localization {
             downloaded = "ಡೌನ್‌ಲೋಡ್ ಆಗಿದೆ",
             installed = "ಸ್ಥಾಪಿಸಲಾಗಿದೆ",
             failed = "ವಿಫಲವಾಗಿದೆ",
+            updateApplication = "ಅಪ್ಲಿಕೇಶನ್ ಅಪ್‌ಡೇಟ್‌ಗಳು",
+            checkForUpdates = "ಅಪ್‌ಡೇಟ್‌ಗಳಿಗಾಗಿ ಪರಿಶೀಲಿಸಿ",
             locale = Locale.forLanguageTag("kn-IN"),
             bookNames = KannadaBooks,
         )
@@ -918,6 +928,8 @@ object Localization {
             downloaded = "ഡൗൺലോഡ് ചെയ്തു",
             installed = "ഇൻസ്റ്റാൾ ചെയ്തു",
             failed = "പരാജയപ്പെട്ടു",
+            updateApplication = "ആപ്ലിക്കേഷൻ അപ്‌ഡേറ്റുകൾ",
+            checkForUpdates = "അപ്‌ഡേറ്റുകൾക്കായി പരിശോധിക്കുക",
             locale = Locale.forLanguageTag("ml-IN"),
             bookNames = MalayalamBooks,
         )
@@ -978,6 +990,8 @@ object Localization {
             downloaded = "பதிவிறக்கம் செய்யப்பட்டது",
             installed = "நிறுவப்பட்டது",
             failed = "தோல்வியுற்றது",
+            updateApplication = "செயலி புதுப்பிப்புகள்",
+            checkForUpdates = "புதுப்பிப்புகளைச் சரிபார்க்கவும்",
             locale = Locale.forLanguageTag("ta-IN"),
             bookNames = TamilBooks,
         )
@@ -1038,6 +1052,8 @@ object Localization {
             downloaded = "డౌన్‌లోడ్ చేయబడింది",
             installed = "ఇన్‌స్టాల్ చేయబడింది",
             failed = "విఫలమైంది",
+            updateApplication = "అప్లికేషన్ అప్‌డేట్‌లు",
+            checkForUpdates = "అప్‌డేట్‌ల కోసం తనిఖీ చేయండి",
             locale = Locale.forLanguageTag("te-IN"),
             bookNames = TeluguBooks,
         )
@@ -1097,6 +1113,8 @@ object Localization {
             downloaded = "Download tawh",
             installed = "Vuah tawh",
             failed = "A hlawhchham",
+            updateApplication = "Application Updates",
+            checkForUpdates = "Update check-na",
             locale = Locale.forLanguageTag("lus-IN"),
             bookNames = MizoBooks,
         )

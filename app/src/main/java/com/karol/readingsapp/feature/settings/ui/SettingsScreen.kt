@@ -39,6 +39,7 @@ import com.karol.readingsapp.core.ui.components.AutoResizingText
 import com.karol.readingsapp.core.ui.components.NavItem
 import com.karol.readingsapp.feature.bible.data.LanguageStatus
 import com.karol.readingsapp.feature.bible.data.TranslationEntity
+import com.karol.readingsapp.feature.shared.ui.AppUpdateStatus
 import com.karol.readingsapp.feature.shared.ui.ReadingViewModel
 import com.karol.readingsapp.feature.voice.data.VoiceGender
 import com.karol.readingsapp.feature.voice.ui.VoiceViewModel
@@ -60,6 +61,29 @@ fun SettingsScreen(
     val individualProgress by viewModel.individualProgress.collectAsState()
     val currentTheme by viewModel.appTheme.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val updateStatus by viewModel.updateStatus.collectAsState()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(updateStatus) {
+        when (val status = updateStatus) {
+            is AppUpdateStatus.NewVersionAvailable -> {
+                snackbarHostState.showSnackbar("New version ${status.version} found. Downloading...")
+            }
+
+            is AppUpdateStatus.UpToDate -> {
+                snackbarHostState.showSnackbar("App is up to date.")
+                viewModel.clearUpdateStatus()
+            }
+
+            is AppUpdateStatus.Error -> {
+                snackbarHostState.showSnackbar("Update check failed: ${status.message}")
+                viewModel.clearUpdateStatus()
+            }
+
+            else -> {}
+        }
+    }
 
     val selectedLanguage = remember(selectedCode, translations) {
         translations.find { it.code == selectedCode }?.language ?: "English"
@@ -91,6 +115,7 @@ fun SettingsScreen(
                 onSettingsClick = {},
             )
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         Box(
@@ -136,8 +161,9 @@ fun SettingsScreen(
                                 )
                                 Spacer(modifier = Modifier.height(AdaptiveDimens.paddingMedium))
                                 UpdateSettings(
+                                    strings = strings,
                                     isRefreshing = isRefreshing,
-                                    onCheckForUpdates = { viewModel.refreshRemoteTranslations(updateDb = true) },
+                                    onCheckForUpdates = { viewModel.checkForAppUpdate() },
                                 )
                             }
 
@@ -650,7 +676,7 @@ private fun SettingsFooter(strings: LocalizedStrings) {
 }
 
 @Composable
-fun UpdateSettings(isRefreshing: Boolean, onCheckForUpdates: () -> Unit) {
+fun UpdateSettings(strings: LocalizedStrings, isRefreshing: Boolean, onCheckForUpdates: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -663,7 +689,7 @@ fun UpdateSettings(isRefreshing: Boolean, onCheckForUpdates: () -> Unit) {
             modifier = Modifier.padding(AdaptiveDimens.paddingMedium),
         ) {
             AutoResizingText(
-                text = "Updates",
+                text = strings.updateApplication,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = AdaptiveDimens.bodyFontSize,
                 fontWeight = FontWeight.Bold,
@@ -685,7 +711,7 @@ fun UpdateSettings(isRefreshing: Boolean, onCheckForUpdates: () -> Unit) {
                     Spacer(modifier = Modifier.width(8.dp))
                 }
                 Text(
-                    text = "Check for updates",
+                    text = strings.checkForUpdates,
                     fontSize = AdaptiveDimens.smallFontSize,
                 )
             }

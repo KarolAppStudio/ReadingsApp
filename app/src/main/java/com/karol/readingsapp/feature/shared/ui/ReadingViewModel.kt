@@ -5,6 +5,7 @@ import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.karol.readingsapp.core.theme.AppTheme
+import com.karol.readingsapp.core.update.AppUpdateManager
 import com.karol.readingsapp.feature.bible.data.BookEntity
 import com.karol.readingsapp.feature.bible.data.ChapterReference
 import com.karol.readingsapp.feature.bible.data.LanguageService
@@ -27,6 +28,7 @@ class ReadingViewModel(
     context: Context,
 ) : ViewModel() {
     private val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+    private val updateManager = AppUpdateManager(context)
 
     private val _uiState = MutableStateFlow<Map<String, List<TargetReadingDetails>>>(emptyMap())
     val uiState = _uiState.asStateFlow()
@@ -84,10 +86,12 @@ class ReadingViewModel(
     private val _currentDate = MutableStateFlow("")
     val currentDate: StateFlow<String> = _currentDate.asStateFlow()
 
+    private val _updateStatus = MutableStateFlow<AppUpdateStatus>(AppUpdateStatus.Idle)
+    val updateStatus = _updateStatus.asStateFlow()
+
     init {
         loadTranslations()
         loadAllBooks()
-        refreshRemoteTranslations(updateDb = false)
 
         // Observe download status to refresh translations list and check for TTS
         viewModelScope.launch {
@@ -369,4 +373,40 @@ class ReadingViewModel(
         }
         return null
     }
+
+    fun checkForAppUpdate() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            val result = updateManager.checkForUpdates()
+            when (result) {
+                is AppUpdateManager.UpdateResult.NewUpdateAvailable -> {
+                    _updateStatus.value = AppUpdateStatus.NewVersionAvailable(result.version, result.downloadUrl)
+                    // For now, let's trigger download immediately as per prompt "and update the app"
+                    updateManager.downloadAndInstall(result.downloadUrl)
+                }
+
+                is AppUpdateManager.UpdateResult.NoUpdateAvailable -> {
+                    _updateStatus.value = AppUpdateStatus.UpToDate
+                    refreshRemoteTranslations(updateDb = true)
+                }
+
+                is AppUpdateManager.UpdateResult.Error -> {
+                    _updateStatus.value = AppUpdateStatus.Error(result.message)
+                    refreshRemoteTranslations(updateDb = true)
+                }
+            }
+            _isRefreshing.value = false
+        }
+    }
+
+    fun clearUpdateStatus() {
+        _updateStatus.value = AppUpdateStatus.Idle
+    }
+}
+
+sealed class AppUpdateStatus {
+    object Idle : AppUpdateStatus()
+    object UpToDate : AppUpdateStatus()
+    data class NewVersionAvailable(val version: String, val downloadUrl: String) : AppUpdateStatus()
+    data class Error(val message: String) : AppUpdateStatus()
 }
