@@ -28,6 +28,62 @@ The goal of this app is to provide a convenient and accessible way to follow a s
 
 The reading plan used in this app is based on the **Christadelphian Bible Reading Companion** created by Robert Roberts.
 
+## Copyright & License Information
+
+INDIAN REVISED VERSION (IRV-2019)
+BIBLE TEXT LICENSE
+
+The Indian Revised Version (IRV-2019) Bible text included in this
+repository/application is licensed under the:
+
+Creative Commons Attribution-ShareAlike 4.0 International License
+(CC BY-SA 4.0)
+
+Copyright © 2019 Bridge Connectivity Solutions Pvt. Ltd.
+
+You are free to:
+
+1. Share
+   Copy and redistribute the material in any medium or format.
+
+2. Adapt
+   Remix, transform, and build upon the material for any purpose,
+   including commercially.
+
+Under the following terms:
+
+1. Attribution
+
+   You must give appropriate credit, provide a link to the license,
+   and indicate if changes were made.
+
+2. ShareAlike
+
+   If you remix, transform, or build upon the material, you must
+   distribute your contributions under the same license.
+
+3. No additional restrictions
+
+   You may not apply legal terms or technological measures that
+   legally restrict others from doing anything the license permits.
+
+The full license terms are available at:
+
+https://creativecommons.org/licenses/by-sa/4.0/
+
+This license applies to the IRV-2019 Bible text and does not
+automatically apply to the Android application source code, artwork,
+icons, logos, or other materials contained in this repository unless
+those materials are separately identified as being licensed under
+CC BY-SA 4.0.
+
+The Indian Revised Version (IRV-2019) Bible text is included in this
+application in accordance with the terms of the CC BY-SA 4.0 license.
+
+This application is not affiliated with, sponsored by, or endorsed
+by the copyright holder unless expressly stated otherwise.
+
+
 ---
 
 Made with ❤️ to encourage consistent daily Bible reading.
