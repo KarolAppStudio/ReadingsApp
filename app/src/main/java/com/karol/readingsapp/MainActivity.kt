@@ -57,6 +57,15 @@ import com.karol.readingsapp.feature.voice.ui.VoiceViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
+import com.karol.readingsapp.core.theme.*
 
 class MainActivity : ComponentActivity() {
 
@@ -318,6 +327,80 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, name = "E-Ink Light Mode")
+@Composable
+fun EInkReaderPreview() {
+    ReadingsAppTheme(appTheme = AppTheme.E_INK, darkTheme = false) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Genesis 1", style = MaterialTheme.typography.titleLarge) },
+                    navigationIcon = {
+                        IconButton(onClick = {}) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {}) {
+                            Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                        actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier.eInkBorder()
+                )
+            },
+            bottomBar = {
+                BottomAppBar(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier.eInkBorder()
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        EInkButton(onClick = {}) {
+                            Text("Previous")
+                        }
+                        EInkButton(onClick = {}) {
+                            Text("Next")
+                        }
+                    }
+                }
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp)
+            ) {
+                EInkCard(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "In the beginning, God created the heavens and the earth. The earth was without form and void, and darkness was over the face of the deep.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                EInkTextField(
+                    value = "",
+                    onValueChange = {},
+                    placeholder = "Go to verse...",
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
     }
