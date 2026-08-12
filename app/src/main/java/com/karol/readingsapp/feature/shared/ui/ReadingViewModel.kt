@@ -39,7 +39,12 @@ class ReadingViewModel(
     private val _availableTranslations = MutableStateFlow<List<TranslationEntity>>(emptyList())
     val availableTranslations = _availableTranslations.asStateFlow()
 
-    private val _downloadedTranslations = MutableStateFlow<List<TranslationEntity>>(emptyList())
+    private val _downloadedTranslations = MutableStateFlow<List<TranslationEntity>>(
+        listOf(
+            TranslationEntity("ENG", "English", "English"),
+            TranslationEntity("MAL", "Malayalam", "മലയാളം"),
+        ),
+    )
     val downloadedTranslations = _downloadedTranslations.asStateFlow()
 
     private val _remoteTranslations = MutableStateFlow<List<TranslationEntity>>(emptyList())
@@ -206,8 +211,12 @@ class ReadingViewModel(
                     startBatchDownload(defaultLanguages, defaultCodes, allowNetwork = allAssetsPresent.not())
                 }
 
+                // Ensure Sky Blue is the default theme on first launch
                 setTheme(AppTheme.SKY_BLUE)
-                prefs.edit { putBoolean("is_first_run", false) }
+                prefs.edit {
+                    putBoolean("is_first_run", false)
+                    putString("default_bible", "ENG")
+                }
 
                 // Ensure TTS is checked for default languages on first run
                 defaultLanguages.forEach { checkTTSForLanguage(it) }
