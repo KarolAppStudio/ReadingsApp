@@ -5,10 +5,13 @@ import androidx.core.content.edit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.time.Duration.Companion.milliseconds
 
 enum class LanguageStatus {
     DOWNLOADING,
@@ -21,6 +24,7 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
     private val prefs = context.getSharedPreferences("language_downloads", Context.MODE_PRIVATE)
     private val _downloadStatus = MutableStateFlow<Map<String, LanguageStatus>>(emptyMap())
     val downloadStatus = _downloadStatus.asStateFlow()
+    private val importMutex = Mutex()
 
     private val _individualProgress = MutableStateFlow<Map<String, Float>>(emptyMap())
     val individualProgress = _individualProgress.asStateFlow()
@@ -33,6 +37,9 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
     private val remoteDbBaseUrl = "https://raw.githubusercontent.com/KarolAppStudio/BibleTranslationDatabases/main"
 
     companion object {
+        private const val NETWORK_TIMEOUT = 60000 // 60 seconds
+        private const val MAX_RETRIES = 3
+
         fun getNativeName(language: String, translationName: String): String {
             val lang = language.lowercase()
             return when {
@@ -67,10 +74,6 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
             (it != "is_first_run") && (it != "version") && (prefs.all[it] is Boolean) && prefs.getBoolean(it, false)
         }.toMutableSet()
 
-        // English and Malayalam are pre-included in bibles.db asset
-        downloadedLanguages.add("English")
-        downloadedLanguages.add("Malayalam")
-
         val statusMap = downloadedLanguages.associateWith { LanguageStatus.DOWNLOADED }.toMutableMap()
         _downloadStatus.value = statusMap
     }
@@ -103,6 +106,8 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
                 val url = URL(remoteRepoApiUrl)
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
+                connection.connectTimeout = NETWORK_TIMEOUT
+                connection.readTimeout = NETWORK_TIMEOUT
                 connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
                 connection.setRequestProperty("User-Agent", "ReadingsApp")
 
@@ -221,44 +226,55 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
     }
 
     private suspend fun fetchDbFromNetwork(code: String): Boolean = withContext(Dispatchers.IO) {
-        try {
-            val language = getLanguageFromCode(code)
-            val url = URL("$remoteDbBaseUrl/$code.db")
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
+        var attempt = 0
+        var lastException: Exception? = null
 
-            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-                val contentLength = connection.contentLength
-                val tempFile = java.io.File(context.cacheDir, "${code}_temp.db")
+        while (attempt < MAX_RETRIES) {
+            attempt++
+            try {
+                val language = getLanguageFromCode(code)
+                val url = URL("$remoteDbBaseUrl/$code.db")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.connectTimeout = NETWORK_TIMEOUT
+                connection.readTimeout = NETWORK_TIMEOUT
 
-                connection.inputStream.use { input ->
-                    java.io.FileOutputStream(tempFile).use { output ->
-                        val buffer = ByteArray(8192)
-                        var bytesRead: Int
-                        var totalBytesRead = 0L
-                        while (input.read(buffer).also { bytesRead = it } != -1) {
-                            output.write(buffer, 0, bytesRead)
-                            totalBytesRead += bytesRead
-                            if (contentLength > 0) {
-                                // 0.0 to 0.5 is download phase
-                                updateProgress(language, (totalBytesRead.toFloat() / contentLength) * 0.5f)
+                if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                    val contentLength = connection.contentLength
+                    val tempFile = java.io.File(context.cacheDir, "${code}_temp.db")
+
+                    connection.inputStream.use { input ->
+                        java.io.FileOutputStream(tempFile).use { output ->
+                            val buffer = ByteArray(8192)
+                            var bytesRead: Int
+                            var totalBytesRead = 0L
+                            while (input.read(buffer).also { bytesRead = it } != -1) {
+                                output.write(buffer, 0, bytesRead)
+                                totalBytesRead += bytesRead
+                                if (contentLength > 0) {
+                                    // 0.0 to 0.5 is download phase
+                                    updateProgress(language, (totalBytesRead.toFloat() / contentLength) * 0.5f)
+                                }
                             }
+                            output.flush()
                         }
-                        output.flush()
                     }
+                    val success = importFromDbFile(tempFile, code)
+                    tempFile.delete()
+                    return@withContext success
+                } else if (connection.responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
+                    return@withContext false // Don't retry 404
                 }
-                val success = importFromDbFile(tempFile, code)
-                tempFile.delete()
-                success
-            } else {
-                false
+            } catch (e: Exception) {
+                lastException = e
+                android.util.Log.w("LanguageService", "Attempt $attempt failed for $code: ${e.message}")
+                if (attempt < MAX_RETRIES) {
+                    kotlinx.coroutines.delay((2000L * attempt).milliseconds) // Exponential backoff
+                }
             }
-        } catch (e: Exception) {
-            android.util.Log.e("LanguageService", "Error fetching DB from network for $code", e)
-            false
         }
+        android.util.Log.e("LanguageService", "All $MAX_RETRIES attempts failed for $code", lastException)
+        false
     }
 
     private suspend fun importFromDbFile(dbFile: java.io.File, code: String): Boolean = withContext(Dispatchers.IO) {
@@ -282,51 +298,60 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
             val db = bibleDatabase.openHelper.writableDatabase
 
             // 3. Ensure ATTACH happens OUTSIDE an active Room transaction block
-            // We use ' ' around the path and escape potential single quotes in the path
-            val escapedPath = dbFile.absolutePath.replace("'", "''")
-            db.execSQL("ATTACH DATABASE '$escapedPath' AS to_import")
-
-            try {
-                // 4. Perform discovery and data import inside a clear inner transaction
-                db.beginTransaction()
-                try {
-                    // Determine the table name in the imported database (verses or verse)
-                    var importedTable = "verses"
-                    val tableCheckCursor = db.query(
-                        "SELECT name FROM to_import.sqlite_master WHERE type='table' AND (name='verses' OR name='verse')",
-                    )
-                    if (tableCheckCursor.moveToFirst()) {
-                        importedTable = tableCheckCursor.getString(0)
-                    }
-                    tableCheckCursor.close()
-
-                    // Check if the imported database uses 1-based book IDs
-                    val minBookIdCursor = db.query("SELECT MIN(book_id) FROM to_import.$importedTable")
-                    val minBookId = if (minBookIdCursor.moveToFirst()) minBookIdCursor.getInt(0) else 0
-                    minBookIdCursor.close()
-                    val offset = if (minBookId == 1) -1 else 0
-
-                    // Insert verses from the attached database into the main database
-                    // Room's table name is 'verses'
-                    db.execSQL(
-                        """
-                        INSERT OR REPLACE INTO verses (book_id, chapter, verse, text, translation_code)
-                        SELECT book_id + $offset, chapter, verse, text, '$code' FROM to_import.$importedTable
-                        WHERE book_id + $offset BETWEEN 0 AND 65
-                        """.trimIndent(),
-                    )
-
-                    db.setTransactionSuccessful()
-                    updateProgress(language, 0.9f)
-                } finally {
-                    db.endTransaction()
-                }
-            } finally {
-                // 5. Always DETACH after completion
+            // Use a mutex to prevent concurrent use of 'to_import' alias
+            importMutex.withLock {
+                // Pre-emptively try to detach in case of stale attachment
                 try {
                     db.execSQL("DETACH DATABASE to_import")
-                } catch (e: Exception) {
-                    android.util.Log.e("LanguageService", "Error detaching database", e)
+                } catch (_: Exception) {
+                }
+
+                // We use ' ' around the path and escape potential single quotes in the path
+                val escapedPath = dbFile.absolutePath.replace("'", "''")
+                db.execSQL("ATTACH DATABASE '$escapedPath' AS to_import")
+
+                try {
+                    // 4. Perform discovery and data import inside a clear inner transaction
+                    db.beginTransaction()
+                    try {
+                        // Determine the table name in the imported database (verses or verse)
+                        var importedTable = "verses"
+                        val tableCheckCursor = db.query(
+                            "SELECT name FROM to_import.sqlite_master WHERE type='table' AND (name='verses' OR name='verse')",
+                        )
+                        if (tableCheckCursor.moveToFirst()) {
+                            importedTable = tableCheckCursor.getString(0)
+                        }
+                        tableCheckCursor.close()
+
+                        // Check if the imported database uses 1-based book IDs
+                        val minBookIdCursor = db.query("SELECT MIN(book_id) FROM to_import.$importedTable")
+                        val minBookId = if (minBookIdCursor.moveToFirst()) minBookIdCursor.getInt(0) else 0
+                        minBookIdCursor.close()
+                        val offset = if (minBookId == 1) -1 else 0
+
+                        // Insert verses from the attached database into the main database
+                        // Room's table name is 'verses'
+                        db.execSQL(
+                            """
+                    INSERT OR REPLACE INTO verses (book_id, chapter, verse, text, translation_code)
+                    SELECT book_id + $offset, chapter, verse, text, '$code' FROM to_import.$importedTable
+                    WHERE book_id + $offset BETWEEN 0 AND 65
+                            """.trimIndent(),
+                        )
+
+                        db.setTransactionSuccessful()
+                        updateProgress(language, 0.9f)
+                    } finally {
+                        db.endTransaction()
+                    }
+                } finally {
+                    // 5. Always DETACH after completion
+                    try {
+                        db.execSQL("DETACH DATABASE to_import")
+                    } catch (e: Exception) {
+                        android.util.Log.e("LanguageService", "Error detaching database", e)
+                    }
                 }
             }
 
@@ -451,39 +476,51 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
     }
 
     private suspend fun fetchFromNetwork(code: String): Boolean = withContext(Dispatchers.IO) {
-        try {
-            val language = getLanguageFromCode(code)
-            val url = URL("$baseUrl/$code.json")
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.connectTimeout = 10000
-            connection.readTimeout = 10000
+        var attempt = 0
+        var lastException: Exception? = null
 
-            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
-                val contentLength = connection.contentLength
-                val inputStream = connection.inputStream
-                val jsonString = if (contentLength > 0) {
-                    val buffer = ByteArray(8192)
-                    val out = java.io.ByteArrayOutputStream()
-                    var bytesRead: Int
-                    var totalBytesRead = 0L
-                    while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                        out.write(buffer, 0, bytesRead)
-                        totalBytesRead += bytesRead
-                        updateProgress(language, (totalBytesRead.toFloat() / contentLength) * 0.5f)
+        while (attempt < MAX_RETRIES) {
+            attempt++
+            try {
+                val language = getLanguageFromCode(code)
+                val url = URL("$baseUrl/$code.json")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.connectTimeout = NETWORK_TIMEOUT
+                connection.readTimeout = NETWORK_TIMEOUT
+
+                if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                    val contentLength = connection.contentLength
+                    val jsonString = connection.inputStream.use { inputStream ->
+                        if (contentLength > 0) {
+                            val buffer = ByteArray(8192)
+                            val out = java.io.ByteArrayOutputStream()
+                            var bytesRead: Int
+                            var totalBytesRead = 0L
+                            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                                out.write(buffer, 0, bytesRead)
+                                totalBytesRead += bytesRead
+                                updateProgress(language, (totalBytesRead.toFloat() / contentLength) * 0.5f)
+                            }
+                            out.toString("UTF-8")
+                        } else {
+                            inputStream.bufferedReader().use { it.readText() }
+                        }
                     }
-                    out.toString("UTF-8")
-                } else {
-                    inputStream.bufferedReader().use { it.readText() }
+                    return@withContext processJson(jsonString, code)
+                } else if (connection.responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
+                    return@withContext false
                 }
-                processJson(jsonString, code)
-            } else {
-                false
+            } catch (e: Exception) {
+                lastException = e
+                android.util.Log.w("LanguageService", "Attempt $attempt failed for $code (JSON): ${e.message}")
+                if (attempt < MAX_RETRIES) {
+                    kotlinx.coroutines.delay((2000L * attempt).milliseconds)
+                }
             }
-        } catch (e: Exception) {
-            android.util.Log.e("LanguageService", "Error fetching from network for $code", e)
-            false
         }
+        android.util.Log.e("LanguageService", "All $MAX_RETRIES attempts failed for $code (JSON)", lastException)
+        false
     }
 
     fun updateStatus(language: String, status: LanguageStatus) {
@@ -509,9 +546,6 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
     }
 
     fun hasAsset(language: String): Boolean {
-        // English and Malayalam are now pre-included in the bibles.db asset
-        if (language == "English" || language == "Malayalam") return true
-
         val code = getLanguageCode(language)
         return try {
             val inputStream = context.assets.open("bibles/$code.json")

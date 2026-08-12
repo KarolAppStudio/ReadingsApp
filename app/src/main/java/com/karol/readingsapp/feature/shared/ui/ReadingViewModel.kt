@@ -68,7 +68,13 @@ class ReadingViewModel(
     private val _secondChapterVerses = MutableStateFlow<List<TargetReadingDetails>>(emptyList())
     val secondChapterVerses = _secondChapterVerses.asStateFlow()
 
-    private val _selectedTranslationCode = MutableStateFlow(prefs.getString("default_bible", "ENG") ?: "ENG")
+    private val _selectedTranslationCode = MutableStateFlow(
+        if (prefs.getBoolean("is_first_run", true)) {
+            "ENG"
+        } else {
+            prefs.getString("default_bible", "ENG") ?: "ENG"
+        },
+    )
     val selectedTranslationCode = _selectedTranslationCode.asStateFlow()
 
     private val _secondTranslationCode = MutableStateFlow("ENG")
@@ -76,10 +82,14 @@ class ReadingViewModel(
 
     private val _appTheme =
         MutableStateFlow(
-            try {
-                AppTheme.valueOf(prefs.getString("app_theme", AppTheme.SKY_BLUE.name) ?: AppTheme.SKY_BLUE.name)
-            } catch (_: Exception) {
+            if (prefs.getBoolean("is_first_run", true)) {
                 AppTheme.SKY_BLUE
+            } else {
+                try {
+                    AppTheme.valueOf(prefs.getString("app_theme", AppTheme.SKY_BLUE.name) ?: AppTheme.SKY_BLUE.name)
+                } catch (_: Exception) {
+                    AppTheme.SKY_BLUE
+                }
             },
         )
     val appTheme = _appTheme.asStateFlow()
@@ -95,6 +105,9 @@ class ReadingViewModel(
     val updateStatus = _updateStatus.asStateFlow()
 
     init {
+        if (prefs.getBoolean("is_first_run", true)) {
+            handleFirstRun()
+        }
         loadTranslations()
         loadAllBooks()
 
@@ -102,7 +115,7 @@ class ReadingViewModel(
         viewModelScope.launch {
             var previousStatus = languageService.downloadStatus.value
             languageService.downloadStatus.collect { currentStatus ->
-                loadTranslations()
+                loadTranslations(triggerRepair = false) // Don't trigger repair in a loop
 
                 // Check for newly downloaded languages to ensure TTS data is also available
                 var newlyDownloadedDetected = false
@@ -110,6 +123,13 @@ class ReadingViewModel(
                     if ((status == LanguageStatus.DOWNLOADED) && (previousStatus[lang] != LanguageStatus.DOWNLOADED)) {
                         checkTTSForLanguage(lang)
                         newlyDownloadedDetected = true
+
+                        // If the newly downloaded language is the one currently selected, reload the reading
+                        if (LanguageService.getLanguageCode(lang) == _selectedTranslationCode.value) {
+                            if (_currentDate.value.isNotEmpty()) {
+                                loadReading(_currentDate.value)
+                            }
+                        }
                     }
                 }
 
@@ -167,6 +187,27 @@ class ReadingViewModel(
 
     suspend fun getVerseCount(bookId: Int, chapter: Int): Int = repository.getVerseCount(bookId, chapter)
 
+    private fun handleFirstRun() {
+        val defaultLanguages = listOf("English", "Malayalam")
+        val defaultCodes = listOf("ENG", "MAL")
+
+        // Check if assets are available for default languages
+        val allAssetsPresent = defaultLanguages.all { languageService.hasAsset(it) }
+
+        // Start batch download - this is asynchronous
+        startBatchDownload(defaultLanguages, defaultCodes, allowNetwork = allAssetsPresent.not())
+
+        // Ensure TTS is checked for default languages on first run
+        defaultLanguages.forEach { checkTTSForLanguage(it) }
+
+        // Mark first run as complete and ensure defaults are saved in SharedPreferences
+        prefs.edit {
+            putBoolean("is_first_run", false)
+            putString("default_bible", "ENG")
+            putString("app_theme", AppTheme.SKY_BLUE.name)
+        }
+    }
+
     private fun loadTranslations(triggerRepair: Boolean = true) {
         viewModelScope.launch {
             val currentCode = _selectedTranslationCode.value
@@ -199,28 +240,8 @@ class ReadingViewModel(
 
             _downloadedTranslations.value = (downloadedFromDb + downloadedByStatus).distinctBy { it.code }
 
-            val isFirstRun = prefs.getBoolean("is_first_run", true)
-            if (isFirstRun) {
-                val defaultLanguages = listOf("English", "Malayalam")
-                val defaultCodes = listOf("ENG", "MAL")
-                // Check if assets are available for default languages
-                val allAssetsPresent = defaultLanguages.all { languageService.hasAsset(it) }
-
-                // If assets are missing, we MUST allow network even on first run to have a working app
-                if (triggerRepair) {
-                    startBatchDownload(defaultLanguages, defaultCodes, allowNetwork = allAssetsPresent.not())
-                }
-
-                // Ensure Sky Blue is the default theme on first launch
-                setTheme(AppTheme.SKY_BLUE)
-                prefs.edit {
-                    putBoolean("is_first_run", false)
-                    putString("default_bible", "ENG")
-                }
-
-                // Ensure TTS is checked for default languages on first run
-                defaultLanguages.forEach { checkTTSForLanguage(it) }
-            } else {
+            // Handle repair logic for existing installations
+            if (!prefs.getBoolean("is_first_run", true)) {
                 // Check if default translations are actually complete
                 val defaultMapping = listOf("English" to "ENG", "Malayalam" to "MAL")
                 val incompleteData = mutableListOf<Pair<String, String>>()
