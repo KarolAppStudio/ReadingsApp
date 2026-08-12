@@ -140,6 +140,7 @@ class MainActivity : ComponentActivity() {
             }
 
             val batchProgress by viewModel.batchProgress.collectAsState()
+            val showDownloadOverlay by viewModel.showDownloadOverlay.collectAsState()
             val translations by viewModel.downloadedTranslations.collectAsState()
             val selectedCode by viewModel.selectedTranslationCode.collectAsState()
 
@@ -318,7 +319,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             val isDownloadTab = currentRoute == "settings" && settingsTabIndex == 1
-                            if (!isDownloadTab) {
+                            if (showDownloadOverlay && !isDownloadTab) {
                                 DownloadProgressOverlay(
                                     progress = batchProgress,
                                     strings = strings,

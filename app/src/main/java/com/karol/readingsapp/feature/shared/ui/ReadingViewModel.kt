@@ -104,6 +104,9 @@ class ReadingViewModel(
     private val _updateStatus = MutableStateFlow<AppUpdateStatus>(AppUpdateStatus.Idle)
     val updateStatus = _updateStatus.asStateFlow()
 
+    private val _showDownloadOverlay = MutableStateFlow(false)
+    val showDownloadOverlay = _showDownloadOverlay.asStateFlow()
+
     init {
         if (prefs.getBoolean("is_first_run", true)) {
             handleFirstRun()
@@ -195,7 +198,12 @@ class ReadingViewModel(
         val allAssetsPresent = defaultLanguages.all { languageService.hasAsset(it) }
 
         // Start batch download - this is asynchronous
-        startBatchDownload(defaultLanguages, defaultCodes, allowNetwork = allAssetsPresent.not())
+        startBatchDownload(
+            defaultLanguages,
+            defaultCodes,
+            allowNetwork = allAssetsPresent.not(),
+            showOverlay = false,
+        )
 
         // Ensure TTS is checked for default languages on first run
         defaultLanguages.forEach { checkTTSForLanguage(it) }
@@ -264,6 +272,7 @@ class ReadingViewModel(
                         actuallyIncomplete.map { it.first },
                         actuallyIncomplete.map { it.second },
                         force = true,
+                        showOverlay = false,
                     )
                 } else if (triggerRepair) {
                     // Ensure default languages are eventually marked as downloaded if they weren't finished
@@ -276,6 +285,7 @@ class ReadingViewModel(
                         startBatchDownload(
                             missingDefaults.map { it.first },
                             missingDefaults.map { it.second },
+                            showOverlay = false,
                         )
                     }
                 }
@@ -312,9 +322,12 @@ class ReadingViewModel(
         codes: List<String>? = null,
         force: Boolean = false,
         allowNetwork: Boolean = true,
+        showOverlay: Boolean = true,
     ) {
         viewModelScope.launch {
+            _showDownloadOverlay.value = showOverlay
             languageService.batchDownload(languages, codes, force, allowNetwork)
+            _showDownloadOverlay.value = false
             loadTranslations() // Refresh available and downloaded lists after download attempt
         }
     }

@@ -94,6 +94,17 @@ fun SettingsScreen(
     val tabs = remember(strings) { listOf(strings.settings, strings.download, strings.about) }
     var themeExpanded by remember { mutableStateOf(value = false) }
 
+    val sortedTranslations = remember(translations, remoteTranslations, downloadStatus) {
+        val baseList = if (remoteTranslations.isNotEmpty()) remoteTranslations else translations
+        baseList.sortedWith(
+            compareByDescending<TranslationEntity> { translation ->
+                translation.language == "English" ||
+                    translation.language == "Malayalam" ||
+                    downloadStatus[translation.language] == LanguageStatus.DOWNLOADED
+            }.thenBy { it.language },
+        )
+    }
+
     LaunchedEffect(selectedTabIndex) {
         onTabSelected(selectedTabIndex)
     }
@@ -169,11 +180,7 @@ fun SettingsScreen(
 
                             1 -> DownloadSettings(
                                 strings = strings,
-                                translations = if (remoteTranslations.isNotEmpty()) {
-                                    remoteTranslations
-                                } else {
-                                    translations
-                                },
+                                translations = sortedTranslations,
                                 downloadStatus = downloadStatus,
                                 individualProgress = individualProgress,
                                 isRefreshing = isRefreshing,
