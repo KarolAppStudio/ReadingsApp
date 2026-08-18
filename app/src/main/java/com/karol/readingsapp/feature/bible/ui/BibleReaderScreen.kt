@@ -141,8 +141,6 @@ fun BibleReaderScreen(
     }
 
     val uiState by viewModel.uiState.collectAsState()
-    val availableVoices by voiceViewModel.availableVoices.collectAsState()
-    val ttsState by voiceViewModel.voiceService.ttsState.collectAsState()
 
     val showVoiceControls = true // Always show to allow users to trigger voice installation or see status
 

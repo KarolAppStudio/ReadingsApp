@@ -21,7 +21,8 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
 
     val allProcessedVoices: StateFlow<List<VoiceInfo>> = availableVoices.map { voices ->
         // Only keep 3 OFFLINE Voices per Translation: 1 male and 2 female TTS voices
-        voices.filter { it.isOffline }
+        voices.asSequence()
+            .filter { it.isOffline }
             .groupBy {
                 // Normalize language codes (e.g., Mizo/Lushai)
                 when (it.locale.language) {
@@ -30,13 +31,13 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
             .flatMap { (_, langVoices) ->
-                val males = langVoices.filter { it.gender == VoiceGender.MALE }.take(1)
-                val females = langVoices.filter { it.gender == VoiceGender.FEMALE }.take(2)
+                val males = langVoices.asSequence().filter { it.gender == VoiceGender.MALE }.take(1).toList()
+                val females = langVoices.asSequence().filter { it.gender == VoiceGender.FEMALE }.take(2).toList()
                 val selected = (males + females).toMutableList()
 
                 // Fallback: If we don't have enough male/female voices, fill with others up to 3
                 if (selected.size < 3) {
-                    val others = langVoices.filter { it !in selected }.take(3 - selected.size)
+                    val others = langVoices.asSequence().filter { it !in selected }.take(3 - selected.size).toList()
                     selected.addAll(others)
                 }
                 selected
@@ -80,7 +81,7 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
                     if (it == "miz") "lus" else it
                 }
 
-                if (current == null || currentLang != targetLang) {
+                if ((current == null) || (currentLang != targetLang)) {
                     // Pick the first voice from the allowed set (1 male, 2 female)
                     val langVoices = allVoices.filter {
                         val voiceLang = when (it.locale.language) {

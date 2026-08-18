@@ -728,7 +728,7 @@ fun UpdateSettings(strings: LocalizedStrings, isRefreshing: Boolean, onCheckForU
 
 @Composable
 fun VoiceSettings(voiceViewModel: VoiceViewModel) {
-    val allVoices by voiceViewModel.allProcessedVoices.collectAsStateWithLifecycle()
+    val allVoices by voiceViewModel.filteredVoices.collectAsStateWithLifecycle()
     val selectedVoice by voiceViewModel.selectedVoice.collectAsStateWithLifecycle()
     var expanded by remember { mutableStateOf(value = false) }
 
