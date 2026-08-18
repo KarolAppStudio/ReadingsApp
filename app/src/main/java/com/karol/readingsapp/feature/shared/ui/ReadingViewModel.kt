@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.karol.readingsapp.core.i18n.Localization
+import com.karol.readingsapp.core.i18n.LocalizedStrings
 import com.karol.readingsapp.core.theme.AppTheme
 import com.karol.readingsapp.core.update.AppUpdateManager
 import com.karol.readingsapp.feature.bible.data.BookEntity
@@ -16,8 +18,11 @@ import com.karol.readingsapp.feature.bible.data.TranslationEntity
 import com.karol.readingsapp.feature.plan.data.SimpleReading
 import com.karol.readingsapp.feature.voice.data.VoiceService
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -76,6 +81,25 @@ class ReadingViewModel(
         },
     )
     val selectedTranslationCode = _selectedTranslationCode.asStateFlow()
+
+    val selectedLanguage: StateFlow<String> = combine(
+        _selectedTranslationCode,
+        _downloadedTranslations,
+    ) { code, downloaded ->
+        downloaded.find { it.code == code }?.language ?: "English"
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = "English",
+    )
+
+    val strings: StateFlow<LocalizedStrings> = selectedLanguage.combine(_downloadedTranslations) { language, _ ->
+        Localization.getStrings(language)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = Localization.getStrings("English"),
+    )
 
     private val _secondTranslationCode = MutableStateFlow("ENG")
     val secondTranslationCode = _secondTranslationCode.asStateFlow()

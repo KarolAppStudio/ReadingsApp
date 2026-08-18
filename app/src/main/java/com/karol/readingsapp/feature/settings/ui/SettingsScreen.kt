@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.karol.readingsapp.core.i18n.Localization
 import com.karol.readingsapp.core.i18n.LocalizedStrings
 import com.karol.readingsapp.core.theme.AdaptiveDimens
 import com.karol.readingsapp.core.theme.AppTheme
@@ -65,6 +64,9 @@ fun SettingsScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val strings by viewModel.strings.collectAsState()
+    val selectedLanguage by viewModel.selectedLanguage.collectAsState()
+
     LaunchedEffect(updateStatus) {
         when (val status = updateStatus) {
             is AppUpdateStatus.NewVersionAvailable -> {
@@ -84,11 +86,6 @@ fun SettingsScreen(
             else -> {}
         }
     }
-
-    val selectedLanguage = remember(selectedCode, translations) {
-        translations.find { it.code == selectedCode }?.language ?: "English"
-    }
-    val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
 
     var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
     val tabs = remember(strings) { listOf(strings.settings, strings.download, strings.about) }
@@ -735,24 +732,28 @@ fun VoiceSettings(voiceViewModel: VoiceViewModel) {
     var persistentVoiceName by remember { mutableStateOf("Default") }
 
     val selectedVoiceName = remember(selectedVoice, allVoices) {
-        selectedVoice?.let { voice ->
-            val lang = voice.locale.displayLanguage
-            val genderLabel = when (voice.gender) {
-                VoiceGender.MALE -> "Male"
-                VoiceGender.FEMALE -> "Female"
-                VoiceGender.UNKNOWN -> "Voice"
-            }
-            // Find index within same gender/lang in available voices for consistent display
-            val voicesInLang = allVoices.filter { it.locale.language == voice.locale.language }
-            val sameGenderVoices = voicesInLang.filter { it.gender == voice.gender }
-            val index = sameGenderVoices.indexOfFirst { it.name == voice.name } + 1
-            val indexLabel = if (sameGenderVoices.size > 1 && index > 0) " $index" else ""
-            val offlineLabel = if (voice.isOffline) " [Offline]" else ""
+        if (allVoices.isEmpty()) {
+            "No Voice Available"
+        } else {
+            selectedVoice?.let { voice ->
+                val lang = voice.locale.displayLanguage
+                val genderLabel = when (voice.gender) {
+                    VoiceGender.MALE -> "Male"
+                    VoiceGender.FEMALE -> "Female"
+                    VoiceGender.UNKNOWN -> "Voice"
+                }
+                // Find index within same gender/lang in available voices for consistent display
+                val voicesInLang = allVoices.filter { it.locale.language == voice.locale.language }
+                val sameGenderVoices = voicesInLang.filter { it.gender == voice.gender }
+                val index = sameGenderVoices.indexOfFirst { it.name == voice.name } + 1
+                val indexLabel = if (sameGenderVoices.size > 1 && index > 0) " $index" else ""
+                val offlineLabel = if (voice.isOffline) " [Offline]" else ""
 
-            val name = "$lang ($genderLabel$indexLabel$offlineLabel)"
-            persistentVoiceName = name
-            name
-        } ?: persistentVoiceName
+                val name = "$lang ($genderLabel$indexLabel$offlineLabel)"
+                persistentVoiceName = name
+                name
+            } ?: persistentVoiceName
+        }
     }
 
     Card(
@@ -808,7 +809,7 @@ fun VoiceSettings(voiceViewModel: VoiceViewModel) {
                 ) {
                     if (allVoices.isEmpty()) {
                         DropdownMenuItem(
-                            text = { Text("No offline voices available", fontSize = AdaptiveDimens.smallFontSize) },
+                            text = { Text("No Voice Available", fontSize = AdaptiveDimens.smallFontSize) },
                             onClick = { expanded = false },
                         )
                     } else {

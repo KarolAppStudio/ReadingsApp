@@ -141,20 +141,19 @@ class MainActivity : ComponentActivity() {
 
             val batchProgress by viewModel.batchProgress.collectAsState()
             val showDownloadOverlay by viewModel.showDownloadOverlay.collectAsState()
-            val translations by viewModel.downloadedTranslations.collectAsState()
-            val selectedCode by viewModel.selectedTranslationCode.collectAsState()
-
-            val selectedLanguage = remember(selectedCode, translations) {
-                translations.find { it.code == selectedCode }?.language ?: "English"
-            }
-            val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
+            val strings by viewModel.strings.collectAsState()
 
             LaunchedEffect(strings.locale) {
                 voiceViewModel.filterVoices(strings.locale, autoSelect = true)
             }
 
+            val selectedLanguage by viewModel.selectedLanguage.collectAsState()
+
             ProvideWindowSizeClass(windowSizeClass) {
-                ReadingsAppTheme(appTheme = currentTheme) {
+                ReadingsAppTheme(
+                    appTheme = currentTheme,
+                    language = selectedLanguage
+                ) {
                     val navController = rememberNavController()
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentRoute = navBackStackEntry?.destination?.route

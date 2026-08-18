@@ -181,6 +181,7 @@ private class EInkIndicationNode(private val interactionSource: InteractionSourc
 @Composable
 fun ReadingsAppTheme(
     appTheme: AppTheme = AppTheme.SKY_BLUE,
+    language: String = "English",
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
@@ -203,7 +204,7 @@ fun ReadingsAppTheme(
         AppTheme.E_INK -> if (darkTheme) EInkDarkColorScheme else EInkLightColorScheme
     }
 
-    val typography = if (isEInk) EInkTypography else Typography
+    val typography = getTypography(isEInk, language)
     val shapes = if (isEInk) EInkShapes else Shapes
     val eInkBorder = BorderStroke(EInkBorderWidth, colorScheme.outline)
 

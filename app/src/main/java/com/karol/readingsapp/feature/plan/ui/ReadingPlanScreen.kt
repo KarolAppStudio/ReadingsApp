@@ -49,13 +49,8 @@ fun ReadingPlanScreen(
 ) {
     var currentMonth by remember { mutableStateOf(YearMonth.from(today)) }
     val monthlyPlan by viewModel.monthlyPlan.collectAsState()
-    val translations by viewModel.downloadedTranslations.collectAsState()
-    val selectedTranslation by viewModel.selectedTranslationCode.collectAsState()
 
-    val selectedLanguage = remember(selectedTranslation, translations) {
-        translations.find { it.code == selectedTranslation }?.language ?: "English"
-    }
-    val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
+    val strings by viewModel.strings.collectAsState()
 
     val numberFormatter = remember(strings.locale) {
         NumberFormat.getIntegerInstance(strings.locale)

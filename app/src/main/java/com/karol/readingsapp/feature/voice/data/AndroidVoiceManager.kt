@@ -548,12 +548,13 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
         }
 
         val result = engine.isLanguageAvailable(locale)
-        if ((result == TextToSpeech.LANG_MISSING_DATA) || (result == TextToSpeech.LANG_NOT_SUPPORTED)) {
+        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
             Log.d(
                 "AndroidVoiceManager",
-                "Language data missing or unsupported (result: $result) for $locale, triggering installation.",
+                "Language data missing or unsupported (result: $result) for $locale. Background verification requested.",
             )
-            checkAndInstallVoices()
+            // We no longer automatically trigger the Install Activity here to avoid interrupting the user.
+            // The UI will reflect the status by showing "No Voice Available".
         } else {
             Log.d(
                 "AndroidVoiceManager",

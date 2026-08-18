@@ -26,7 +26,6 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.karol.readingsapp.core.i18n.Localization
 import com.karol.readingsapp.core.i18n.LocalizedStrings
 import com.karol.readingsapp.core.theme.AdaptiveDimens
 import com.karol.readingsapp.core.ui.components.AutoResizingText
@@ -115,11 +114,12 @@ fun BibleReaderScreen(
         chapterCount = viewModel.getChapterCount(displayBookId)
     }
 
+    val selectedLanguage by viewModel.selectedLanguage.collectAsState()
+    val strings by viewModel.strings.collectAsState()
+
     val selectedTranslation = remember(selectedCode, availableTranslations) {
         availableTranslations.find { it.code == selectedCode }
     }
-    val selectedLanguage = selectedTranslation?.language ?: "English"
-    val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
     val bookName = strings.bookNames[displayBookId] ?: "Book $displayBookId"
 
     val bookOptions = remember(allBooks, strings) {

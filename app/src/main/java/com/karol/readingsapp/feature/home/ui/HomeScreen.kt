@@ -49,7 +49,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.karol.readingsapp.core.i18n.Localization
 import com.karol.readingsapp.core.i18n.LocalizedStrings
 import com.karol.readingsapp.core.theme.AdaptiveDimens
 import com.karol.readingsapp.core.ui.components.AppBottomNavBar
@@ -79,10 +78,8 @@ fun HomeScreen(
     val selectedCode by viewModel.selectedTranslationCode.collectAsState()
     val selectedDate by viewModel.currentDate.collectAsState()
 
-    val selectedLanguage = remember(selectedCode, downloadedTranslations) {
-        downloadedTranslations.find { it.code == selectedCode }?.language ?: "English"
-    }
-    val strings = remember(selectedLanguage) { Localization.getStrings(selectedLanguage) }
+    val selectedLanguage by viewModel.selectedLanguage.collectAsState()
+    val strings by viewModel.strings.collectAsState()
 
     val downloadStatus by viewModel.downloadStatus.collectAsState()
     val isDownloading = downloadStatus[selectedLanguage] == LanguageStatus.DOWNLOADING
