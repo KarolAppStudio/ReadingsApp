@@ -269,6 +269,7 @@ class MainActivity : ComponentActivity() {
                                         bookId = bookId,
                                         chapter = chapter,
                                         viewModel = viewModel,
+                                        voiceViewModel = voiceViewModel,
                                     ) {
                                         navController.popBackStack("home", inclusive = false)
                                     }

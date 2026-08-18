@@ -728,13 +728,13 @@ fun UpdateSettings(strings: LocalizedStrings, isRefreshing: Boolean, onCheckForU
 
 @Composable
 fun VoiceSettings(voiceViewModel: VoiceViewModel) {
-    val filteredVoices by voiceViewModel.filteredVoices.collectAsStateWithLifecycle()
+    val allVoices by voiceViewModel.allProcessedVoices.collectAsStateWithLifecycle()
     val selectedVoice by voiceViewModel.selectedVoice.collectAsStateWithLifecycle()
     var expanded by remember { mutableStateOf(value = false) }
 
     var persistentVoiceName by remember { mutableStateOf("Default") }
 
-    val selectedVoiceName = remember(selectedVoice, filteredVoices) {
+    val selectedVoiceName = remember(selectedVoice, allVoices) {
         selectedVoice?.let { voice ->
             val lang = voice.locale.displayLanguage
             val genderLabel = when (voice.gender) {
@@ -742,8 +742,8 @@ fun VoiceSettings(voiceViewModel: VoiceViewModel) {
                 VoiceGender.FEMALE -> "Female"
                 VoiceGender.UNKNOWN -> "Voice"
             }
-            // Find index within same gender/lang in filtered voices for consistent display
-            val voicesInLang = filteredVoices.filter { it.locale.language == voice.locale.language }
+            // Find index within same gender/lang in available voices for consistent display
+            val voicesInLang = allVoices.filter { it.locale.language == voice.locale.language }
             val sameGenderVoices = voicesInLang.filter { it.gender == voice.gender }
             val index = sameGenderVoices.indexOfFirst { it.name == voice.name } + 1
             val indexLabel = if (sameGenderVoices.size > 1 && index > 0) " $index" else ""
@@ -806,13 +806,13 @@ fun VoiceSettings(voiceViewModel: VoiceViewModel) {
                         .background(MaterialTheme.colorScheme.surface)
                         .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(2.dp)),
                 ) {
-                    if (filteredVoices.isEmpty()) {
+                    if (allVoices.isEmpty()) {
                         DropdownMenuItem(
-                            text = { Text("No voices available", fontSize = AdaptiveDimens.smallFontSize) },
+                            text = { Text("No offline voices available", fontSize = AdaptiveDimens.smallFontSize) },
                             onClick = { expanded = false },
                         )
                     } else {
-                        val grouped = filteredVoices.groupBy { it.locale.displayLanguage }
+                        val grouped = allVoices.groupBy { it.locale.displayLanguage }
                         grouped.forEach { (lang, voices) ->
                             DropdownMenuItem(
                                 text = {

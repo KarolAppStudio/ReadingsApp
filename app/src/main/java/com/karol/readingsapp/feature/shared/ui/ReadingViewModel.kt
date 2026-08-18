@@ -107,6 +107,8 @@ class ReadingViewModel(
     private val _showDownloadOverlay = MutableStateFlow(false)
     val showDownloadOverlay = _showDownloadOverlay.asStateFlow()
 
+    private val checkedTTSLanguages = mutableSetOf<String>()
+
     init {
         if (prefs.getBoolean("is_first_run", true)) {
             handleFirstRun()
@@ -122,15 +124,17 @@ class ReadingViewModel(
 
                 // Check for newly downloaded languages to ensure TTS data is also available
                 var newlyDownloadedDetected = false
+                val prev = previousStatus
                 currentStatus.forEach { (lang, status) ->
-                    if ((status == LanguageStatus.DOWNLOADED) && (previousStatus[lang] != LanguageStatus.DOWNLOADED)) {
+                    if ((status == LanguageStatus.DOWNLOADED) && (prev[lang] != LanguageStatus.DOWNLOADED)) {
                         checkTTSForLanguage(lang)
                         newlyDownloadedDetected = true
 
                         // If the newly downloaded language is the one currently selected, reload the reading
                         if (LanguageService.getLanguageCode(lang) == _selectedTranslationCode.value) {
-                            if (_currentDate.value.isNotEmpty()) {
-                                loadReading(_currentDate.value)
+                            val currentD = _currentDate.value
+                            if (currentD.isNotEmpty()) {
+                                loadReading(currentD)
                             }
                         }
                     }
@@ -146,18 +150,23 @@ class ReadingViewModel(
     }
 
     private fun checkTTSForLanguage(languageName: String) {
-        val locale = when (languageName) {
-            "English" -> Locale.ENGLISH
-            "Hindi" -> Locale.forLanguageTag("hi-IN")
-            "Bangla" -> Locale.forLanguageTag("bn-IN")
-            "Kannada" -> Locale.forLanguageTag("kn-IN")
-            "Malayalam" -> Locale.forLanguageTag("ml-IN")
-            "Tamil" -> Locale.forLanguageTag("ta-IN")
-            "Telugu" -> Locale.forLanguageTag("te-IN")
-            "Mizo" -> Locale.forLanguageTag("lus-IN")
+        if (checkedTTSLanguages.contains(languageName)) return
+
+        val code = LanguageService.getLanguageCode(languageName)
+        val locale = when (code) {
+            "ENG" -> Locale.ENGLISH
+            "HIN" -> Locale.forLanguageTag("hi-IN")
+            "BAN" -> Locale.forLanguageTag("bn-IN")
+            "KAN" -> Locale.forLanguageTag("kn-IN")
+            "MAL" -> Locale.forLanguageTag("ml-IN")
+            "TAM" -> Locale.forLanguageTag("ta-IN")
+            "TEL" -> Locale.forLanguageTag("te-IN")
+            "MIZO", "MIZ" -> Locale.forLanguageTag("lus-IN")
+            "FAR" -> Locale.forLanguageTag("fa-IR")
             else -> null
         }
         locale?.let {
+            checkedTTSLanguages.add(languageName)
             voiceService.ensureLanguageInstalled(it)
         }
     }
@@ -248,6 +257,11 @@ class ReadingViewModel(
 
             _downloadedTranslations.value = (downloadedFromDb + downloadedByStatus).distinctBy { it.code }
 
+            // Ensure TTS for all downloaded translations is checked
+            _downloadedTranslations.value.forEach {
+                checkTTSForLanguage(it.language)
+            }
+
             // Handle repair logic for existing installations
             if (!prefs.getBoolean("is_first_run", true)) {
                 // Check if default translations are actually complete
@@ -329,6 +343,13 @@ class ReadingViewModel(
             languageService.batchDownload(languages, codes, force, allowNetwork)
             _showDownloadOverlay.value = false
             loadTranslations() // Refresh available and downloaded lists after download attempt
+
+            // Automatically ensure TTS/Voice data is installed for the downloaded languages
+            languages.forEach { language ->
+                // Clear from checked list to re-verify after a successful bible download
+                checkedTTSLanguages.remove(language)
+                checkTTSForLanguage(language)
+            }
         }
     }
 

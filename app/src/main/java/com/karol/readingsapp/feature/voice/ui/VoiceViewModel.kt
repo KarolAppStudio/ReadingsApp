@@ -19,15 +19,16 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
 
     private val filterLocale = MutableStateFlow<Locale?>(null)
 
-    val filteredVoices: StateFlow<List<VoiceInfo>> = combine(availableVoices, filterLocale) { voices, locale ->
-        val baseVoices = if (locale == null) {
-            voices
-        } else {
-            voices.filter { it.locale.language == locale.language }
-        }
-
-        // Only keep 3 Voices per Translation: 1 male and 2 female TTS voices
-        baseVoices.groupBy { it.locale.language }
+    val allProcessedVoices: StateFlow<List<VoiceInfo>> = availableVoices.map { voices ->
+        // Only keep 3 OFFLINE Voices per Translation: 1 male and 2 female TTS voices
+        voices.filter { it.isOffline }
+            .groupBy {
+                // Normalize language codes (e.g., Mizo/Lushai)
+                when (it.locale.language) {
+                    "miz" -> "lus"
+                    else -> it.locale.language
+                }
+            }
             .flatMap { (_, langVoices) ->
                 val males = langVoices.filter { it.gender == VoiceGender.MALE }.take(1)
                 val females = langVoices.filter { it.gender == VoiceGender.FEMALE }.take(2)
@@ -42,19 +43,52 @@ class VoiceViewModel(application: Application) : AndroidViewModel(application) {
             }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val filteredVoices: StateFlow<List<VoiceInfo>> = combine(allProcessedVoices, filterLocale) { voices, locale ->
+        if (locale == null) {
+            voices
+        } else {
+            val targetLang = when (locale.language) {
+                "miz" -> "lus"
+                else -> locale.language
+            }
+            voices.filter {
+                val voiceLang = when (it.locale.language) {
+                    "miz" -> "lus"
+                    else -> it.locale.language
+                }
+                voiceLang == targetLang
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     fun filterVoices(locale: Locale, autoSelect: Boolean = false) {
         filterLocale.value = locale
         voiceService.ensureLanguageInstalled(locale)
         if (autoSelect) {
             viewModelScope.launch {
                 // Wait for voices to be available if they are not
-                val allVoices = availableVoices.first { it.isNotEmpty() }
+                val allVoices = allProcessedVoices.first { it.isNotEmpty() }
 
                 // Only auto-select if current voice is null OR doesn't match the required language
                 val current = selectedVoice.value
-                if (current == null || current.locale.language != locale.language) {
+                val targetLang = when (locale.language) {
+                    "miz" -> "lus"
+                    else -> locale.language
+                }
+
+                val currentLang = current?.locale?.language?.let {
+                    if (it == "miz") "lus" else it
+                }
+
+                if (current == null || currentLang != targetLang) {
                     // Pick the first voice from the allowed set (1 male, 2 female)
-                    val langVoices = allVoices.filter { it.locale.language == locale.language }
+                    val langVoices = allVoices.filter {
+                        val voiceLang = when (it.locale.language) {
+                            "miz" -> "lus"
+                            else -> it.locale.language
+                        }
+                        voiceLang == targetLang
+                    }
                     val allowedVoice = langVoices.find { it.gender == VoiceGender.MALE }
                         ?: langVoices.find { it.gender == VoiceGender.FEMALE }
                         ?: langVoices.firstOrNull()

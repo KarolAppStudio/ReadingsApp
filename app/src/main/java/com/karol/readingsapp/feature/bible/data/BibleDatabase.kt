@@ -131,6 +131,7 @@ abstract class BibleDatabase : RoomDatabase() {
                 arrayOf("TAM", "Tamil", "Tamil Bible"),
                 arrayOf("TEL", "Telugu", "Telugu Bible"),
                 arrayOf("MIZO", "Mizo", "Mizo Bible"),
+                arrayOf("FAR", "Farsi", "Farsi Bible"),
             )
             db.beginTransaction()
             try {

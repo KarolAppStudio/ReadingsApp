@@ -1135,6 +1135,11 @@ object Localization {
             bookNames = MizoBooks,
         )
 
+    private val Farsi =
+        English.copy(
+            locale = Locale.forLanguageTag("fa-IR"),
+        )
+
     fun getStrings(language: String): LocalizedStrings {
         android.util.Log.d("Localization", "Requested language: '$language'")
         val lang = language.lowercase()
@@ -1147,6 +1152,7 @@ object Localization {
                 (lang.contains("tamil") || (lang == "ta") || (lang == "tam")) -> Tamil
                 (lang.contains("telugu") || (lang == "te") || (lang == "tel")) -> Telugu
                 (lang.contains("mizo") || (lang == "miz")) -> Mizo
+                (lang.contains("farsi") || lang.contains("persian") || (lang == "fa") || (lang == "far")) -> Farsi
                 else -> English
             }
 

@@ -40,7 +40,7 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
     private var currentChunkIndex: Int = 0
     private var nextWordOffsetInCurrentChunk: Int = 0
 
-    private val priorityLanguages = setOf("en", "hi", "bn", "kn", "ml", "ta", "te", "lus", "miz")
+    private val priorityLanguages = setOf("en", "hi", "bn", "kn", "ml", "ta", "te", "lus", "miz", "fa")
 
     init {
         initializeTTS()
@@ -124,24 +124,43 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
     private fun initializeTTS() {
         Log.d("AndroidVoiceManager", "Initializing TTS...")
         _ttsState.value = TTSState.Initializing
-        tts = TextToSpeech(context) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                Log.d("AndroidVoiceManager", "TTS Initialization Success")
-                _ttsState.value = TTSState.Idle
-                setupTTSListeners()
-                checkOfflineSupport()
-                updateAvailableVoices()
 
-                // Process any languages that were requested while initializing
-                if (pendingLanguageChecks.isNotEmpty()) {
-                    Log.d("AndroidVoiceManager", "Processing ${pendingLanguageChecks.size} pending language checks")
-                    pendingLanguageChecks.forEach { ensureLanguageInstalled(it) }
-                    pendingLanguageChecks.clear()
-                }
-            } else {
-                Log.e("AndroidVoiceManager", "TTS Initialization Failed with status: $status")
-                _ttsState.value = TTSState.Error("TTS Initialization Failed")
+        // Prefer Google TTS engine for broader language support and background downloads
+        val googleTtsPackage = "com.google.android.tts"
+        val isGoogleTtsInstalled = try {
+            context.packageManager.getPackageInfo(googleTtsPackage, 0)
+            true
+        } catch (_: Exception) {
+            false
+        }
+
+        tts = if (isGoogleTtsInstalled) {
+            TextToSpeech(context, { status -> handleInitStatus(status) }, googleTtsPackage)
+        } else {
+            TextToSpeech(context) { status -> handleInitStatus(status) }
+        }
+    }
+
+    private fun handleInitStatus(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            Log.d("AndroidVoiceManager", "TTS Initialization Success")
+            _ttsState.value = TTSState.Idle
+            setupTTSListeners()
+            checkOfflineSupport()
+            updateAvailableVoices()
+
+            // Process any languages that were requested while initializing
+            if (pendingLanguageChecks.isNotEmpty()) {
+                Log.d(
+                    "AndroidVoiceManager",
+                    "Processing ${pendingLanguageChecks.size} pending language checks",
+                )
+                pendingLanguageChecks.forEach { ensureLanguageInstalled(it) }
+                pendingLanguageChecks.clear()
             }
+        } else {
+            Log.e("AndroidVoiceManager", "TTS Initialization Failed with status: $status")
+            _ttsState.value = TTSState.Error("TTS Initialization Failed")
         }
     }
 
@@ -347,13 +366,15 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
 
                     // 2. If no language-specific saved voice, check the globally selected voice if it matches language
                     if (preferredVoice == null) {
-                        preferredVoice = _selectedVoice.value?.let { selected ->
-                            if (selected.locale.language == actualLanguage.language) {
-                                allVoices?.find { it.name == selected.name }
+                        val currentSelectedVoice = _selectedVoice.value
+                        preferredVoice =
+                            if ((currentSelectedVoice != null) &&
+                                (currentSelectedVoice.locale.language == actualLanguage.language)
+                            ) {
+                                allVoices?.find { it.name == currentSelectedVoice.name }
                             } else {
                                 null
                             }
-                        }
                     }
 
                     if (preferredVoice != null) {
@@ -509,6 +530,8 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
         try {
             val intent = android.content.Intent()
             intent.action = TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA
+            // Explicitly target Google TTS if available for background/automatic download support
+            intent.setPackage("com.google.android.tts")
             intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
         } catch (e: Exception) {
@@ -525,13 +548,16 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
         }
 
         val result = engine.isLanguageAvailable(locale)
-        if (result == TextToSpeech.LANG_MISSING_DATA) {
-            Log.d("AndroidVoiceManager", "Language data missing for $locale, triggering installation.")
+        if ((result == TextToSpeech.LANG_MISSING_DATA) || (result == TextToSpeech.LANG_NOT_SUPPORTED)) {
+            Log.d(
+                "AndroidVoiceManager",
+                "Language data missing or unsupported (result: $result) for $locale, triggering installation.",
+            )
             checkAndInstallVoices()
         } else {
             Log.d(
                 "AndroidVoiceManager",
-                "Language data for $locale is already available or not supported (result: $result).",
+                "Language data for $locale is already available (result: $result).",
             )
         }
     }

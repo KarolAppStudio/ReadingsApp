@@ -50,6 +50,7 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
                 (lang.contains("tamil")) || (lang == "ta") || (lang == "tam") -> "தமிழ்"
                 (lang.contains("telugu")) || (lang == "te") || (lang == "tel") -> "తెలుగు"
                 (lang.contains("mizo")) || (lang == "miz") -> "Mizo"
+                (lang.contains("farsi")) || (lang.contains("persian")) || (lang == "fa") || (lang == "far") -> "فارسی"
                 translationName == "English-ASV" -> "English"
                 else -> translationName.removeSuffix(" Bible")
             }
@@ -63,6 +64,7 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
             "Tamil" -> "TAM"
             "Telugu" -> "TEL"
             "Mizo" -> "MIZO"
+            "Farsi", "Persian" -> "FAR"
             "English", "English-ASV" -> "ENG"
             else -> language
         }
@@ -151,6 +153,7 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
         "TAM" -> "Tamil"
         "TEL" -> "Telugu"
         "MIZO", "MIZ" -> "Mizo"
+        "FAR" -> "Farsi"
         else -> code
     }
 
