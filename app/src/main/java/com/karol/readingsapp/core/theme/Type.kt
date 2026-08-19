@@ -2,18 +2,20 @@ package com.karol.readingsapp.core.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.karol.readingsapp.R
 
-// Vazirmatn Font Family for Farsi
+// Vazirmatn Font Family for Farsi (Placeholder until font files are added to res/font)
+// Download from: https://github.com/rastikerdar/vazirmatn
+val Vazirmatn = FontFamily.Default
+/*
 val Vazirmatn = FontFamily(
     Font(R.font.vazirmatn_regular, FontWeight.Normal),
     Font(R.font.vazirmatn_medium, FontWeight.Medium),
     Font(R.font.vazirmatn_bold, FontWeight.Bold),
 )
+*/
 
 // Set of Material typography styles to start with
 val Typography =
