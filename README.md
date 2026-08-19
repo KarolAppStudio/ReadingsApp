@@ -1,4 +1,4 @@
-# Daily Bible Reading App
+# Daily Reading Companion App
 
 A simple app for following daily Bible readings based on the **Christadelphian Bible Reading Companion** by Robert Roberts, with support for multiple Indian language Bibles.
 
