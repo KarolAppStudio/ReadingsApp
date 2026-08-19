@@ -10,19 +10,17 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModel
@@ -35,9 +33,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.karol.readingsapp.core.i18n.Localization
-import com.karol.readingsapp.core.theme.ProvideWindowSizeClass
-import com.karol.readingsapp.core.theme.ReadingsAppTheme
+import com.karol.readingsapp.core.theme.*
 import com.karol.readingsapp.core.ui.components.DownloadProgressOverlay
 import com.karol.readingsapp.feature.about.ui.AboutScreen
 import com.karol.readingsapp.feature.bible.data.BibleDatabase
@@ -57,15 +53,6 @@ import com.karol.readingsapp.feature.voice.ui.VoiceViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.dp
-import com.karol.readingsapp.core.theme.*
 
 class MainActivity : ComponentActivity() {
 
@@ -152,7 +139,7 @@ class MainActivity : ComponentActivity() {
             ProvideWindowSizeClass(windowSizeClass) {
                 ReadingsAppTheme(
                     appTheme = currentTheme,
-                    language = selectedLanguage
+                    language = selectedLanguage,
                 ) {
                     val navController = rememberNavController()
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -185,10 +172,9 @@ class MainActivity : ComponentActivity() {
                                         onAboutClick = {
                                             navController.navigate("about")
                                         },
-                                        onContactClick = {
-                                            navController.navigate("contact")
-                                        },
-                                    )
+                                    ) {
+                                        navController.navigate("contact")
+                                    }
                                 }
                                 composable("about") {
                                     AboutScreen(strings = strings) {
@@ -214,8 +200,7 @@ class MainActivity : ComponentActivity() {
                                             navController.navigate("bible")
                                         },
                                         initialTabIndex = settingsTabIndex,
-                                        onTabSelected = { settingsTabIndex = it },
-                                    )
+                                    ) { settingsTabIndex = it }
                                 }
                                 composable("reading_plan") {
                                     ReadingPlanScreen(
@@ -318,7 +303,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
 
-                            val isDownloadTab = currentRoute == "settings" && settingsTabIndex == 1
+                            val isDownloadTab = (currentRoute == "settings") && (settingsTabIndex == 1)
                             if (showDownloadOverlay && !isDownloadTab) {
                                 DownloadProgressOverlay(
                                     progress = batchProgress,
@@ -356,7 +341,7 @@ fun EInkReaderPreview() {
                         containerColor = MaterialTheme.colorScheme.surface,
                         titleContentColor = MaterialTheme.colorScheme.onSurface,
                         navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                        actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                        actionIconContentColor = MaterialTheme.colorScheme.onSurface,
                     ),
                     modifier = Modifier.eInkBorder()
                 )

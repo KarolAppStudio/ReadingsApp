@@ -114,7 +114,6 @@ fun BibleReaderScreen(
         chapterCount = viewModel.getChapterCount(displayBookId)
     }
 
-    val selectedLanguage by viewModel.selectedLanguage.collectAsState()
     val strings by viewModel.strings.collectAsState()
 
     val selectedTranslation = remember(selectedCode, availableTranslations) {

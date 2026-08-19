@@ -87,7 +87,7 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
         allowNetwork: Boolean = true,
     ) = withContext(Dispatchers.IO) {
         val currentStatus = _downloadStatus.value[language]
-        if ((!force) && (currentStatus == LanguageStatus.DOWNLOADED || currentStatus == LanguageStatus.DOWNLOADING)) {
+        if (!force && ((currentStatus == LanguageStatus.DOWNLOADED) || (currentStatus == LanguageStatus.DOWNLOADING))) {
             return@withContext
         }
 
@@ -173,7 +173,7 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
         } else {
             languages.filter {
                 val status = _downloadStatus.value[it]
-                status != LanguageStatus.DOWNLOADED && status != LanguageStatus.DOWNLOADING
+                (status != LanguageStatus.DOWNLOADED) && (status != LanguageStatus.DOWNLOADING)
             }
         }
 

@@ -51,7 +51,7 @@ class AppUpdateManager(private val context: Context) {
                 }
 
                 val currentVersion = getCurrentVersionName()
-                if ((isNewerVersion(tagName, currentVersion)) && downloadUrl != null) {
+                if (isNewerVersion(tagName, currentVersion) && downloadUrl != null) {
                     UpdateResult.NewUpdateAvailable(tagName, downloadUrl)
                 } else {
                     UpdateResult.NoUpdateAvailable

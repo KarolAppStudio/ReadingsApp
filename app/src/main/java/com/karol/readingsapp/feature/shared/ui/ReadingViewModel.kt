@@ -44,7 +44,7 @@ class ReadingViewModel(
     private val _availableTranslations = MutableStateFlow<List<TranslationEntity>>(emptyList())
     val availableTranslations = _availableTranslations.asStateFlow()
 
-    private val _downloadedTranslations = MutableStateFlow<List<TranslationEntity>>(
+    private val _downloadedTranslations = MutableStateFlow(
         listOf(
             TranslationEntity("ENG", "English", "English"),
             TranslationEntity("MAL", "Malayalam", "മലയാളം"),
@@ -128,7 +128,7 @@ class ReadingViewModel(
     private val _updateStatus = MutableStateFlow<AppUpdateStatus>(AppUpdateStatus.Idle)
     val updateStatus = _updateStatus.asStateFlow()
 
-    private val _showDownloadOverlay = MutableStateFlow(false)
+    private val _showDownloadOverlay = MutableStateFlow(value = false)
     val showDownloadOverlay = _showDownloadOverlay.asStateFlow()
 
     private val checkedTTSLanguages = mutableSetOf<String>()
@@ -176,8 +176,7 @@ class ReadingViewModel(
     private fun checkTTSForLanguage(languageName: String) {
         if (checkedTTSLanguages.contains(languageName)) return
 
-        val code = LanguageService.getLanguageCode(languageName)
-        val locale = when (code) {
+        val locale = when (LanguageService.getLanguageCode(languageName)) {
             "ENG" -> Locale.ENGLISH
             "HIN" -> Locale.forLanguageTag("hi-IN")
             "BAN" -> Locale.forLanguageTag("bn-IN")
@@ -315,9 +314,9 @@ class ReadingViewModel(
                 } else if (triggerRepair) {
                     // Ensure default languages are eventually marked as downloaded if they weren't finished
                     val missingDefaults = defaultMapping.filter { (lang, _) ->
-                        statusMap[lang] != LanguageStatus.DOWNLOADED &&
-                            statusMap[lang] != LanguageStatus.DOWNLOADING &&
-                            statusMap[lang] != LanguageStatus.FAILED
+                        (statusMap[lang] != LanguageStatus.DOWNLOADED) &&
+                            (statusMap[lang] != LanguageStatus.DOWNLOADING) &&
+                            (statusMap[lang] != LanguageStatus.FAILED)
                     }
                     if (missingDefaults.isNotEmpty()) {
                         startBatchDownload(
@@ -465,8 +464,7 @@ class ReadingViewModel(
     fun checkForAppUpdate() {
         viewModelScope.launch {
             _isRefreshing.value = true
-            val result = updateManager.checkForUpdates()
-            when (result) {
+            when (val result = updateManager.checkForUpdates()) {
                 is AppUpdateManager.UpdateResult.NewUpdateAvailable -> {
                     _updateStatus.value = AppUpdateStatus.NewVersionAvailable(result.version, result.downloadUrl)
                     // For now, let's trigger download immediately as per prompt "and update the app"

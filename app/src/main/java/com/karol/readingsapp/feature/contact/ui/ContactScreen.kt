@@ -187,7 +187,7 @@ fun ContactTopBar(strings: LocalizedStrings, onHomeClick: () -> Unit) {
 fun FeedbackDialog(onDismiss: () -> Unit, onSent: () -> Unit) {
     var subject by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
-    var dropdownExpanded by remember { mutableStateOf(false) }
+    var dropdownExpanded by remember { mutableStateOf(value = false) }
     val subjects = listOf("Feedback", "Suggestion", "Report an Issue", "Request a feature")
     val context = LocalContext.current
 
