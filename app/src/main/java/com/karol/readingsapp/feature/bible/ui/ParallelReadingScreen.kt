@@ -33,20 +33,12 @@ import com.karol.readingsapp.feature.bible.data.BookEntity
 import com.karol.readingsapp.feature.bible.data.TargetReadingDetails
 import com.karol.readingsapp.feature.bible.data.TranslationEntity
 import com.karol.readingsapp.feature.shared.ui.ReadingViewModel
-import com.karol.readingsapp.feature.voice.ui.VoiceControlBar
-import com.karol.readingsapp.feature.voice.ui.VoiceViewModel
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ParallelReadingScreen(
-    bookId: Int,
-    chapter: Int,
-    viewModel: ReadingViewModel,
-    voiceViewModel: VoiceViewModel,
-    onHomeClick: () -> Unit,
-) {
+fun ParallelReadingScreen(bookId: Int, chapter: Int, viewModel: ReadingViewModel, onHomeClick: () -> Unit) {
     val verses1 by viewModel.chapterVerses.collectAsState()
     val verses2 by viewModel.secondChapterVerses.collectAsState()
     val translations by viewModel.downloadedTranslations.collectAsState()
@@ -82,10 +74,6 @@ fun ParallelReadingScreen(
     // Effects
     LaunchedEffect(bookId1) { chapterCount1 = viewModel.getChapterCount(bookId1) }
     LaunchedEffect(bookId2) { chapterCount2 = viewModel.getChapterCount(bookId2) }
-
-    val textToRead = remember(verses1) {
-        verses1.joinToString(" ") { it.text }
-    }
 
     LaunchedEffect(bookId1, chapter1, selectedCode1) {
         viewModel.loadChapterVerses(bookId1, chapter1)
@@ -149,20 +137,9 @@ fun ParallelReadingScreen(
             )
         },
         containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = {
-            VoiceControlBar(
-                viewModel = voiceViewModel,
-                textToRead = textToRead,
-                locale = strings1.locale,
-                modifier = Modifier
-                    .padding(horizontal = AdaptiveDimens.paddingMedium)
-                    .navigationBarsPadding()
-                    .padding(bottom = 8.dp),
-            )
-        },
     ) { innerPadding ->
         Box(
-            modifier = Modifier.fillMaxSize().padding(innerPadding).navigationBarsPadding(),
+            modifier = Modifier.fillMaxSize().padding(innerPadding),
             contentAlignment = Alignment.TopCenter,
         ) {
             Column(modifier = Modifier.fillMaxHeight().widthIn(max = AdaptiveDimens.contentMaxWidth)) {
