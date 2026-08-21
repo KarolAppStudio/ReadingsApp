@@ -18,7 +18,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.core.i18n.Localization
@@ -177,6 +179,8 @@ fun ParallelReadingScreen(
                         strings = strings1,
                         numberFormatter = numberFormatter1,
                         chapterCount = chapterCount1,
+                        currentBookName = bookName1,
+                        currentChapter = chapter1,
                         onTranslationSelected = { viewModel.setTranslation(it) },
                     ) { b, c ->
                         if (b != -1) bookId1 = b
@@ -194,6 +198,8 @@ fun ParallelReadingScreen(
                         strings = strings2,
                         numberFormatter = numberFormatter2,
                         chapterCount = chapterCount2,
+                        currentBookName = bookName2,
+                        currentChapter = chapter2,
                         onTranslationSelected = { viewModel.loadSecondChapterVerses(bookId2, chapter2, it) },
                     ) { b, c ->
                         if (b != -1) bookId2 = b
@@ -233,10 +239,24 @@ private fun ReadingSideSelector(
     strings: LocalizedStrings,
     numberFormatter: NumberFormat,
     chapterCount: Int,
+    currentBookName: String,
+    currentChapter: Int,
     onTranslationSelected: (String) -> Unit,
     onLocationSelected: (Int, Int) -> Unit,
 ) {
     Column(modifier = modifier) {
+        val density = LocalDensity.current
+        Text(
+            text = "$currentBookName ${numberFormatter.format(currentChapter)}",
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(with(density) { 45.toDp() })
+                .wrapContentHeight(Alignment.CenterVertically),
+            textAlign = TextAlign.Center,
+        )
         TranslationSelector(
             selectedTranslationCode = selectedCode,
             translations = translations,
