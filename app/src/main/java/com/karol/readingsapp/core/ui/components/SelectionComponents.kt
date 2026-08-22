@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import com.karol.readingsapp.core.theme.AdaptiveDimens
 import com.karol.readingsapp.feature.bible.data.TranslationEntity
 
 @Composable
@@ -104,9 +105,10 @@ fun TranslationSelector(
                     text = transName,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
+                    fontSize = AdaptiveDimens.smallFontSize * 0.85f,
                     modifier = Modifier.weight(1f),
                     maxLines = 1,
+                    textAlign = TextAlign.Center,
                 )
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,

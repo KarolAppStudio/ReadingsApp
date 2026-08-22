@@ -18,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -92,22 +91,7 @@ fun ParallelReadingScreen(bookId: Int, chapter: Int, viewModel: ReadingViewModel
         topBar = {
             TopAppBar(
                 modifier = Modifier.statusBarsPadding(),
-                title = {
-                    val displayTitle = if ((bookId1 == bookId2) && (chapter1 == chapter2)) {
-                        "$bookName1 ${numberFormatter1.format(chapter1)}"
-                    } else {
-                        "$bookName1 ${numberFormatter1.format(
-                            chapter1,
-                        )} | $bookName2 ${numberFormatter2.format(chapter2)}"
-                    }
-                    AutoResizingText(
-                        text = displayTitle,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = AdaptiveDimens.bodyFontSize,
-                        maxLines = 1,
-                    )
-                },
+                title = {},
                 navigationIcon = {
                     IconButton(onClick = onHomeClick) {
                         Icon(
@@ -222,17 +206,17 @@ private fun ReadingSideSelector(
     onLocationSelected: (Int, Int) -> Unit,
 ) {
     Column(modifier = modifier) {
-        val density = LocalDensity.current
-        Text(
+        AutoResizingText(
             text = "$currentBookName ${numberFormatter.format(currentChapter)}",
-            fontSize = 14.sp,
+            fontSize = AdaptiveDimens.smallFontSize,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(with(density) { 45.toDp() })
+                .height(if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 40.dp)
                 .wrapContentHeight(Alignment.CenterVertically),
             textAlign = TextAlign.Center,
+            maxLines = 1,
         )
         TranslationSelector(
             selectedTranslationCode = selectedCode,
