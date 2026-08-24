@@ -50,8 +50,11 @@ import com.karol.readingsapp.feature.settings.ui.SettingsScreen
 import com.karol.readingsapp.feature.shared.ui.ReadingViewModel
 import com.karol.readingsapp.feature.voice.data.VoiceServiceProxy
 import com.karol.readingsapp.feature.voice.ui.VoiceViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
@@ -84,7 +87,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             val startTime = System.currentTimeMillis()
             // Pre-initialize and open databases in background to speed up first run
-            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
                 try {
                     val bibleDb = BibleDatabase.getDatabase(applicationContext)
                     val planDb = ReadingPlanDatabase.getDatabase(applicationContext)
@@ -99,7 +102,7 @@ class MainActivity : ComponentActivity() {
             // Ensure splash screen stays for at least 800ms for smooth transition
             val elapsed = System.currentTimeMillis() - startTime
             if (elapsed < 800) {
-                kotlinx.coroutines.delay(800 - elapsed)
+                delay((800 - elapsed).milliseconds)
             }
             keepSplashScreen = false
         }
@@ -362,7 +365,7 @@ fun EInkReaderPreview() {
                         navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
                         actionIconContentColor = MaterialTheme.colorScheme.onSurface,
                     ),
-                    modifier = Modifier.eInkBorder()
+                    modifier = Modifier.eInkBorder(),
                 )
             },
             bottomBar = {

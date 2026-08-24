@@ -17,7 +17,6 @@ abstract class ReadingPlanDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: ReadingPlanDatabase? = null
-        private const val ASSET_VERSION = 3
 
         fun getDatabase(context: Context): ReadingPlanDatabase = INSTANCE ?: synchronized(this) {
             val instance = Room.databaseBuilder(
