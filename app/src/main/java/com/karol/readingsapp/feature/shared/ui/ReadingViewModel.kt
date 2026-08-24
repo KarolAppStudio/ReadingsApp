@@ -498,8 +498,8 @@ class ReadingViewModel(
 }
 
 sealed class AppUpdateStatus {
-    object Idle : AppUpdateStatus()
-    object UpToDate : AppUpdateStatus()
+    data object Idle : AppUpdateStatus()
+    data object UpToDate : AppUpdateStatus()
     data class NewVersionAvailable(val version: String, val downloadUrl: String) : AppUpdateStatus()
     data class Error(val message: String) : AppUpdateStatus()
 }

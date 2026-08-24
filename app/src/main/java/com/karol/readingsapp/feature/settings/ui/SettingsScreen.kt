@@ -53,19 +53,19 @@ fun SettingsScreen(
     initialTabIndex: Int = 0,
     onTabSelected: (Int) -> Unit = {},
 ) {
-    val selectedCode by viewModel.selectedTranslationCode.collectAsState()
-    val translations by viewModel.availableTranslations.collectAsState()
-    val remoteTranslations by viewModel.remoteTranslations.collectAsState()
-    val downloadStatus by viewModel.downloadStatus.collectAsState()
-    val individualProgress by viewModel.individualProgress.collectAsState()
-    val currentTheme by viewModel.appTheme.collectAsState()
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
-    val updateStatus by viewModel.updateStatus.collectAsState()
+    val selectedCode by viewModel.selectedTranslationCode.collectAsStateWithLifecycle()
+    val translations by viewModel.availableTranslations.collectAsStateWithLifecycle()
+    val remoteTranslations by viewModel.remoteTranslations.collectAsStateWithLifecycle()
+    val downloadStatus by viewModel.downloadStatus.collectAsStateWithLifecycle()
+    val individualProgress by viewModel.individualProgress.collectAsStateWithLifecycle()
+    val currentTheme by viewModel.appTheme.collectAsStateWithLifecycle()
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val updateStatus by viewModel.updateStatus.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val strings by viewModel.strings.collectAsState()
-    val selectedLanguage by viewModel.selectedLanguage.collectAsState()
+    val strings by viewModel.strings.collectAsStateWithLifecycle()
+    val selectedLanguage by viewModel.selectedLanguage.collectAsStateWithLifecycle()
 
     LaunchedEffect(updateStatus) {
         when (val status = updateStatus) {

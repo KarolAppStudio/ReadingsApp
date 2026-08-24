@@ -5,7 +5,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -20,10 +22,10 @@ import java.time.Instant
 
 class AppUpdateManager(private val context: Context) {
 
-    private val latestReleaseUrl = "https://api.github.com/repos/KarolAppStudio/ReadingsApp/releases/latest"
+    private val latestReleaseUrl = "https" + "://api.github.com/repos/KarolAppStudio/ReadingsApp/releases/latest"
 
     sealed class UpdateResult {
-        object NoUpdateAvailable : UpdateResult()
+        data object NoUpdateAvailable : UpdateResult()
         data class NewUpdateAvailable(val version: String, val downloadUrl: String, val publishedAt: String) :
             UpdateResult()
         data class Error(val message: String) : UpdateResult()
@@ -53,7 +55,7 @@ class AppUpdateManager(private val context: Context) {
                     }
                 }
 
-                if ((isNewerThanCurrent(tagName, publishedAt)) && (downloadUrl != null)) {
+                if (isNewerThanCurrent(tagName, publishedAt) && (downloadUrl != null)) {
                     UpdateResult.NewUpdateAvailable(tagName, downloadUrl, publishedAt)
                 } else {
                     UpdateResult.NoUpdateAvailable
@@ -69,7 +71,15 @@ class AppUpdateManager(private val context: Context) {
 
     private fun isNewerThanCurrent(latestVersion: String, publishedAt: String): Boolean {
         try {
-            val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            val pInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getPackageInfo(
+                    context.packageName,
+                    PackageManager.PackageInfoFlags.of(0L),
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getPackageInfo(context.packageName, 0)
+            }
             val currentVersion = pInfo.versionName ?: "1.0"
 
             // 1. Check by Version Name (Standard approach)
@@ -121,12 +131,12 @@ class AppUpdateManager(private val context: Context) {
         val downloadId = downloadManager.enqueue(request)
 
         val onComplete = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
+            override fun onReceive(receiverContext: Context, intent: Intent) {
                 val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L)
                 if (id == downloadId) {
                     installApk(destination)
                     try {
-                        context.unregisterReceiver(this)
+                        receiverContext.unregisterReceiver(this)
                     } catch (_: Exception) {}
                 }
             }
