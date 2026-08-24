@@ -430,9 +430,9 @@ class ReadingRepository(
         }
 
     suspend fun isTranslationComplete(translationCode: String): Boolean = withContext(Dispatchers.IO) {
-        // Simple heuristic: A complete Bible has ~31,000 verses, NT ~8,000.
-        // If it has significantly fewer (e.g., < 5,000), it's likely a partial download or corrupted.
+        // Simple heuristic: A complete Bible has ~31,000 verses.
+        // If it has significantly fewer (e.g., < 30,000), it's likely a partial download or corrupted.
         val totalVerses = getActiveDao().getTotalVerseCount(translationCode)
-        totalVerses >= 5000
+        totalVerses >= 30000
     }
 }

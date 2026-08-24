@@ -8,8 +8,8 @@ import kotlinx.coroutines.sync.withLock
 import java.io.File
 
 class BibleDatabaseProvider(private val context: Context) {
-    private val _activeDatabase = MutableStateFlow<BibleDatabase?>(null)
-    private val _currentTranslationCode = MutableStateFlow<String?>(null)
+    private val activeDatabase = MutableStateFlow<BibleDatabase?>(null)
+    private val currentTranslationCode = MutableStateFlow<String?>(null)
 
     private val mutex = Mutex()
     private val databasesDir = File(context.filesDir, "downloaded_translations")
@@ -21,13 +21,13 @@ class BibleDatabaseProvider(private val context: Context) {
     }
 
     suspend fun switchToTranslation(code: String) = mutex.withLock {
-        if ((_currentTranslationCode.value == code) && (_activeDatabase.value != null)) {
+        if ((currentTranslationCode.value == code) && (activeDatabase.value != null)) {
             return@withLock
         }
 
         // Cleanly close the old instance
-        _activeDatabase.value?.close()
-        _activeDatabase.value = null
+        activeDatabase.value?.close()
+        activeDatabase.value = null
 
         val dbFile = File(databasesDir, "$code.db")
         if (!dbFile.exists()) {
@@ -35,7 +35,7 @@ class BibleDatabaseProvider(private val context: Context) {
             // For now, we assume LanguageService handles the download.
             // If it's a core translation, it might be handled differently,
             // but the requirement says to build from the downloaded file.
-            _currentTranslationCode.value = null
+            currentTranslationCode.value = null
             return@withLock
         }
 
@@ -48,9 +48,9 @@ class BibleDatabaseProvider(private val context: Context) {
             .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
 
-        _activeDatabase.value = db
-        _currentTranslationCode.value = code
+        activeDatabase.value = db
+        currentTranslationCode.value = code
     }
 
-    fun getDao(): BibleDao? = _activeDatabase.value?.bibleDao()
+    fun getDao(): BibleDao? = activeDatabase.value?.bibleDao()
 }
