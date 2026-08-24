@@ -16,6 +16,7 @@ import org.json.JSONObject
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import java.time.Instant
 
 class AppUpdateManager(private val context: Context) {
 
@@ -23,7 +24,8 @@ class AppUpdateManager(private val context: Context) {
 
     sealed class UpdateResult {
         object NoUpdateAvailable : UpdateResult()
-        data class NewUpdateAvailable(val version: String, val downloadUrl: String) : UpdateResult()
+        data class NewUpdateAvailable(val version: String, val downloadUrl: String, val publishedAt: String) :
+            UpdateResult()
         data class Error(val message: String) : UpdateResult()
     }
 
@@ -39,6 +41,7 @@ class AppUpdateManager(private val context: Context) {
                 val jsonString = connection.inputStream.bufferedReader().use { it.readText() }
                 val jsonObject = JSONObject(jsonString)
                 val tagName = jsonObject.getString("tag_name")
+                val publishedAt = jsonObject.getString("published_at")
                 val assets = jsonObject.getJSONArray("assets")
                 var downloadUrl: String? = null
 
@@ -50,9 +53,8 @@ class AppUpdateManager(private val context: Context) {
                     }
                 }
 
-                val currentVersion = getCurrentVersionName()
-                if (isNewerVersion(tagName, currentVersion) && downloadUrl != null) {
-                    UpdateResult.NewUpdateAvailable(tagName, downloadUrl)
+                if ((isNewerThanCurrent(tagName, publishedAt)) && (downloadUrl != null)) {
+                    UpdateResult.NewUpdateAvailable(tagName, downloadUrl, publishedAt)
                 } else {
                     UpdateResult.NoUpdateAvailable
                 }
@@ -65,11 +67,28 @@ class AppUpdateManager(private val context: Context) {
         }
     }
 
-    private fun getCurrentVersionName(): String = try {
-        val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-        pInfo.versionName ?: "1.0"
-    } catch (_: Exception) {
-        "1.0"
+    private fun isNewerThanCurrent(latestVersion: String, publishedAt: String): Boolean {
+        try {
+            val pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            val currentVersion = pInfo.versionName ?: "1.0"
+
+            // 1. Check by Version Name (Standard approach)
+            if (isNewerVersion(latestVersion, currentVersion)) return true
+
+            // 2. Check by Date & Time (User's specific requirement)
+            val publishedInstant = Instant.parse(publishedAt)
+            val lastUpdateTime = pInfo.lastUpdateTime
+            val currentInstant = Instant.ofEpochMilli(lastUpdateTime)
+
+            if (publishedInstant.isAfter(currentInstant)) {
+                android.util.Log.d("AppUpdateManager", "Newer release found by date: $publishedAt > $currentInstant")
+                return true
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("AppUpdateManager", "Failed to check version or date", e)
+        }
+
+        return false
     }
 
     internal fun isNewerVersion(latestVersion: String, currentVersion: String): Boolean {
