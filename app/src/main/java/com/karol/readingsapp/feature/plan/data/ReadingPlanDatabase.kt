@@ -1,6 +1,7 @@
 package com.karol.readingsapp.feature.plan.data
 
 import android.content.Context
+import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -47,12 +48,12 @@ abstract class ReadingPlanDatabase : RoomDatabase() {
                 count = cursor.getInt(0)
             }
             cursor.close()
-            android.util.Log.d("ReadingPlanDatabase", "Reading plan count: $count")
+            Log.d("ReadingPlanDatabase", "Reading plan count: $count")
 
             if (count == 0) {
                 // If the table is empty despite copying the asset, something is wrong.
                 // We might need to force a re-copy next time or handle it.
-                android.util.Log.e("ReadingPlanDatabase", "Reading plan table is empty!")
+                Log.e("ReadingPlanDatabase", "Reading plan table is empty!")
             }
         }
     }

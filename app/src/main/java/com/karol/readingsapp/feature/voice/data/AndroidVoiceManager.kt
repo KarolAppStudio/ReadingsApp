@@ -556,10 +556,7 @@ class AndroidVoiceManager(private val context: Context) : VoiceService {
             // We no longer automatically trigger the Install Activity here to avoid interrupting the user.
             // The UI will reflect the status by showing "No Voice Available".
         } else {
-            Log.d(
-                "AndroidVoiceManager",
-                "Language data for $locale is already available (result: $result).",
-            )
+            // Language data is already available - reducing log verbosity
         }
     }
 

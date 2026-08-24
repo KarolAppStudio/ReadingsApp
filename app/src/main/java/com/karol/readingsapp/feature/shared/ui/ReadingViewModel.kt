@@ -8,6 +8,7 @@ import com.karol.readingsapp.core.i18n.Localization
 import com.karol.readingsapp.core.i18n.LocalizedStrings
 import com.karol.readingsapp.core.theme.AppTheme
 import com.karol.readingsapp.core.update.AppUpdateManager
+import com.karol.readingsapp.feature.bible.data.BibleDatabaseProvider
 import com.karol.readingsapp.feature.bible.data.BookEntity
 import com.karol.readingsapp.feature.bible.data.ChapterReference
 import com.karol.readingsapp.feature.bible.data.LanguageService
@@ -30,6 +31,7 @@ class ReadingViewModel(
     private val repository: ReadingRepository,
     private val languageService: LanguageService,
     private val voiceService: VoiceService,
+    private val dbProvider: BibleDatabaseProvider,
     context: Context,
 ) : ViewModel() {
     private val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
@@ -137,8 +139,13 @@ class ReadingViewModel(
         if (prefs.getBoolean("is_first_run", true)) {
             handleFirstRun()
         }
-        loadTranslations()
-        loadAllBooks()
+
+        // Initial DB switch
+        viewModelScope.launch {
+            dbProvider.switchToTranslation(_selectedTranslationCode.value)
+            loadTranslations()
+            loadAllBooks()
+        }
 
         // Observe download status to refresh translations list and check for TTS
         viewModelScope.launch {
@@ -154,8 +161,9 @@ class ReadingViewModel(
                         checkTTSForLanguage(lang)
                         newlyDownloadedDetected = true
 
-                        // If the newly downloaded language is the one currently selected, reload the reading
+                        // If the newly downloaded language is the one currently selected, switch and reload the reading
                         if (LanguageService.getLanguageCode(lang) == _selectedTranslationCode.value) {
+                            dbProvider.switchToTranslation(_selectedTranslationCode.value)
                             val currentD = _currentDate.value
                             if (currentD.isNotEmpty()) {
                                 loadReading(currentD)
@@ -343,13 +351,14 @@ class ReadingViewModel(
         translation?.let {
             viewModelScope.launch {
                 languageService.downloadLanguageScript(it.language, it.code)
+                dbProvider.switchToTranslation(translationCode)
                 _selectedTranslationCode.value = translationCode
                 _isCurrentTranslationComplete.value = repository.isTranslationComplete(translationCode)
                 prefs.edit { putString("default_bible", translationCode) }
                 if (_currentDate.value.isNotEmpty()) {
                     loadReading(_currentDate.value)
                 }
-                loadTranslations()
+                loadTranslations(triggerRepair = false)
             }
         }
     }
@@ -365,12 +374,10 @@ class ReadingViewModel(
             _showDownloadOverlay.value = showOverlay
             languageService.batchDownload(languages, codes, force, allowNetwork)
             _showDownloadOverlay.value = false
-            loadTranslations() // Refresh available and downloaded lists after download attempt
+            loadTranslations(triggerRepair = false) // Refresh available and downloaded lists after download attempt
 
             // Automatically ensure TTS/Voice data is installed for the downloaded languages
             languages.forEach { language ->
-                // Clear from checked list to re-verify after a successful bible download
-                checkedTTSLanguages.remove(language)
                 checkTTSForLanguage(language)
             }
         }

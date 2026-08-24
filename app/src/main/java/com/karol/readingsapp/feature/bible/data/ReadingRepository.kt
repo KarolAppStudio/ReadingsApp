@@ -1,5 +1,6 @@
 package com.karol.readingsapp.feature.bible.data
 
+import android.util.Log
 import com.karol.readingsapp.feature.plan.data.ReadingPlanDao
 import com.karol.readingsapp.feature.plan.data.SimpleReading
 import kotlinx.coroutines.Dispatchers
@@ -7,7 +8,13 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class ReadingRepository(private val bibleDao: BibleDao, private val planDao: ReadingPlanDao) {
+class ReadingRepository(
+    private val mainBibleDao: BibleDao,
+    private val planDao: ReadingPlanDao,
+    private val dbProvider: BibleDatabaseProvider,
+) {
+    private fun getActiveDao(): BibleDao = dbProvider.getDao() ?: mainBibleDao
+
     private val bookNameToId =
         mapOf(
             "Genesis" to 0,
@@ -234,7 +241,7 @@ class ReadingRepository(private val bibleDao: BibleDao, private val planDao: Rea
         }
 
         if (plan == null) {
-            android.util.Log.e("ReadingRepository", "No reading plan found for day $dayIndex or ${dayIndex - 1}")
+            Log.e("ReadingRepository", "No reading plan found for day $dayIndex or ${dayIndex - 1}")
             return@withContext emptyMap()
         }
 
@@ -327,7 +334,7 @@ class ReadingRepository(private val bibleDao: BibleDao, private val planDao: Rea
             }
 
             if ((chapters.isNotEmpty()) && (bookId != -1)) {
-                val verses = bibleDao.getVersesForReading(date, bookId, chapters, type, translationCode, bookName)
+                val verses = getActiveDao().getVersesForReading(date, bookId, chapters, type, translationCode, bookName)
                 results.addAll(verses)
             }
         }
@@ -374,15 +381,16 @@ class ReadingRepository(private val bibleDao: BibleDao, private val planDao: Rea
     }
 
     suspend fun getAvailableTranslations(): List<TranslationEntity> = withContext(Dispatchers.IO) {
-        bibleDao.getAvailableTranslations()
+        mainBibleDao.getAvailableTranslations()
     }
 
     suspend fun getDownloadedTranslations(): List<TranslationEntity> = withContext(Dispatchers.IO) {
-        bibleDao.getDownloadedTranslations()
+        // This might need to check the filesystem now, or rely on LanguageService/Main DB
+        mainBibleDao.getDownloadedTranslations()
     }
 
     suspend fun getAllBooks(): List<BookEntity> = withContext(Dispatchers.IO) {
-        bibleDao.getAllBooks()
+        mainBibleDao.getAllBooks()
     }
 
     private val standardChapterCounts = listOf(
@@ -392,11 +400,11 @@ class ReadingRepository(private val bibleDao: BibleDao, private val planDao: Rea
     )
 
     suspend fun getAllChapters(): List<ChapterReference> = withContext(Dispatchers.IO) {
-        val chapters = bibleDao.getAllChapters()
+        val chapters = getActiveDao().getAllChapters()
         if (chapters.isNotEmpty()) return@withContext chapters
 
         // Fallback to standard structure if verses are not yet downloaded
-        val books = bibleDao.getAllBooks()
+        val books = mainBibleDao.getAllBooks()
         val fallback = mutableListOf<ChapterReference>()
         books.forEach { book ->
             val count = standardChapterCounts.getOrNull(book.id) ?: 0
@@ -408,23 +416,23 @@ class ReadingRepository(private val bibleDao: BibleDao, private val planDao: Rea
     }
 
     suspend fun getChapterCount(bookId: Int): Int = withContext(Dispatchers.IO) {
-        val count = bibleDao.getChapterCount(bookId)
+        val count = getActiveDao().getChapterCount(bookId)
         if (count > 0) count else standardChapterCounts.getOrNull(bookId) ?: 0
     }
 
     suspend fun getVerseCount(bookId: Int, chapter: Int): Int = withContext(Dispatchers.IO) {
-        bibleDao.getVerseCount(bookId, chapter)
+        getActiveDao().getVerseCount(bookId, chapter)
     }
 
     suspend fun getChapterVerses(bookId: Int, chapter: Int, translationCode: String): List<TargetReadingDetails> =
         withContext(Dispatchers.IO) {
-            bibleDao.getChapterVerses(bookId, chapter, translationCode)
+            getActiveDao().getChapterVerses(bookId, chapter, translationCode)
         }
 
     suspend fun isTranslationComplete(translationCode: String): Boolean = withContext(Dispatchers.IO) {
-        // Simple heuristic: A complete Bible has ~31,000 verses.
-        // If it has significantly fewer (e.g., < 30,000), it's likely a partial download or corrupted.
-        val totalVerses = bibleDao.getTotalVerseCount(translationCode)
-        totalVerses >= 30000
+        // Simple heuristic: A complete Bible has ~31,000 verses, NT ~8,000.
+        // If it has significantly fewer (e.g., < 5,000), it's likely a partial download or corrupted.
+        val totalVerses = getActiveDao().getTotalVerseCount(translationCode)
+        totalVerses >= 5000
     }
 }

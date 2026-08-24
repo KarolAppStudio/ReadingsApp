@@ -2,6 +2,7 @@ package com.karol.readingsapp
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -37,6 +38,7 @@ import com.karol.readingsapp.core.theme.*
 import com.karol.readingsapp.core.ui.components.DownloadProgressOverlay
 import com.karol.readingsapp.feature.about.ui.AboutScreen
 import com.karol.readingsapp.feature.bible.data.BibleDatabase
+import com.karol.readingsapp.feature.bible.data.BibleDatabaseProvider
 import com.karol.readingsapp.feature.bible.data.LanguageService
 import com.karol.readingsapp.feature.bible.data.ReadingRepository
 import com.karol.readingsapp.feature.bible.ui.BibleReaderScreen
@@ -55,6 +57,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
 
@@ -115,12 +118,14 @@ class MainActivity : ComponentActivity() {
                 calculateWindowSizeClass(this)
             val bibleDatabase = BibleDatabase.getDatabase(applicationContext)
             val planDatabase = ReadingPlanDatabase.getDatabase(applicationContext)
+            val bibleDatabaseProvider = remember { BibleDatabaseProvider(applicationContext) }
             val repository =
                 ReadingRepository(
                     bibleDatabase.bibleDao(),
                     planDatabase.readingPlanDao(),
+                    bibleDatabaseProvider
                 )
-            val languageService = LanguageService(applicationContext, bibleDatabase)
+            val languageService = LanguageService(applicationContext, bibleDatabase, bibleDatabaseProvider)
             val voiceService: VoiceServiceProxy = remember { VoiceServiceProxy(applicationContext) }
             val viewModel: ReadingViewModel =
                 viewModel(
@@ -128,7 +133,13 @@ class MainActivity : ComponentActivity() {
                     object : ViewModelProvider.Factory {
                         @Suppress("UNCHECKED_CAST")
                         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                            ReadingViewModel(repository, languageService, voiceService, applicationContext) as T
+                            ReadingViewModel(
+                                repository,
+                                languageService,
+                                voiceService,
+                                bibleDatabaseProvider,
+                                applicationContext
+                            ) as T
                     },
                 )
             val voiceViewModel: VoiceViewModel = viewModel()
@@ -138,12 +149,12 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(currentTheme) {
                 enableEdgeToEdge(
                     statusBarStyle = SystemBarStyle.light(
-                        android.graphics.Color.TRANSPARENT,
-                        android.graphics.Color.TRANSPARENT,
+                        Color.TRANSPARENT,
+                        Color.TRANSPARENT,
                     ),
                     navigationBarStyle = SystemBarStyle.light(
-                        android.graphics.Color.TRANSPARENT,
-                        android.graphics.Color.TRANSPARENT,
+                        Color.TRANSPARENT,
+                        Color.TRANSPARENT,
                     ),
                 )
             }
@@ -364,17 +375,17 @@ fun EInkReaderPreview() {
                         navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
                         actionIconContentColor = MaterialTheme.colorScheme.onSurface,
                     ),
-                    modifier = Modifier.eInkBorder(),
+                    modifier = Modifier.eInkBorder()
                 )
             },
             bottomBar = {
                 BottomAppBar(
                     containerColor = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.eInkBorder(),
+                    modifier = Modifier.eInkBorder()
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         EInkButton(onClick = {}) {
                             Text("Previous")
@@ -384,20 +395,19 @@ fun EInkReaderPreview() {
                         }
                     }
                 }
-            },
+            }
         ) { innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp),
+                    .padding(16.dp)
             ) {
                 EInkCard(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "In the beginning, God created the heavens and the earth. " +
-                            "The earth was without form and void, and darkness was over the face of the deep.",
+                        text = "In the beginning, God created the heavens and the earth. The earth was without form and void, and darkness was over the face of the deep.",
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
 
@@ -407,7 +417,7 @@ fun EInkReaderPreview() {
                     value = "",
                     onValueChange = {},
                     placeholder = "Go to verse...",
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
