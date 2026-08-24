@@ -53,7 +53,6 @@ fun SettingsScreen(
     initialTabIndex: Int = 0,
     onTabSelected: (Int) -> Unit = {},
 ) {
-    val selectedCode by viewModel.selectedTranslationCode.collectAsStateWithLifecycle()
     val translations by viewModel.availableTranslations.collectAsStateWithLifecycle()
     val remoteTranslations by viewModel.remoteTranslations.collectAsStateWithLifecycle()
     val downloadStatus by viewModel.downloadStatus.collectAsStateWithLifecycle()
@@ -65,7 +64,6 @@ fun SettingsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     val strings by viewModel.strings.collectAsStateWithLifecycle()
-    val selectedLanguage by viewModel.selectedLanguage.collectAsStateWithLifecycle()
 
     LaunchedEffect(updateStatus) {
         when (val status = updateStatus) {
