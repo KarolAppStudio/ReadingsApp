@@ -1244,7 +1244,8 @@ object Localization {
             appDescription = "برنامه‌ای ساده برای کمک به شما در دنبال کردن برنامه خواندن روزانه " +
                 "کتاب مقدس با پشتیبانی از چندین ترجمه.",
             copyrightTitle = "حق چاپ و مجوز کتاب مقدس",
-            copyrightNotice = "متن کتاب مقدس نسخه بازبینی شده هندی (IRV-2019) تحت مجوز Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) قرار دارد. " +
+            copyrightNotice = "متن کتاب مقدس نسخه بازبینی شده هندی (IRV-2019) تحت مجوز " +
+                "Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) قرار دارد. " +
                 "© 2019 Bridge Connectivity Solutions Pvt. Ltd. مجوز: CC BY-SA 4.0",
             developedBy = "توسعه یافته توسط Karol",
             theme = "تم",
