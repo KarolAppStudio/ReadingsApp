@@ -205,7 +205,26 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
         // Normalize MIZ to MIZO for remote file compatibility
         val code = (forceCode ?: getLanguageCode(language)).let { if (it == "MIZ") "MIZO" else it }
 
-        // Try reading from assets first (included in APK)
+        // 1. Try reading .db from assets first (Preloaded Database - FASTEST)
+        val dbAssetPath = "bibles/$code.db"
+        try {
+            context.assets.open(dbAssetPath).use { input ->
+                val tempFile = java.io.File(context.cacheDir, "${code}_asset_temp.db")
+                tempFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+                val success = importFromDbFile(tempFile, code)
+                tempFile.delete()
+                if (success) {
+                    android.util.Log.d("LanguageService", "Successfully imported $code from db asset")
+                    return@withContext true
+                }
+            }
+        } catch (_: Exception) {
+            // Asset not found or failed to import
+        }
+
+        // 2. Try reading from assets as .json (Legacy asset format)
         val assetPath = "bibles/$code.json"
         val jsonString = try {
             context.assets.open(assetPath).bufferedReader().use { it.readText() }
@@ -213,18 +232,18 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
             null
         }
 
-        // Try reading from assets first (included in APK) or fallback to network
         jsonString?.let {
             if (processJson(it, code)) return@withContext true
         }
 
         if (!allowNetwork) return@withContext false
 
-        // Try downloading .db file first from BibleTranslations repo
+        // 3. Try downloading .db file from network
         if (fetchDbFromNetwork(code)) {
             return@withContext true
         }
 
+        // 4. Fallback to downloading .json file from network
         fetchFromNetwork(code)
     }
 
@@ -550,12 +569,20 @@ class LanguageService(private val context: Context, private val bibleDatabase: B
 
     fun hasAsset(language: String): Boolean {
         val code = getLanguageCode(language)
+        // Check for both .db and .json assets
+        val dbAssetPath = "bibles/$code.db"
+        val jsonAssetPath = "bibles/$code.json"
+
         return try {
-            val inputStream = context.assets.open("bibles/$code.json")
-            inputStream.close()
+            context.assets.open(dbAssetPath).use { it.close() }
             true
         } catch (_: Exception) {
-            false
+            try {
+                context.assets.open(jsonAssetPath).use { it.close() }
+                true
+            } catch (_: Exception) {
+                false
+            }
         }
     }
 

@@ -80,10 +80,30 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         var keepSplashScreen = true
         splashScreen.setKeepOnScreenCondition { keepSplashScreen }
+
         lifecycleScope.launch {
-            delay(2.seconds)
+            val startTime = System.currentTimeMillis()
+            // Pre-initialize and open databases in background to speed up first run
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                try {
+                    val bibleDb = BibleDatabase.getDatabase(applicationContext)
+                    val planDb = ReadingPlanDatabase.getDatabase(applicationContext)
+                    // Trigger database opening and any createFromAsset/onOpen logic
+                    bibleDb.openHelper.writableDatabase
+                    planDb.openHelper.writableDatabase
+                } catch (e: Exception) {
+                    Log.e("MainActivity", "Error pre-initializing databases", e)
+                }
+            }
+
+            // Ensure splash screen stays for at least 800ms for smooth transition
+            val elapsed = System.currentTimeMillis() - startTime
+            if (elapsed < 800) {
+                kotlinx.coroutines.delay(800 - elapsed)
+            }
             keepSplashScreen = false
         }
+
         super.onCreate(savedInstanceState)
         askNotificationPermission()
         enableEdgeToEdge()

@@ -1,7 +1,6 @@
 package com.karol.readingsapp.feature.plan.data
 
 import android.content.Context
-import androidx.core.content.edit
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -21,38 +20,12 @@ abstract class ReadingPlanDatabase : RoomDatabase() {
         private const val ASSET_VERSION = 3
 
         fun getDatabase(context: Context): ReadingPlanDatabase = INSTANCE ?: synchronized(this) {
-            val dbFile = context.getDatabasePath("readingplan.db")
-            val prefs = context.getSharedPreferences("reading_plan_prefs", Context.MODE_PRIVATE)
-            val lastVersion = prefs.getInt("version", 0)
-
-            android.util.Log.d(
-                "ReadingPlanDatabase",
-                "dbFile path: ${dbFile.absolutePath}, exists: ${dbFile.exists()}, lastVersion: $lastVersion, ASSET_VERSION: $ASSET_VERSION",
-            )
-
-            if (!dbFile.exists() || (lastVersion < ASSET_VERSION)) {
-                android.util.Log.d("ReadingPlanDatabase", "Copying database from assets...")
-                dbFile.parentFile?.mkdirs()
-                try {
-                    context.assets.open("readingplan.db").use { input ->
-                        val size = input.available()
-                        android.util.Log.d("ReadingPlanDatabase", "Asset size: $size bytes")
-                        dbFile.outputStream().use { output ->
-                            input.copyTo(output)
-                        }
-                    }
-                    prefs.edit { putInt("version", ASSET_VERSION) }
-                    android.util.Log.d("ReadingPlanDatabase", "Copy successful")
-                } catch (e: Exception) {
-                    android.util.Log.e("ReadingPlanDatabase", "Error copying readingplan.db", e)
-                }
-            }
-
             val instance = Room.databaseBuilder(
                 context.applicationContext,
                 ReadingPlanDatabase::class.java,
                 "readingplan.db",
             )
+                .createFromAsset("readingplan.db")
                 .setJournalMode(JournalMode.WRITE_AHEAD_LOGGING)
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .addCallback(

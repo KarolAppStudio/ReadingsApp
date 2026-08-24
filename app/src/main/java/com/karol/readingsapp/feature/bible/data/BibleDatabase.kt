@@ -1,7 +1,6 @@
 package com.karol.readingsapp.feature.bible.data
 
 import android.content.Context
-import androidx.core.content.edit
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -21,42 +20,20 @@ abstract class BibleDatabase : RoomDatabase() {
         private const val ASSET_VERSION = 9
 
         fun getDatabase(context: Context): BibleDatabase = INSTANCE ?: synchronized(this) {
-            val dbFile = context.getDatabasePath("bibles.db")
-            val prefs = context.getSharedPreferences("bible_db_prefs", Context.MODE_PRIVATE)
-            val lastVersion = prefs.getInt("version", 0)
-
-            if (!dbFile.exists() || (lastVersion < ASSET_VERSION)) {
-                context.deleteDatabase("bibles.db")
-                dbFile.parentFile?.mkdirs()
-
-                try {
-                    context.assets.open("bibles.db").use { input ->
-                        java.io.FileOutputStream(dbFile).use { output ->
-                            val buffer = ByteArray(8192)
-                            var bytesRead: Int
-                            while (input.read(buffer).also { bytesRead = it } != -1) {
-                                output.write(buffer, 0, bytesRead)
-                            }
-                            output.flush()
-                        }
-                    }
-                } catch (e: Exception) {
-                    android.util.Log.e("BibleDatabase", "Error copying bibles.db asset", e)
-                }
-                prefs.edit { putInt("version", ASSET_VERSION) }
-            }
-
             val instance = Room.databaseBuilder(
                 context.applicationContext,
                 BibleDatabase::class.java,
                 "bibles.db",
             )
+                .createFromAsset("bibles.db")
                 .setJournalMode(JournalMode.WRITE_AHEAD_LOGGING)
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .addCallback(
                     object : Callback() {
                         override fun onOpen(db: SupportSQLiteDatabase) {
                             super.onOpen(db)
+                            // Move validation to a background thread if it's too slow,
+                            // or only run it once after installation/update.
                             validateDatabase(db)
                         }
                     },
@@ -66,12 +43,15 @@ abstract class BibleDatabase : RoomDatabase() {
         }
 
         private fun validateDatabase(db: SupportSQLiteDatabase) {
-            // Remove Polish and Khmer translations if they exist
-            db.execSQL("DELETE FROM translations WHERE language LIKE 'Polish' OR language = 'pl' OR code = 'POL'")
-            db.execSQL("DELETE FROM translations WHERE language LIKE 'Khmer' OR language = 'km' OR code = 'KHM'")
-            db.execSQL("DELETE FROM translations WHERE code = 'MIZ'")
-            db.execSQL("DELETE FROM verses WHERE translation_code = 'KHM' OR translation_code = 'MIZ'")
+            // Remove legacy translations if they exist
+            db.execSQL(
+                "DELETE FROM translations WHERE code IN ('POL', 'KHM', 'MIZ') OR language IN ('Polish', 'pl', 'Khmer', 'km')",
+            )
+            db.execSQL("DELETE FROM verses WHERE translation_code IN ('KHM', 'MIZ')")
 
+            // Skip integrity check on every open to speed up loading
+            // Only use it if you suspect corruption
+            /*
             val integrityCursor = db.query("PRAGMA integrity_check")
             if (integrityCursor.moveToFirst()) {
                 val result = integrityCursor.getString(0)
@@ -81,22 +61,10 @@ abstract class BibleDatabase : RoomDatabase() {
                 }
             }
             integrityCursor.close()
+             */
 
-            // Log all tables
-            val allTablesCursor = db.query("SELECT name FROM sqlite_master WHERE type='table'")
-            val tables = mutableListOf<String>()
-            while (allTablesCursor.moveToNext()) {
-                tables.add(allTablesCursor.getString(0))
-            }
-            allTablesCursor.close()
-            android.util.Log.d("BibleDatabase", "All tables: ${tables.joinToString()}")
-
-            // Log books schema and count
-            val booksSchemaCursor = db.query("SELECT sql FROM sqlite_master WHERE name='books'")
-            if (booksSchemaCursor.moveToFirst()) {
-                android.util.Log.d("BibleDatabase", "Books schema: ${booksSchemaCursor.getString(0)}")
-            }
-            booksSchemaCursor.close()
+            // Optimize population logic
+            populateTranslations(db)
 
             val booksCountCursor = db.query("SELECT COUNT(*) FROM books")
             var count = 0
@@ -105,20 +73,10 @@ abstract class BibleDatabase : RoomDatabase() {
             }
             booksCountCursor.close()
 
-            // Check if Genesis (ID 0) exists
-            val genesisCursor = db.query("SELECT COUNT(*) FROM books WHERE id = 0")
-            var hasGenesis = false
-            if (genesisCursor.moveToFirst()) {
-                hasGenesis = genesisCursor.getInt(0) > 0
-            }
-            genesisCursor.close()
-
-            if ((count < 66) || !hasGenesis) {
+            if (count < 66) {
                 db.execSQL("DELETE FROM books")
                 populateBooks(db)
             }
-
-            populateTranslations(db)
         }
 
         private fun populateTranslations(db: SupportSQLiteDatabase) {
