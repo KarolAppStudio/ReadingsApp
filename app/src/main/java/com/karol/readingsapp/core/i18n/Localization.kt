@@ -1239,8 +1239,10 @@ object Localization {
             chapter = "فصل",
             verse = "آیه",
             developerNoteTitle = "یادداشت توسعه‌دهنده",
-            developerNoteContent = "عمیق‌ترین قدردانی ما از خداوند متعال برای این فرصت جهت خلق چیزی معنادار برای جامعه.",
-            appDescription = "برنامه‌ای ساده برای کمک به شما در دنبال کردن برنامه خواندن روزانه کتاب مقدس با پشتیبانی از چندین ترجمه.",
+            developerNoteContent = "عمیق‌ترین قدردانی ما از خداوند متعال برای این فرصت جهت خلق " +
+                "چیزی معنادار برای جامعه.",
+            appDescription = "برنامه‌ای ساده برای کمک به شما در دنبال کردن برنامه خواندن روزانه " +
+                "کتاب مقدس با پشتیبانی از چندین ترجمه.",
             copyrightTitle = "حق چاپ و مجوز کتاب مقدس",
             copyrightNotice = "متن کتاب مقدس نسخه بازبینی شده هندی (IRV-2019) تحت مجوز Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) قرار دارد. " +
                 "© 2019 Bridge Connectivity Solutions Pvt. Ltd. مجوز: CC BY-SA 4.0",

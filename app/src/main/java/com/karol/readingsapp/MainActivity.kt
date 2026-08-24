@@ -55,7 +55,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
 
@@ -371,11 +370,11 @@ fun EInkReaderPreview() {
             bottomBar = {
                 BottomAppBar(
                     containerColor = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.eInkBorder()
+                    modifier = Modifier.eInkBorder(),
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                        horizontalArrangement = Arrangement.SpaceEvenly,
                     ) {
                         EInkButton(onClick = {}) {
                             Text("Previous")
@@ -385,19 +384,20 @@ fun EInkReaderPreview() {
                         }
                     }
                 }
-            }
+            },
         ) { innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp)
+                    .padding(16.dp),
             ) {
                 EInkCard(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "In the beginning, God created the heavens and the earth. The earth was without form and void, and darkness was over the face of the deep.",
+                        text = "In the beginning, God created the heavens and the earth. " +
+                            "The earth was without form and void, and darkness was over the face of the deep.",
                         style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
                     )
                 }
 
@@ -407,7 +407,7 @@ fun EInkReaderPreview() {
                     value = "",
                     onValueChange = {},
                     placeholder = "Go to verse...",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
