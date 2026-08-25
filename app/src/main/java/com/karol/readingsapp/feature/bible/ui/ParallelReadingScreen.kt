@@ -129,7 +129,7 @@ fun ParallelReadingScreen(bookId: Int, chapter: Int, viewModel: ReadingViewModel
             Column(modifier = Modifier.fillMaxHeight().widthIn(max = AdaptiveDimens.contentMaxWidth)) {
                 // Selection Area
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(4.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     ReadingSideSelector(
@@ -213,7 +213,7 @@ private fun ReadingSideSelector(
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(if (AdaptiveDimens.fontScale > 1.0f) 48.dp else 40.dp)
+                .height(if (AdaptiveDimens.fontScale > 1.0f) 36.dp else 28.dp)
                 .wrapContentHeight(Alignment.CenterVertically),
             textAlign = TextAlign.Center,
             maxLines = 1,
@@ -226,7 +226,7 @@ private fun ReadingSideSelector(
             placeholder = strings.selectBible,
         )
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             SelectionButton(
