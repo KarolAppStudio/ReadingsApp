@@ -127,8 +127,7 @@ fun SettingsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .navigationBarsPadding(),
+                .padding(innerPadding),
         ) {
             Column(
                 modifier = Modifier

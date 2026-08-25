@@ -112,8 +112,7 @@ fun BibleSelectionScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .navigationBarsPadding(),
+                .padding(innerPadding),
             contentAlignment = Alignment.TopCenter,
         ) {
             Column(
