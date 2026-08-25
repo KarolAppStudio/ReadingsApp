@@ -2,6 +2,7 @@ package com.karol.readingsapp.feature.bible.data
 
 import android.content.Context
 import android.util.Log
+import com.karol.readingsapp.core.i18n.Localization
 import androidx.core.content.edit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -69,12 +70,24 @@ class LanguageService(
 
     private val remoteRepoApiUrl = "https://api.github.com/repos/KarolAppStudio/BibleTranslationDatabases/contents/"
     private val remoteDbBaseUrl = "https://raw.githubusercontent.com/KarolAppStudio/BibleTranslationDatabases/main"
+    private val remoteI18nBaseUrl = "https://raw.githubusercontent.com/KarolAppStudio/BibleTranslationDatabases/main/i18n"
 
     private val downloadedDir = File(context.filesDir, "downloaded_translations")
+    private val i18nDir = File(context.filesDir, "downloaded_i18n")
 
     init {
         if (!downloadedDir.exists()) {
             downloadedDir.mkdirs()
+        }
+        if (!i18nDir.exists()) {
+            i18nDir.mkdirs()
+        }
+        // Load existing dynamic localizations
+        i18nDir.listFiles()?.filter { it.extension == "json" }?.forEach { file ->
+            try {
+                Localization.registerDynamicLocalization(file.nameWithoutExtension, file.readText())
+            } catch (_: Exception) {
+            }
         }
         // Load persisted download status
         val downloadedLanguages = prefs.all.keys.asSequence().filter {
@@ -294,12 +307,14 @@ class LanguageService(
                     if ((tempFile.exists()) && (tempFile.length() > 0)) {
                         val destination = File(downloadedDir, "$code.db")
                         if (tempFile.renameTo(destination)) {
+                            downloadLocalization(code)
                             updateProgress(language, 1.0f)
                             return@withContext true
                         } else {
                             // Fallback if rename fails
                             tempFile.copyTo(destination, overwrite = true)
                             tempFile.delete()
+                            downloadLocalization(code)
                             updateProgress(language, 1.0f)
                             return@withContext true
                         }
@@ -321,6 +336,26 @@ class LanguageService(
         false
     }
 
+    private suspend fun downloadLocalization(code: String) = withContext(Dispatchers.IO) {
+        try {
+            val url = URL("$remoteI18nBaseUrl/$code.json")
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            connection.connectTimeout = NETWORK_TIMEOUT
+            connection.readTimeout = NETWORK_TIMEOUT
+
+            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                val json = connection.inputStream.bufferedReader().use { it.readText() }
+                val file = File(i18nDir, "$code.json")
+                file.writeText(json)
+                Localization.registerDynamicLocalization(code, json)
+                Log.d("LanguageService", "Downloaded localization for $code")
+            }
+        } catch (e: Exception) {
+            Log.w("LanguageService", "Failed to download localization for $code: ${e.message}")
+        }
+    }
+
     fun updateStatus(language: String, status: LanguageStatus) {
         val currentMap = _downloadStatus.value.toMutableMap()
         currentMap[language] = status
@@ -338,6 +373,12 @@ class LanguageService(
         val dbFile = File(downloadedDir, "$code.db")
         if (dbFile.exists()) {
             dbFile.delete()
+        }
+
+        // Delete the localization file
+        val jsonFile = File(i18nDir, "$code.json")
+        if (jsonFile.exists()) {
+            jsonFile.delete()
         }
 
         prefs.edit { remove(language) }

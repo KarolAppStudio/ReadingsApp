@@ -1,5 +1,6 @@
 package com.karol.readingsapp.core.i18n
 
+import org.json.JSONObject
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -1299,9 +1300,101 @@ object Localization {
             bookNames = FarsiBooks,
         )
 
+    private val dynamicStrings = java.util.Collections.synchronizedMap(mutableMapOf<String, LocalizedStrings>())
+
+    fun registerDynamicLocalization(code: String, json: String) {
+        try {
+            val obj = JSONObject(json)
+            val strings = LocalizedStrings(
+                todaysReadings = obj.optString("todaysReadings", English.todaysReadings),
+                selectedReadings = obj.optString("selectedReadings", English.selectedReadings),
+                firstReading = obj.optString("firstReading", English.firstReading),
+                secondReading = obj.optString("secondReading", English.secondReading),
+                thirdReading = obj.optString("thirdReading", English.thirdReading),
+                nextReading = obj.optString("nextReading", English.nextReading),
+                nextPortion = obj.optString("nextPortion", English.nextPortion),
+                noReadings = obj.optString("noReadings", English.noReadings),
+                noReadingsShort = obj.optString("noReadingsShort", English.noReadingsShort),
+                availableBibles = obj.optString("availableBibles", English.availableBibles),
+                home = obj.optString("home", English.home),
+                calendar = obj.optString("calendar", English.calendar),
+                bible = obj.optString("bible", English.bible),
+                settings = obj.optString("settings", English.settings),
+                about = obj.optString("about", English.about),
+                contact = obj.optString("contact", English.contact),
+                theTeam = obj.optString("theTeam", English.theTeam),
+                appTitle = obj.optString("appTitle", English.appTitle),
+                bibleTranslation = obj.optString("bibleTranslation", English.bibleTranslation),
+                saveConfig = obj.optString("saveConfig", English.saveConfig),
+                back = obj.optString("back", English.back),
+                reset = obj.optString("reset", English.reset),
+                sync = obj.optString("sync", English.sync),
+                parallelReading = obj.optString("parallelReading", English.parallelReading),
+                loadingReading = obj.optString("loadingReading", English.loadingReading),
+                previousMonth = obj.optString("previousMonth", English.previousMonth),
+                nextMonth = obj.optString("nextMonth", English.nextMonth),
+                selectBible = obj.optString("selectBible", English.selectBible),
+                book = obj.optString("book", English.book),
+                chapter = obj.optString("chapter", English.chapter),
+                verse = obj.optString("verse", English.verse),
+                developerNoteTitle = obj.optString("developerNoteTitle", English.developerNoteTitle),
+                developerNoteContent = obj.optString("developerNoteContent", English.developerNoteContent),
+                appDescription = obj.optString("appDescription", English.appDescription),
+                copyrightTitle = obj.optString("copyrightTitle", English.copyrightTitle),
+                copyrightNotice = obj.optString("copyrightNotice", English.copyrightNotice),
+                developedBy = obj.optString("developedBy", English.developedBy),
+                theme = obj.optString("theme", English.theme),
+                themeSkyBlue = obj.optString("themeSkyBlue", English.themeSkyBlue),
+                themePurple = obj.optString("themePurple", English.themePurple),
+                themeSepia = obj.optString("themeSepia", English.themeSepia),
+                download = obj.optString("download", English.download),
+                refresh = obj.optString("refresh", English.refresh),
+                downloadingSelected = obj.optString("downloadingSelected", English.downloadingSelected),
+                clearOfflineData = obj.optString("clearOfflineData", English.clearOfflineData),
+                retry = obj.optString("retry", English.retry),
+                contentNotFound = obj.optString("contentNotFound", English.contentNotFound),
+                downloadRequired = obj.optString("downloadRequired", English.downloadRequired),
+                downloading = obj.optString("downloading", English.downloading),
+                downloaded = obj.optString("downloaded", English.downloaded),
+                installed = obj.optString("installed", English.installed),
+                failed = obj.optString("failed", English.failed),
+                updateApplication = obj.optString("updateApplication", English.updateApplication),
+                checkForUpdates = obj.optString("checkForUpdates", English.checkForUpdates),
+                readingModes = obj.optString("readingModes", English.readingModes),
+                bibleReader = obj.optString("bibleReader", English.bibleReader),
+                parallelBible = obj.optString("parallelBible", English.parallelBible),
+                locale = Locale.forLanguageTag(obj.optString("locale", "en")),
+                bookNames = parseBookNames(obj.optJSONObject("bookNames")),
+            )
+            val lang = strings.locale.displayLanguage.lowercase()
+            dynamicStrings[code.lowercase()] = strings
+            dynamicStrings[lang] = strings
+        } catch (e: Exception) {
+            android.util.Log.e("Localization", "Error parsing dynamic localization for $code", e)
+        }
+    }
+
+    private fun parseBookNames(obj: JSONObject?): Map<Int, String> {
+        if (obj == null) return emptyMap()
+        val map = mutableMapOf<Int, String>()
+        val keys = obj.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            try {
+                map[key.toInt()] = obj.getString(key)
+            } catch (_: Exception) {
+            }
+        }
+        return map
+    }
+
     fun getStrings(language: String): LocalizedStrings {
         android.util.Log.d("Localization", "Requested language: '$language'")
         val lang = language.lowercase()
+
+        // Check dynamic strings first
+        dynamicStrings[lang]?.let { return it }
+
         val baseStrings =
             when {
                 (lang.contains("bangla") || lang.contains("bengali") || (lang == "bn") || (lang == "ban")) -> Bangla
