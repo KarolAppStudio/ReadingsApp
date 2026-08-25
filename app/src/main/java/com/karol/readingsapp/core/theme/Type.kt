@@ -125,7 +125,7 @@ val VazirEInkTypography = Typography(
 )
 
 fun getTypography(isEInk: Boolean, language: String): Typography {
-    val isFarsi = language.lowercase().let { it.contains("farsi") || it.contains("persian") || it == "fa" }
+    val isFarsi = language.lowercase().let { (it.contains("farsi")) || (it.contains("persian")) || (it == "fa") }
     return when {
         isEInk && isFarsi -> VazirEInkTypography
         isEInk -> EInkTypography

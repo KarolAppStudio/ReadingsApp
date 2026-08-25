@@ -96,10 +96,18 @@ class LanguageService(
         allowNetwork: Boolean = true,
     ) = withContext(Dispatchers.IO) {
         val currentStatus = _downloadStatus.value[language]
-        if ((!force) &&
-            ((currentStatus == LanguageStatus.DOWNLOADED) || (currentStatus == LanguageStatus.DOWNLOADING))
-        ) {
+        if ((!force) && (currentStatus == LanguageStatus.DOWNLOADED)) {
             return@withContext
+        }
+
+        if (currentStatus == LanguageStatus.DOWNLOADING) {
+            // Wait for completion
+            while (_downloadStatus.value[language] == LanguageStatus.DOWNLOADING) {
+                delay(100.milliseconds)
+            }
+            if (_downloadStatus.value[language] == LanguageStatus.DOWNLOADED) {
+                return@withContext
+            }
         }
 
         updateStatus(language, LanguageStatus.DOWNLOADING)
@@ -218,18 +226,28 @@ class LanguageService(
 
         // 1. Try reading .db from assets first
         val dbAssetPath = "bibles/$code.db"
+        val tempFile = File(context.cacheDir, "temp_asset_$code.db")
         try {
             context.assets.open(dbAssetPath).use { input ->
-                val localFile = File(downloadedDir, "$code.db")
-                localFile.outputStream().use { output ->
+                tempFile.outputStream().use { output ->
                     input.copyTo(output)
                 }
-                if (localFile.exists() && localFile.length() > 0) {
-                    Log.d("LanguageService", "Successfully copied $code from assets")
-                    return@withContext true
+                if ((tempFile.exists()) && (tempFile.length() > 0)) {
+                    val destination = File(downloadedDir, "$code.db")
+                    if (tempFile.renameTo(destination)) {
+                        Log.d("LanguageService", "Successfully copied $code from assets")
+                        return@withContext true
+                    } else {
+                        tempFile.copyTo(destination, overwrite = true)
+                        tempFile.delete()
+                        Log.d("LanguageService", "Successfully copied $code from assets (fallback copy)")
+                        return@withContext true
+                    }
                 }
             }
         } catch (_: Exception) {
+        } finally {
+            if (tempFile.exists()) tempFile.delete()
         }
 
         if (!allowNetwork) return@withContext false
@@ -311,7 +329,7 @@ class LanguageService(
 
     suspend fun removeLanguage(language: String, code: String) = withContext(Dispatchers.IO) {
         // Prevent removing core translations if needed (though English/Malayalam logic is elsewhere)
-        if (code == "ENG" || code == "MAL") return@withContext
+        if ((code == "ENG") || (code == "MAL")) return@withContext
 
         // Delete from main DB metadata if present
         bibleDao.deleteVersesByTranslation(code)
