@@ -203,8 +203,11 @@ class MainActivity : ComponentActivity() {
                                         onAboutClick = {
                                             navController.navigate("about")
                                         },
+                                        onContactClick = {
+                                            navController.navigate("contact")
+                                        },
                                     ) {
-                                        navController.navigate("contact")
+                                        navController.navigate("parallel_reader/1/1")
                                     }
                                 }
                                 composable("about") {

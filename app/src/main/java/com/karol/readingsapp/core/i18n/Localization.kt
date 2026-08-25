@@ -58,6 +58,9 @@ data class LocalizedStrings(
     val failed: String,
     val updateApplication: String,
     val checkForUpdates: String,
+    val shortcut: String,
+    val bibleReader: String,
+    val parallelBible: String,
     val locale: Locale,
     val bookNames: Map<Int, String> = emptyMap(),
 )
@@ -753,6 +756,9 @@ object Localization {
             failed = "Failed",
             updateApplication = "Application Updates",
             checkForUpdates = "Check for updates",
+            shortcut = "Shortcut",
+            bibleReader = "Bible Reader",
+            parallelBible = "Parallel Bible",
             locale = Locale.US,
             bookNames = EnglishBooks,
         )
@@ -818,6 +824,9 @@ object Localization {
             failed = "ব্যর্থ হয়েছে",
             updateApplication = "অ্যাপ্লিকেশন আপডেট",
             checkForUpdates = "আপডেট চেক করুন",
+            shortcut = "শর্টকাট",
+            bibleReader = "বাইবেল রিডার",
+            parallelBible = "সমান্তরাল বাইবেল",
             locale = Locale.forLanguageTag("bn-BD"),
             bookNames = BanglaBooks,
         )
@@ -882,6 +891,9 @@ object Localization {
             failed = "विफल",
             updateApplication = "एप्लिकेशन अपडेट",
             checkForUpdates = "अपडेट की जांच करें",
+            shortcut = "शॉर्टकट",
+            bibleReader = "बाइबिल रीडर",
+            parallelBible = "समानांतर बाइबिल",
             locale = Locale.forLanguageTag("hi-IN"),
             bookNames = HindiBooks,
         )
@@ -946,6 +958,9 @@ object Localization {
             failed = "ವಿಫಲವಾಗಿದೆ",
             updateApplication = "ಅಪ್ಲಿಕೇಶನ್ ಅಪ್‌ಡೇಟ್‌ಗಳು",
             checkForUpdates = "ಅಪ್‌ಡೇಟ್‌ಗಳಿಗಾಗಿ ಪರಿಶೀಲಿಸಿ",
+            shortcut = "ಶಾರ್ಟ್‌ಕಟ್",
+            bibleReader = "ಬೈಬಲ್ ಓದುಗ",
+            parallelBible = "ಸಮಾಂತರ ಬೈಬಲ್",
             locale = Locale.forLanguageTag("kn-IN"),
             bookNames = KannadaBooks,
         )
@@ -1010,6 +1025,9 @@ object Localization {
             failed = "പരാജയപ്പെട്ടു",
             updateApplication = "ആപ്ലിക്കേഷൻ അപ്‌ഡേറ്റുകൾ",
             checkForUpdates = "അപ്‌ഡേറ്റുകൾക്കായി പരിശോധിക്കുക",
+            shortcut = "കുറുക്കുവഴി",
+            bibleReader = "ബൈബിൾ വായനക്കാരൻ",
+            parallelBible = "സമാന്തര ബൈബിൾ",
             locale = Locale.forLanguageTag("ml-IN"),
             bookNames = MalayalamBooks,
         )
@@ -1074,6 +1092,9 @@ object Localization {
             failed = "தோல்வியுற்றது",
             updateApplication = "செயலி புதுப்பிப்புகள்",
             checkForUpdates = "புதுப்பிப்புகளைச் சரிபார்க்கவும்",
+            shortcut = "குறுக்குவழி",
+            bibleReader = "பைபிள் ரீடர்",
+            parallelBible = "இணையான பைபிள்",
             locale = Locale.forLanguageTag("ta-IN"),
             bookNames = TamilBooks,
         )
@@ -1138,6 +1159,9 @@ object Localization {
             failed = "విఫలమైంది",
             updateApplication = "అప్లికేషన్ అప్‌డేట్‌లు",
             checkForUpdates = "అప్‌డేట్‌ల కోసం తనిఖీ చేయండి",
+            shortcut = "షార్ట్‌కట్",
+            bibleReader = "బైబిల్ రీడర్",
+            parallelBible = "సమాంతర బైబిల్",
             locale = Locale.forLanguageTag("te-IN"),
             bookNames = TeluguBooks,
         )
@@ -1201,6 +1225,9 @@ object Localization {
             failed = "A hlawhchham",
             updateApplication = "Application Updates",
             checkForUpdates = "Update check-na",
+            shortcut = "Shortcut",
+            bibleReader = "Bible Chhiarna",
+            parallelBible = "Parallel Bible",
             locale = Locale.forLanguageTag("lus-IN"),
             bookNames = MizoBooks,
         )
@@ -1265,6 +1292,9 @@ object Localization {
             failed = "ناموفق",
             updateApplication = "به‌روزرسانی‌های برنامه",
             checkForUpdates = "بررسی به‌روزرسانی‌ها",
+            shortcut = "میانبر",
+            bibleReader = "کتاب مقدس خوان",
+            parallelBible = "کتاب مقدس موازی",
             locale = Locale.forLanguageTag("fa-IR"),
             bookNames = FarsiBooks,
         )

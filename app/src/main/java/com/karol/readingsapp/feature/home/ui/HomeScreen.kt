@@ -2,11 +2,12 @@ package com.karol.readingsapp.feature.home.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,37 +20,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.karol.readingsapp.core.i18n.LocalizedStrings
 import com.karol.readingsapp.core.theme.AdaptiveDimens
+import com.karol.readingsapp.core.theme.AppTheme
+import com.karol.readingsapp.core.theme.eInkBorder
 import com.karol.readingsapp.core.ui.components.AppBottomNavBar
 import com.karol.readingsapp.core.ui.components.AutoResizingText
 import com.karol.readingsapp.core.ui.components.NavItem
@@ -71,6 +60,7 @@ fun HomeScreen(
     onSettingsClick: () -> Unit,
     onAboutClick: () -> Unit,
     onContactClick: () -> Unit,
+    onParallelClick: () -> Unit,
 ) {
     val readingsGrouped by viewModel.uiState.collectAsState()
     val downloadedTranslations by viewModel.downloadedTranslations.collectAsState()
@@ -79,6 +69,7 @@ fun HomeScreen(
 
     val selectedLanguage by viewModel.selectedLanguage.collectAsState()
     val strings by viewModel.strings.collectAsState()
+    val appTheme by viewModel.appTheme.collectAsState()
 
     val downloadStatus by viewModel.downloadStatus.collectAsState()
     val isDownloading = downloadStatus[selectedLanguage] == LanguageStatus.DOWNLOADING
@@ -199,15 +190,15 @@ fun HomeScreen(
         },
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentAlignment = Alignment.TopCenter,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxHeight()
+                    .weight(1f)
                     .widthIn(max = AdaptiveDimens.contentMaxWidth)
                     .padding(horizontal = AdaptiveDimens.paddingMedium),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -249,7 +240,79 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(AdaptiveDimens.paddingSmall))
                 }
             }
+
+            var cardHeight by remember { mutableIntStateOf(0) }
+            val isEInk = appTheme == AppTheme.E_INK
+            Card(
+                modifier = Modifier
+                    .widthIn(max = AdaptiveDimens.contentMaxWidth)
+                    .padding(horizontal = AdaptiveDimens.paddingMedium)
+                    .padding(bottom = AdaptiveDimens.paddingSmall)
+                    .height((68 * AdaptiveDimens.fontScale).dp)
+                    .onGloballyPositioned { coordinates ->
+                        cardHeight = coordinates.size.height
+                    }
+                    .then(if (isEInk) Modifier.eInkBorder() else Modifier),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
+                elevation = CardDefaults.cardElevation(2.dp),
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    AutoResizingText(
+                        text = strings.shortcut,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = AdaptiveDimens.smallFontSize,
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        ShortcutItem(
+                            icon = Icons.AutoMirrored.Filled.MenuBook,
+                            label = strings.bibleReader,
+                            onClick = onBibleClick,
+                        )
+                        ShortcutItem(
+                            icon = Icons.Default.AutoStories,
+                            label = strings.parallelBible,
+                            onClick = onParallelClick,
+                        )
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+fun ShortcutItem(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, onClick: () -> Unit) {
+    val contentColor = MaterialTheme.colorScheme.onSurface
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(4.dp),
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = label,
+            tint = contentColor,
+            modifier = Modifier.size(24.dp),
+        )
+        AutoResizingText(
+            text = label,
+            color = contentColor,
+            fontSize = 12.sp,
+            maxLines = 1,
+        )
     }
 }
 

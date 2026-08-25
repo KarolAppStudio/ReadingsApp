@@ -90,12 +90,12 @@ fun SettingsScreen(
     var themeExpanded by remember { mutableStateOf(value = false) }
 
     val sortedTranslations = remember(translations, remoteTranslations, downloadStatus) {
-        val baseList = if (remoteTranslations.isNotEmpty()) remoteTranslations else translations
+        val baseList = remoteTranslations.ifEmpty { translations }
         baseList.sortedWith(
             compareByDescending<TranslationEntity> { translation ->
-                translation.language == "English" ||
-                    translation.language == "Malayalam" ||
-                    downloadStatus[translation.language] == LanguageStatus.DOWNLOADED
+                (translation.language == "English") ||
+                    (translation.language == "Malayalam") ||
+                    (downloadStatus[translation.language] == LanguageStatus.DOWNLOADED)
             }.thenBy { it.language },
         )
     }
@@ -118,8 +118,7 @@ fun SettingsScreen(
                 onHomeClick = onHomeClick,
                 onCalendarClick = onCalendarClick,
                 onBibleClick = onBibleClick,
-                onSettingsClick = {},
-            )
+            ) {}
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background,
@@ -392,7 +391,9 @@ fun DownloadSettings(
 
                 // English and Malayalam are pre-installed and marked as DOWNLOADED in LanguageService init.
                 // We keep a hardcoded check here as a safety measure.
-                val effectiveStatus = if (translation.language == "English" || translation.language == "Malayalam") {
+                val effectiveStatus = if ((translation.language == "English") ||
+                    (translation.language == "Malayalam")
+                ) {
                     LanguageStatus.DOWNLOADED
                 } else {
                     status
