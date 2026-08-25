@@ -265,7 +265,7 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.Center,
                 ) {
                     AutoResizingText(
-                        text = strings.shortcut,
+                        text = strings.readingModes,
                         color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
                         fontSize = AdaptiveDimens.smallFontSize,
