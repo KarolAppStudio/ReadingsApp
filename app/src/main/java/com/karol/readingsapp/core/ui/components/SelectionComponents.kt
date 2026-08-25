@@ -87,6 +87,7 @@ fun TranslationSelector(
     placeholder: String = "",
 ) {
     var expanded by remember { mutableStateOf(value = false) }
+    val sortedTranslations = remember(translations) { translations.sortedBy { it.name } }
     val transName = translations.find { it.code == selectedTranslationCode }?.name ?: placeholder
 
     Box(modifier = modifier) {
@@ -128,7 +129,7 @@ fun TranslationSelector(
                 .widthIn(min = 1.dp)
                 .width(IntrinsicSize.Min),
         ) {
-            translations.forEach { translation ->
+            sortedTranslations.forEach { translation ->
                 DropdownMenuItem(
                     text = {
                         AutoResizingText(
