@@ -86,15 +86,17 @@ fun SettingsScreen(
     }
 
     var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
-    val tabs = remember(strings) { listOf(strings.settings, strings.download, strings.about) }
+    val tabs = remember(strings) { listOf(strings.settings, strings.installed, strings.about) }
     var themeExpanded by remember { mutableStateOf(value = false) }
 
     val sortedTranslations = remember(translations, remoteTranslations, downloadStatus) {
         val baseList = remoteTranslations.ifEmpty { translations }
         baseList.sortedWith(
             compareByDescending<TranslationEntity> { translation ->
-                (translation.language == "English") ||
-                    (translation.language == "Malayalam") ||
+                translation.code.uppercase() == "ENG" ||
+                    translation.code.uppercase() == "MAL" ||
+                    translation.language.equals("English", ignoreCase = true) ||
+                    translation.language.equals("Malayalam", ignoreCase = true) ||
                     (downloadStatus[translation.language] == LanguageStatus.DOWNLOADED)
             }.thenBy { it.language },
         )
@@ -391,9 +393,12 @@ fun DownloadSettings(
 
                 // English and Malayalam are pre-installed and marked as DOWNLOADED in LanguageService init.
                 // We keep a hardcoded check here as a safety measure.
-                val effectiveStatus = if ((translation.language == "English") ||
-                    (translation.language == "Malayalam")
-                ) {
+                val isCore = translation.code.uppercase() == "ENG" ||
+                    translation.code.uppercase() == "MAL" ||
+                    translation.language.equals("English", ignoreCase = true) ||
+                    translation.language.equals("Malayalam", ignoreCase = true)
+
+                val effectiveStatus = if (isCore) {
                     LanguageStatus.DOWNLOADED
                 } else {
                     status
@@ -499,7 +504,7 @@ fun DownloadSettings(
                                                 textAlign = TextAlign.End,
                                             )
 
-                                            if (translation.code != "ENG" && translation.code != "MAL") {
+                                            if (!isCore) {
                                                 Button(
                                                     onClick = {
                                                         onRemoveClick(

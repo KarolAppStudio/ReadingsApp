@@ -33,26 +33,26 @@ class LanguageService(
 
         fun getLanguageCode(language: String): String = when (language.lowercase()) {
             "english" -> "ENG"
-            "hindi" -> "HIN"
-            "bangla" -> "BAN"
-            "kannada" -> "KAN"
-            "malayalam" -> "MAL"
-            "tamil" -> "TAM"
-            "telugu" -> "TEL"
-            "mizo" -> "MIZ"
-            "farsi" -> "FAR"
+            "hindi", "hi" -> "HIN"
+            "bangla", "bn" -> "BAN"
+            "kannada", "kn" -> "KAN"
+            "malayalam", "ml", "mal" -> "MAL"
+            "tamil", "ta" -> "TAM"
+            "telugu", "te" -> "TEL"
+            "mizo", "miz" -> "MIZ"
+            "farsi", "fa" -> "FAR"
             else -> language.uppercase()
         }
 
-        fun getNativeName(language: String, name: String): String = when (language) {
-            "Malayalam" -> "മലയാളം"
-            "Hindi" -> "हिन्दी"
-            "Bangla" -> "বাংলা"
-            "Kannada" -> "ಕನ್ನಡ"
-            "Tamil" -> "தமிழ்"
-            "Telugu" -> "తెలుగు"
-            "Mizo" -> "Mizo"
-            "Farsi" -> "فಾರಸಿ"
+        fun getNativeName(language: String, name: String): String = when (language.lowercase()) {
+            "malayalam" -> "മലയാളം"
+            "hindi" -> "हिन्दी"
+            "bangla" -> "বাংলা"
+            "kannada" -> "ಕನ್ನಡ"
+            "tamil" -> "தமிழ்"
+            "telugu" -> "తెలుగు"
+            "mizo" -> "Mizo"
+            "farsi" -> "فಾರಸಿ"
             else -> name
         }
     }
@@ -95,6 +95,11 @@ class LanguageService(
         }.toMutableSet()
 
         val statusMap = downloadedLanguages.associateWith { LanguageStatus.DOWNLOADED }.toMutableMap()
+
+        // English and Malayalam are pre-packaged in the APK (via bibles.db asset)
+        statusMap["English"] = LanguageStatus.DOWNLOADED
+        statusMap["Malayalam"] = LanguageStatus.DOWNLOADED
+
         _downloadStatus.value = statusMap
 
         // Log dbProvider usage to suppress warning if we want to keep it as property,
@@ -177,14 +182,14 @@ class LanguageService(
             }
         }
 
-    private fun getLanguageFromCode(code: String): String = when (code) {
+    private fun getLanguageFromCode(code: String): String = when (code.uppercase()) {
         "ENG" -> "English"
-        "HIN" -> "Hindi"
-        "BAN" -> "Bangla"
-        "KAN" -> "Kannada"
-        "MAL" -> "Malayalam"
-        "TAM" -> "Tamil"
-        "TEL" -> "Telugu"
+        "HIN", "HI" -> "Hindi"
+        "BAN", "BN" -> "Bangla"
+        "KAN", "KN" -> "Kannada"
+        "MAL", "ML" -> "Malayalam"
+        "TAM", "TA" -> "Tamil"
+        "TEL", "TE" -> "Telugu"
         "MIZO", "MIZ" -> "Mizo"
         "FAR" -> "Farsi"
         else -> code
@@ -394,6 +399,9 @@ class LanguageService(
 
     fun hasAsset(language: String): Boolean {
         val code = getLanguageCode(language)
+        // English and Malayalam are core assets bundled in bibles.db
+        if (code == "ENG" || code == "MAL") return true
+
         // Check for both .db and .json assets
         val dbAssetPath = "bibles/$code.db"
         val jsonAssetPath = "bibles/$code.json"
