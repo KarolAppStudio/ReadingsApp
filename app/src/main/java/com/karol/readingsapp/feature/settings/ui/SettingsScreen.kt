@@ -93,8 +93,8 @@ fun SettingsScreen(
         val baseList = remoteTranslations.ifEmpty { translations }
         baseList.sortedWith(
             compareByDescending<TranslationEntity> { translation ->
-                translation.code.uppercase() == "ENG" ||
-                    translation.code.uppercase() == "MAL" ||
+                (translation.code.uppercase() == "ENG") ||
+                    (translation.code.uppercase() == "MAL") ||
                     translation.language.equals("English", ignoreCase = true) ||
                     translation.language.equals("Malayalam", ignoreCase = true) ||
                     (downloadStatus[translation.language] == LanguageStatus.DOWNLOADED)
@@ -169,8 +169,7 @@ fun SettingsScreen(
                                 UpdateSettings(
                                     strings = strings,
                                     isRefreshing = isRefreshing,
-                                    onCheckForUpdates = { viewModel.checkForAppUpdate() },
-                                )
+                                ) { viewModel.checkForAppUpdate() }
                             }
 
                             1 -> DownloadSettings(

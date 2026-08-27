@@ -6,14 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.karol.readingsapp.feature.voice.data.VoiceGender
 import com.karol.readingsapp.feature.voice.data.VoiceInfo
 import com.karol.readingsapp.feature.voice.data.VoiceService
-import com.karol.readingsapp.feature.voice.data.VoiceServiceProxy
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-class VoiceViewModel(application: Application) : AndroidViewModel(application) {
+class VoiceViewModel(application: Application, val voiceService: VoiceService) : AndroidViewModel(application) {
 
-    val voiceService: VoiceService = VoiceServiceProxy(application)
     val availableVoices = voiceService.availableVoices
     val selectedVoice = voiceService.selectedVoice
 

@@ -400,7 +400,7 @@ class LanguageService(
     fun hasAsset(language: String): Boolean {
         val code = getLanguageCode(language)
         // English and Malayalam are core assets bundled in bibles.db
-        if (code == "ENG" || code == "MAL") return true
+        if ((code == "ENG") || (code == "MAL")) return true
 
         // Check for both .db and .json assets
         val dbAssetPath = "bibles/$code.db"
