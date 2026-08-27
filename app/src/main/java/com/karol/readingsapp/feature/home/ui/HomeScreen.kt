@@ -1,5 +1,7 @@
 package com.karol.readingsapp.feature.home.ui
 
+import android.app.Activity
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -27,11 +30,13 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -97,6 +102,8 @@ fun HomeScreen(
             viewModel.loadReading(todayString)
         }
     }
+
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -171,6 +178,33 @@ fun HomeScreen(
                                 },
                             )
                         }
+                    }
+                },
+                actions = {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(end = 8.dp),
+                    ) {
+                        OutlinedIconButton(
+                            onClick = { (context as? Activity)?.finishAffinity() },
+                            modifier = Modifier.size(30.dp),
+                            shape = CircleShape,
+                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                            colors = IconButtonDefaults.outlinedIconButtonColors(
+                                contentColor = MaterialTheme.colorScheme.primary,
+                            ),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PowerSettingsNew,
+                                contentDescription = strings.exit,
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                        Text(
+                            text = strings.exit,
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
+                            color = MaterialTheme.colorScheme.primary,
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

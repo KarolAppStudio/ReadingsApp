@@ -62,6 +62,7 @@ data class LocalizedStrings(
     val readingModes: String,
     val bibleReader: String,
     val parallelBible: String,
+    val exit: String,
     val locale: Locale,
     val bookNames: Map<Int, String> = emptyMap(),
 )
@@ -760,6 +761,7 @@ object Localization {
             readingModes = "Reading Modes",
             bibleReader = "Bible Reader",
             parallelBible = "Parallel Bible",
+            exit = "Exit",
             locale = Locale.US,
             bookNames = EnglishBooks,
         )
@@ -828,6 +830,7 @@ object Localization {
             readingModes = "পড়ার মোড",
             bibleReader = "বাইবেল রিডার",
             parallelBible = "সমান্তরাল বাইবেল",
+            exit = "প্রস্থান",
             locale = Locale.forLanguageTag("bn-BD"),
             bookNames = BanglaBooks,
         )
@@ -893,8 +896,9 @@ object Localization {
             updateApplication = "एप्लिकेशन अपडेट",
             checkForUpdates = "अपडेट की जांच करें",
             readingModes = "पढ़ने के मोड",
-            bibleReader = "बाइबिल रीडر",
+            bibleReader = "बाइबिल रीडर",
             parallelBible = "समानांतर बाइबिल",
+            exit = "निकास",
             locale = Locale.forLanguageTag("hi-IN"),
             bookNames = HindiBooks,
         )
@@ -962,6 +966,7 @@ object Localization {
             readingModes = "ಓದುವ ವಿಧಾನಗಳು",
             bibleReader = "ಬೈಬಲ್ ಓದುಗ",
             parallelBible = "ಸಮಾಂತರ ಬೈಬಲ್",
+            exit = "ನಿರ್ಗಮಿಸು",
             locale = Locale.forLanguageTag("kn-IN"),
             bookNames = KannadaBooks,
         )
@@ -1029,6 +1034,7 @@ object Localization {
             readingModes = "വായനാ രീതികൾ",
             bibleReader = "ബൈബിൾ വായനക്കാരൻ",
             parallelBible = "സമാന്തര ബൈബിൾ",
+            exit = "പുറത്തുകടക്കുക",
             locale = Locale.forLanguageTag("ml-IN"),
             bookNames = MalayalamBooks,
         )
@@ -1096,6 +1102,7 @@ object Localization {
             readingModes = "வாசிப்பு முறைகள்",
             bibleReader = "பைபிள் ரீடர்",
             parallelBible = "இணையான பைபிள்",
+            exit = "வெளியேறு",
             locale = Locale.forLanguageTag("ta-IN"),
             bookNames = TamilBooks,
         )
@@ -1163,6 +1170,7 @@ object Localization {
             readingModes = "పఠన మోడ్‌లు",
             bibleReader = "బైబిల్ రీడర్",
             parallelBible = "సమాంతర బైబిల్",
+            exit = "నిష్క్రమించు",
             locale = Locale.forLanguageTag("te-IN"),
             bookNames = TeluguBooks,
         )
@@ -1229,6 +1237,7 @@ object Localization {
             readingModes = "Chhiar Dan Te",
             bibleReader = "Bible Chhiarna",
             parallelBible = "Parallel Bible",
+            exit = "Chhuahna",
             locale = Locale.forLanguageTag("lus-IN"),
             bookNames = MizoBooks,
         )
@@ -1296,6 +1305,7 @@ object Localization {
             readingModes = "حالت‌های خواندن",
             bibleReader = "کتاب مقدس خوان",
             parallelBible = "کتاب مقدس موازی",
+            exit = "خروج",
             locale = Locale.forLanguageTag("fa-IR"),
             bookNames = FarsiBooks,
         )
@@ -1363,6 +1373,7 @@ object Localization {
                 readingModes = obj.optString("readingModes", English.readingModes),
                 bibleReader = obj.optString("bibleReader", English.bibleReader),
                 parallelBible = obj.optString("parallelBible", English.parallelBible),
+                exit = obj.optString("exit", English.exit),
                 locale = Locale.forLanguageTag(obj.optString("locale", "en")),
                 bookNames = parseBookNames(obj.optJSONObject("bookNames")),
             )
