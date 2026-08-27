@@ -86,7 +86,7 @@ fun SettingsScreen(
     }
 
     var selectedTabIndex by remember { mutableIntStateOf(initialTabIndex) }
-    val tabs = remember(strings) { listOf(strings.settings, strings.installed, strings.about) }
+    val tabs = remember(strings) { listOf(strings.settings, strings.downloads, strings.about) }
     var themeExpanded by remember { mutableStateOf(value = false) }
 
     val sortedTranslations = remember(translations, remoteTranslations, downloadStatus) {
