@@ -49,7 +49,6 @@ class ReadingViewModel(
     private val _downloadedTranslations = MutableStateFlow(
         listOf(
             TranslationEntity("ENG", "English", "English"),
-            TranslationEntity("MAL", "Malayalam", "മലയാളം"),
         ),
     )
     val downloadedTranslations = _downloadedTranslations.asStateFlow()
@@ -231,8 +230,8 @@ class ReadingViewModel(
     suspend fun getVerseCount(bookId: Int, chapter: Int): Int = repository.getVerseCount(bookId, chapter)
 
     private fun handleFirstRun() {
-        val defaultLanguages = listOf("English", "Malayalam")
-        val defaultCodes = listOf("ENG", "MAL")
+        val defaultLanguages = listOf("English")
+        val defaultCodes = listOf("ENG")
 
         // Check if assets are available for default languages
         val allAssetsPresent = defaultLanguages.all { languageService.hasAsset(it) }
@@ -296,7 +295,7 @@ class ReadingViewModel(
             // Handle repair logic for existing installations
             if (!prefs.getBoolean("is_first_run", true)) {
                 // Check if default translations are actually complete
-                val defaultMapping = listOf("English" to "ENG", "Malayalam" to "MAL")
+                val defaultMapping = listOf("English" to "ENG")
                 val incompleteData = mutableListOf<Pair<String, String>>()
                 for ((lang, code) in defaultMapping) {
                     if (!repository.isTranslationComplete(code)) {

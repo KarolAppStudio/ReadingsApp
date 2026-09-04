@@ -94,9 +94,7 @@ fun SettingsScreen(
         baseList.sortedWith(
             compareByDescending<TranslationEntity> { translation ->
                 (translation.code.uppercase() == "ENG") ||
-                    (translation.code.uppercase() == "MAL") ||
                     translation.language.equals("English", ignoreCase = true) ||
-                    translation.language.equals("Malayalam", ignoreCase = true) ||
                     (downloadStatus[translation.language] == LanguageStatus.DOWNLOADED)
             }.thenBy { it.language },
         )
@@ -182,8 +180,7 @@ fun SettingsScreen(
                                     viewModel.startBatchDownload(listOf(language), listOf(code))
                                 },
                                 onRemoveClick = { language, code -> viewModel.removeTranslation(language, code) },
-                                onRefreshClick = { viewModel.refreshRemoteTranslations(updateDb = true) },
-                            )
+                            ) { viewModel.refreshRemoteTranslations(updateDb = true) }
 
                             2 -> AboutSettings(
                                 strings = strings,
@@ -390,12 +387,10 @@ fun DownloadSettings(
                 val status = downloadStatus[translation.language] ?: LanguageStatus.FAILED // Fallback or default
                 val progress = individualProgress[translation.language] ?: 0f
 
-                // English and Malayalam are pre-installed and marked as DOWNLOADED in LanguageService init.
+                // English is pre-installed and marked as DOWNLOADED in LanguageService init.
                 // We keep a hardcoded check here as a safety measure.
-                val isCore = translation.code.uppercase() == "ENG" ||
-                    translation.code.uppercase() == "MAL" ||
-                    translation.language.equals("English", ignoreCase = true) ||
-                    translation.language.equals("Malayalam", ignoreCase = true)
+                val isCore = (translation.code.uppercase() == "ENG") ||
+                    translation.language.equals("English", ignoreCase = true)
 
                 val effectiveStatus = if (isCore) {
                     LanguageStatus.DOWNLOADED
@@ -748,7 +743,7 @@ fun VoiceSettings(voiceViewModel: VoiceViewModel) {
                 val voicesInLang = allVoices.filter { it.locale.language == voice.locale.language }
                 val sameGenderVoices = voicesInLang.filter { it.gender == voice.gender }
                 val index = sameGenderVoices.indexOfFirst { it.name == voice.name } + 1
-                val indexLabel = if (sameGenderVoices.size > 1 && index > 0) " $index" else ""
+                val indexLabel = if ((sameGenderVoices.size > 1) && (index > 0)) " $index" else ""
                 val offlineLabel = if (voice.isOffline) " [Offline]" else ""
 
                 val name = "$lang ($genderLabel$indexLabel$offlineLabel)"

@@ -10,6 +10,7 @@ interface BibleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTranslation(translation: TranslationEntity)
 
+    @Suppress("unused")
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertVerses(verses: List<Verse>)
 
@@ -20,7 +21,7 @@ interface BibleDao {
     suspend fun getAvailableTranslations(): List<TranslationEntity>
 
     @Query(
-        "SELECT * FROM translations WHERE code IN (SELECT DISTINCT translation_code FROM verses) OR code IN ('ENG', 'MAL')",
+        "SELECT * FROM translations WHERE code IN (SELECT DISTINCT translation_code FROM verses) OR code IN ('ENG')",
     )
     suspend fun getDownloadedTranslations(): List<TranslationEntity>
 

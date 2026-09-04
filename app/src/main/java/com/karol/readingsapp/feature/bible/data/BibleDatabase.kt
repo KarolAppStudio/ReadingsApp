@@ -46,7 +46,7 @@ abstract class BibleDatabase : RoomDatabase() {
             db.execSQL(
                 "DELETE FROM translations WHERE code IN ('POL', 'KHM', 'MIZ') OR language IN ('Polish', 'pl', 'Khmer', 'km')",
             )
-            db.execSQL("DELETE FROM verses WHERE translation_code IN ('KHM', 'MIZ')")
+            db.execSQL("DELETE FROM verses WHERE translation_code IN ('KHM', 'MIZ', 'MAL')")
 
             // Skip integrity check on every open to speed up loading
             // Only use it if you suspect corruption

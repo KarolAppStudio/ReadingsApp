@@ -96,9 +96,8 @@ class LanguageService(
 
         val statusMap = downloadedLanguages.associateWith { LanguageStatus.DOWNLOADED }.toMutableMap()
 
-        // English and Malayalam are pre-packaged in the APK (via bibles.db asset)
+        // English is pre-packaged in the APK (via bibles.db asset)
         statusMap["English"] = LanguageStatus.DOWNLOADED
-        statusMap["Malayalam"] = LanguageStatus.DOWNLOADED
 
         _downloadStatus.value = statusMap
 
@@ -368,8 +367,8 @@ class LanguageService(
     }
 
     suspend fun removeLanguage(language: String, code: String) = withContext(Dispatchers.IO) {
-        // Prevent removing core translations if needed (though English/Malayalam logic is elsewhere)
-        if ((code == "ENG") || (code == "MAL")) return@withContext
+        // Prevent removing core translation (English)
+        if (code == "ENG") return@withContext
 
         // Delete from main DB metadata if present
         bibleDao.deleteVersesByTranslation(code)
@@ -399,8 +398,8 @@ class LanguageService(
 
     fun hasAsset(language: String): Boolean {
         val code = getLanguageCode(language)
-        // English and Malayalam are core assets bundled in bibles.db
-        if ((code == "ENG") || (code == "MAL")) return true
+        // English is core asset bundled in bibles.db
+        if (code == "ENG") return true
 
         // Check for both .db and .json assets
         val dbAssetPath = "bibles/$code.db"

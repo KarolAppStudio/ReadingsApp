@@ -1,6 +1,7 @@
 package com.karol.readingsapp.feature.contact.ui
 
 import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,7 +20,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.core.net.toUri
 import com.karol.readingsapp.core.i18n.LocalizedStrings
 import com.karol.readingsapp.core.theme.AdaptiveDimens
 import com.karol.readingsapp.core.ui.components.AutoResizingText
@@ -278,7 +278,7 @@ fun FeedbackDialog(onDismiss: () -> Unit, onSent: () -> Unit) {
                     Button(
                         onClick = {
                             val intent = Intent(Intent.ACTION_SENDTO).apply {
-                                data = "mailto:justkarol@icloud.com".toUri()
+                                data = Uri.fromParts("mailto", "justkarol@icloud.com", null)
                                 putExtra(Intent.EXTRA_SUBJECT, subject)
                                 putExtra(Intent.EXTRA_TEXT, message)
                             }
