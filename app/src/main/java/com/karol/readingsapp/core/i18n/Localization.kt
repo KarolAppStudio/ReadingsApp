@@ -849,7 +849,7 @@ object Localization {
             noReadings = "इस अनुभाग के लिए कोई पाठ निर्धारित नहीं है",
             noReadingsShort = "कोई पाठ नहीं",
             availableBibles = "उपलब्ध बाइबिल",
-            home = "मुख्य",
+            home = "होम",
             calendar = "कैलेंडर",
             bible = "बाइबिल",
             settings = "सेटिंग्स",
@@ -987,7 +987,7 @@ object Localization {
             noReadings = "ഈ വിഭാഗത്തിനായി വായനകളൊന്നും നിശ്ചയിച്ചിട്ടില്ല",
             noReadingsShort = "വായനകളില്ല",
             availableBibles = "ലഭ്യമായ ബൈബിളുകൾ",
-            home = "പ്രധാനം",
+            home = "ഹോം",
             calendar = "കലണ്ടർ",
             bible = "ബൈബിൾ",
             settings = "ക്രമീകരണങ്ങൾ",
@@ -1078,7 +1078,7 @@ object Localization {
             chapter = "அதிகாரம்",
             verse = "வசனம்",
             developerNoteTitle = "டெவலப்பர் குறிப்பு",
-            developerNoteContent = "சமுதாயத்திற்காக அர்த்தமுள்ள ஒன்றை உருவாக்குவதற்கான এই வாய்ப்பை வழங்கிய " +
+            developerNoteContent = "சமுதாயத்திற்காக அர்த்தமுள்ள ஒன்றை உருவாக்குவதற்கான இந்த வாய்ப்பை வழங்கிய " +
                 "இறைவனுக்கு எங்களது மனமார்ந்த நன்றியைத் தெரிவித்துக் கொள்கிறோம்.",
             appDescription = "பல மொழிபெயர்ப்பு ஆதரவுடன் உங்களின் தினசரி பைபிள் வாசிப்புத் திட்டத்தைப் பின்பற்ற " +
                 "உதவும் எளிய செயலி.",
@@ -1125,8 +1125,8 @@ object Localization {
             noReadings = "ఈ విభాగానికి ఎటువంటి పఠనాలు షెడ్యూల్ చేయబడలేదు",
             noReadingsShort = "పఠనాలు లేవు",
             availableBibles = "అందుబాటులో ఉన్న బైబిళ్లు",
-            home = "మొదటి పేజీ",
-            calendar = "క్యాలెンダー",
+            home = "హోమ్",
+            calendar = "క్యాలెండర్",
             bible = "బైబిల్",
             settings = "సెట్టింగ్‌లు",
             about = "గురించి",
