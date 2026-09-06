@@ -52,7 +52,7 @@ class LanguageService(
             "tamil" -> "தமிழ்"
             "telugu" -> "తెలుగు"
             "mizo" -> "Mizo"
-            "farsi" -> "فಾರಸಿ"
+            "farsi" -> "فارسی"
             else -> name
         }
     }

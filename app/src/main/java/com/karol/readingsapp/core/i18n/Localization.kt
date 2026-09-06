@@ -1,7 +1,6 @@
 package com.karol.readingsapp.core.i18n
 
 import org.json.JSONObject
-import java.text.NumberFormat
 import java.util.Locale
 
 data class LocalizedStrings(
@@ -1441,10 +1440,13 @@ object Localization {
     }
 
     fun localizeDigits(text: String, locale: Locale): String {
-        val nf = NumberFormat.getIntegerInstance(locale)
-        val zero = nf.format(0)
-        if (zero == "0") return text
-        val zeroChar = zero[0]
+        val zeroChar = when (locale.language.lowercase()) {
+            "fa" -> '۰'
+            "ar" -> '٠'
+            "hi" -> '०'
+            "bn" -> '০'
+            else -> return text
+        }
         val offset = zeroChar - '0'
         return text.map { char ->
             if (char in ('0'..'9')) (char + offset) else char
