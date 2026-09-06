@@ -220,7 +220,7 @@ fun SettingsTopBar(strings: LocalizedStrings, onHomeClick: () -> Unit) {
                     imageVector = Icons.Default.Home,
                     contentDescription = strings.home,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
+                    modifier = Modifier.size(AdaptiveDimens.iconSizeMedium),
                 )
             }
 
@@ -392,10 +392,10 @@ fun DownloadSettings(
 
                 // English and Malayalam are pre-installed and marked as DOWNLOADED in LanguageService init.
                 // We keep a hardcoded check here as a safety measure.
-                val isCore = translation.code.uppercase() == "ENG" ||
-                    translation.code.uppercase() == "MAL" ||
-                    translation.language.equals("English", ignoreCase = true) ||
-                    translation.language.equals("Malayalam", ignoreCase = true)
+                val isCore = (translation.code.uppercase() == "ENG") ||
+                    (translation.code.uppercase() == "MAL") ||
+                    (translation.language.equals("English", ignoreCase = true)) ||
+                    (translation.language.equals("Malayalam", ignoreCase = true))
 
                 val effectiveStatus = if (isCore) {
                     LanguageStatus.DOWNLOADED

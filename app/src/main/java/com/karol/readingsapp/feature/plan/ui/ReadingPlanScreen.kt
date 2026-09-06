@@ -165,7 +165,7 @@ fun ReadingPlanTopBar(
                         imageVector = Icons.Default.Home,
                         contentDescription = strings.home,
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
+                        modifier = Modifier.size(AdaptiveDimens.iconSizeMedium),
                     )
                 }
 
@@ -309,9 +309,9 @@ fun ReadingDayItem(
                         style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
                     )
                 } else {
-                    readings.forEach { reading ->
-                        val bookName = strings.bookNames[reading.bookId] ?: reading.bookName
-                        val chapters = Localization.localizeDigits(reading.chaptersStr, strings.locale)
+                    readings.forEach { item ->
+                        val bookName = strings.bookNames[item.bookId] ?: item.bookName
+                        val chapters = Localization.localizeDigits(item.chaptersStr, strings.locale)
                         AutoResizingText(
                             text = "$bookName $chapters",
                             fontSize = AdaptiveDimens.smallFontSize,

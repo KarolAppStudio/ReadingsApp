@@ -73,7 +73,7 @@ private fun RowScope.AppNavigationBarItem(selected: Boolean, icon: ImageVector, 
             Icon(
                 icon,
                 contentDescription = label,
-                modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 30.dp else 24.dp),
+                modifier = Modifier.size(AdaptiveDimens.iconSizeSmall),
             )
         },
         label = {

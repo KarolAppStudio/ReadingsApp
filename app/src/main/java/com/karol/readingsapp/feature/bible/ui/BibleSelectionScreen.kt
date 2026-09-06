@@ -204,7 +204,7 @@ fun SelectionTopBar(
                     imageVector = Icons.Default.Home,
                     contentDescription = strings.home,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(if (AdaptiveDimens.fontScale > 1.0f) 40.dp else 30.dp),
+                    modifier = Modifier.size(AdaptiveDimens.iconSizeMedium),
                 )
             }
 
