@@ -368,9 +368,7 @@ fun HomeHeader(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 4.dp),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Box(modifier = Modifier.align(Alignment.CenterEnd)) {
                 Surface(
