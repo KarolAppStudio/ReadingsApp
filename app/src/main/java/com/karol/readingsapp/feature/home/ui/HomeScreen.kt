@@ -1,7 +1,6 @@
 package com.karol.readingsapp.feature.home.ui
 
 import android.app.Activity
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -180,29 +178,17 @@ fun HomeScreen(
                     }
                 },
                 actions = {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(end = 8.dp),
+                    IconButton(
+                        onClick = { (context as? Activity)?.finishAffinity() },
+                        modifier = Modifier
+                            .padding(end = 20.dp)
+                            .size(30.dp),
                     ) {
-                        OutlinedIconButton(
-                            onClick = { (context as? Activity)?.finishAffinity() },
+                        Icon(
+                            imageVector = Icons.Default.PowerSettingsNew,
+                            contentDescription = strings.exit,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(30.dp),
-                            shape = CircleShape,
-                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-                            colors = IconButtonDefaults.outlinedIconButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary,
-                            ),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PowerSettingsNew,
-                                contentDescription = strings.exit,
-                                modifier = Modifier.size(16.dp),
-                            )
-                        }
-                        Text(
-                            text = strings.exit,
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
-                            color = MaterialTheme.colorScheme.primary,
                         )
                     }
                 },
